@@ -17,6 +17,10 @@ class UserAccessLog extends Model
         'context',
     ];
 
+    /**
+     * Se castea context como arreglo para facilitar auditoría,
+     * depuración y futura extensión de metadatos de acceso.
+     */
     protected function casts(): array
     {
         return [
