@@ -1,56 +1,28 @@
-<div class="flex flex-col gap-6 max-w-2xl">
-    <div>
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Crear usuario
-        </h1>
-    </div>
+<x-ui.panel title="Crear usuario" description="Registra un nuevo usuario para el acceso al sistema." size="xl">
+    <form wire:submit.prevent="save" class="space-y-5">
+        <x-ui.input label="Nombre" wire:model="name" placeholder="Nombre completo del usuario" :error="$errors->first('name')"
+            required />
 
-    <form wire:submit.prevent="save" class="flex flex-col gap-4">
-        <div>
-            <label class="text-sm">Nombre</label>
-            <input type="text" wire:model="name" class="w-full border rounded p-2">
-            @error('name')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
+        <x-ui.input label="Usuario" wire:model="username" placeholder="Nombre de usuario para iniciar sesión"
+            :error="$errors->first('username')" required />
 
-        <div>
-            <label class="text-sm">Usuario</label>
-            <input type="text" wire:model="username" class="w-full border rounded p-2">
-            @error('username')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
+        <x-ui.input type="email" label="Correo electrónico" wire:model="email" placeholder="correo@irya.unam.mx"
+            :error="$errors->first('email')" />
 
-        <div>
-            <label class="text-sm">Correo</label>
-            <input type="email" wire:model="email" class="w-full border rounded p-2">
-            @error('email')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
+        <x-ui.input type="password" label="Contraseña" wire:model="password" placeholder="Contraseña inicial"
+            :error="$errors->first('password')" required />
 
-        <div>
-            <label class="text-sm">Contraseña</label>
-            <input type="password" wire:model="password" class="w-full border rounded p-2">
-            @error('password')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
+        <x-ui.checkbox wire:model="is_active" label="Usuario activo"
+            description="Permite que el usuario pueda iniciar sesión en el sistema." />
 
-        <div class="flex items-center gap-2">
-            <input type="checkbox" wire:model="is_active">
-            <label class="text-sm">Activo</label>
-        </div>
-
-        <div class="flex gap-2">
-            <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded">
-                Guardar
-            </button>
-
-            <a href="{{ route('sys.users.index') }}" class="px-4 py-2 border rounded">
+        <div class="flex items-center justify-end gap-3 pt-4">
+            <x-ui.button href="{{ route('sys.users.index') }}" variant="secondary">
                 Cancelar
-            </a>
+            </x-ui.button>
+
+            <x-ui.button type="submit" variant="primary">
+                Guardar usuario
+            </x-ui.button>
         </div>
     </form>
-</div>
+</x-ui.panel>

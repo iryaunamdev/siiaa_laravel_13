@@ -2,6 +2,7 @@
 
 use App\Livewire\Sys\Users\Index as UsersIndex;
 use App\Livewire\Sys\Users\Create as UsersCreate;
+use App\Livewire\Sys\Users\Edit as UsersEdit;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -16,6 +17,9 @@ Route::middleware(['auth', 'verified', 'can:sys.users.view'])->group(function ()
     Route::get('sys/users/create', UsersCreate::class)
         ->middleware('can:sys.users.create')
         ->name('sys.users.create');
+    Route::get('sys/users/{user}/edit', UsersEdit::class)
+        ->middleware('can:sys.users.update')
+        ->name('sys.users.edit');
 });
 
 

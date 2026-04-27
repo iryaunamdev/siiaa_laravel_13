@@ -1,87 +1,53 @@
-<div class="flex flex-col gap-6 max-w-2xl">
-    <div>
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Editar usuario
-        </h1>
+<x-ui.panel title="Editar usuario" description="Actualiza la información básica y los roles asignados al usuario."
+    size="xl">
+    <form wire:submit.prevent="save" class="space-y-5">
+        <x-ui.input label="Nombre" wire:model="name" placeholder="Nombre completo del usuario" :error="$errors->first('name')"
+            required />
 
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-            Actualiza la información básica del usuario seleccionado.
-        </p>
-    </div>
+        <x-ui.input label="Usuario" wire:model="username" placeholder="Nombre de usuario para iniciar sesión"
+            :error="$errors->first('username')" required />
 
-    <form wire:submit.prevent="save" class="flex flex-col gap-4">
-        <div>
-            <label class="text-sm">Nombre</label>
-            <input type="text" wire:model="name" class="w-full border rounded p-2">
-            @error('name')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
+        <x-ui.input type="email" label="Correo electrónico" wire:model="email" placeholder="correo@irya.unam.mx"
+            :error="$errors->first('email')" />
 
-        <div>
-            <label class="text-sm">Usuario</label>
-            <input type="text" wire:model="username" class="w-full border rounded p-2">
-            @error('username')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div>
-            <label class="text-sm">Correo</label>
-            <input type="email" wire:model="email" class="w-full border rounded p-2">
-            @error('email')
-                <span class="text-red-500 text-xs">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div class="flex items-center gap-2">
-            <input type="checkbox" wire:model="is_active">
-            <label class="text-sm">Activo</label>
-        </div>
+        <x-ui.checkbox wire:model="is_active" label="Usuario activo"
+            description="Permite que el usuario pueda iniciar sesión en el sistema." />
 
         @can('sys.users.assign-roles')
-            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                <div class="mb-3">
-                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-                        Roles asignados
-                    </h2>
-
-                    <p class="text-xs text-gray-600 dark:text-gray-400">
-                        El sistema administra privilegios únicamente por roles.
-                    </p>
-                </div>
-
-                <div class="flex flex-col gap-2">
+            <x-ui.panel title="Roles asignados" description="El sistema administra privilegios únicamente por roles."
+                size="full" padding="sm">
+                <div class="space-y-3">
                     @forelse ($availableRoles as $role)
-                        <label class="flex items-center gap-2 text-sm">
-                            <input type="checkbox" wire:model="selectedRoles" value="{{ $role }}">
-                            <span>{{ $role }}</span>
-                        </label>
+                        <x-ui.checkbox wire:model="selectedRoles" value="{{ $role }}" label="{{ $role }}" />
                     @empty
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            No existen roles disponibles.
-                        </p>
+                        <x-ui.alert variant="info">
+                            No existen roles disponibles para asignar.
+                        </x-ui.alert>
                     @endforelse
+
+                    @error('selectedRoles')
+                        <p class="text-xs text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
+
+                    @error('selectedRoles.*')
+                        <p class="text-xs text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
-
-                @error('selectedRoles')
-                    <span class="mt-2 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-
-                @error('selectedRoles.*')
-                    <span class="mt-2 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
+            </x-ui.panel>
         @endcan
 
-        <div class="flex gap-2">
-            <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded">
-                Guardar cambios
-            </button>
-
-            <a href="{{ route('sys.users.index') }}" class="px-4 py-2 border rounded">
+        <div class="flex items-center justify-end gap-3 pt-4">
+            <x-ui.button href="{{ route('sys.users.index') }}" variant="secondary">
                 Cancelar
-            </a>
+            </x-ui.button>
+
+            <x-ui.button type="submit" variant="primary">
+                Guardar cambios
+            </x-ui.button>
         </div>
     </form>
-</div>
+</x-ui.panel>
