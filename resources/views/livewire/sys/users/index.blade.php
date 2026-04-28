@@ -1,7 +1,7 @@
 <x-ui.panel title="Administración de usuarios" description="Listado de usuarios registrados en el sistema." size="full">
     <x-slot:actions>
-        @can('sys.users.create')
-            <x-ui.button href="{{ route('sys.users.create') }}" variant="primary" size="sm">
+        @can('users.create')
+            <x-ui.button type="button" wire:click="openCreateModal" variant="primary" size="sm">
                 Crear usuario
             </x-ui.button>
         @endcan
@@ -75,8 +75,8 @@
                     </x-ui.table.cell>
 
                     <x-ui.table.cell align="right">
-                        @can('sys.users.update')
-                            <x-ui.button href="{{ route('sys.users.edit', $user) }}" variant="link" size="sm">
+                        @can('users.update')
+                            <x-ui.button wire:click="openEditModal({{ $user->id }})" variant="link" size="sm">
                                 Editar
                             </x-ui.button>
                         @endcan
@@ -89,4 +89,6 @@
             @endforelse
         </x-ui.table.body>
     </x-ui.table>
+
+    @include('livewire.sys.users._form-modal')
 </x-ui.panel>
