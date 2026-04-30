@@ -67,12 +67,12 @@
             </div>
 
             <div class="min-w-0">
-                <h3 class="text-base font-semibold text-slate-900">
+                <h3 class="text-base font-semibold text-zinc-900">
                     {{ $title }}
                 </h3>
 
                 @if ($description)
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="mt-1 text-sm text-zinc-500">
                         {{ $description }}
                     </p>
                 @endif
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
+        <div class="flex justify-end gap-3 border-t border-zinc-100 pt-4">
             <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal')"
                 wire:click="$set('{{ $model }}', false)">
                 {{ $cancelText }}

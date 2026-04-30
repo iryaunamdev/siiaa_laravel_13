@@ -72,7 +72,7 @@
         $isChecked = !is_null($oldValue) ? (string) $oldValue === (string) $value : false;
     }
 
-    $baseClasses = 'h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500/30 transition';
+    $baseClasses = 'h-4 w-4 border-zinc-300 text-blue-600 focus:ring-blue-500/30 transition';
     $stateClasses = $resolvedError ? 'border-red-300 focus:ring-red-500/30' : '';
 
     $disabledClasses = $disabled ? 'opacity-50 cursor-not-allowed' : '';
@@ -93,7 +93,7 @@
             @if ($label || $helpPopover)
                 <div class="flex items-center gap-2">
                     @if ($label)
-                        <label for="{{ $inputId }}" class="text-sm text-slate-700">
+                        <label for="{{ $inputId }}" class="text-sm text-zinc-700">
                             {{ $label }}
                         </label>
                     @endif
@@ -101,7 +101,7 @@
                     @if ($helpPopover)
                         <div x-data="{ open: false }" class="relative">
                             <button type="button"
-                                class="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                class="inline-flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                 @mouseenter="open = true" @mouseleave="open = false" @focus="open = true"
                                 @blur="open = false" @click="open = !open" :aria-expanded="open.toString()"
                                 aria-controls="{{ $popoverId }}">
@@ -121,14 +121,14 @@
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 translate-y-1" @mouseenter="open = true"
                                 @mouseleave="open = false" x-cloak
-                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-4 shadow-lg">
                                 @if ($helpPopoverTitle)
-                                    <div class="mb-1 text-sm font-semibold text-slate-800">
+                                    <div class="mb-1 text-sm font-semibold text-zinc-800">
                                         {{ $helpPopoverTitle }}
                                     </div>
                                 @endif
 
-                                <div class="text-sm leading-6 text-slate-600">
+                                <div class="text-sm leading-6 text-zinc-600">
                                     {{ $helpPopover }}
                                 </div>
                             </div>
@@ -142,7 +142,7 @@
                     {{ $resolvedError }}
                 </p>
             @elseif ($help)
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-zinc-500">
                     {{ $help }}
                 </p>
             @endif

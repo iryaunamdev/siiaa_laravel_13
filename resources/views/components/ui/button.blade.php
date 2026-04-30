@@ -97,16 +97,16 @@
 @php
     // Tamaños
     $sizeClasses = match ($size) {
-        'sm' => $iconOnly ? 'p-2' : 'px-3 py-2 text-sm',
-        default => $iconOnly ? 'p-2.5' : 'px-4 py-2 text-sm',
+        'sm' => $iconOnly ? 'p-2' : 'px-3 py-3 text-sm',
+        default => $iconOnly ? 'p-2.5' : 'px-4 py-3 text-sm',
     };
 
     // Variantes
     $variantClasses = match ($variant) {
-        'secondary' => 'bg-slate-200 text-slate-800 hover:bg-slate-300',
+        'secondary' => 'bg-white border border-zinc-300 text-zinc-800 hover:bg-zinc-200/80',
         'danger' => 'bg-red-600 text-white hover:bg-red-700',
-        'ghost' => 'text-slate-700 hover:bg-slate-100',
-        'link' => 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
+        'ghost' => 'text-zinc-700 hover:bg-zinc-100',
+        'link' => 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100',
         default => 'bg-blue-600 text-white hover:bg-blue-700', // primary
     };
 
@@ -114,7 +114,7 @@
     $disabledClasses = $disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
 
     // Base común
-    $baseClasses = "inline-flex items-center justify-center gap-2 rounded-lg transition-all duration-200 ease-out focus:outline-none {$sizeClasses} {$variantClasses} {$disabledClasses}";
+    $baseClasses = "inline-flex items-center justify-center gap-2 align-middle rounded-lg leading-none transition-all duration-200 ease-out focus:outline-none {$sizeClasses} {$variantClasses} {$disabledClasses}";
 @endphp
 
 @if ($href)
@@ -140,13 +140,15 @@
             'class' => $baseClasses,
         ]) }}>
         @isset($icon)
-            <span class="shrink-0">
+            <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
                 {{ $icon }}
             </span>
         @endisset
 
         @unless ($iconOnly)
-            <span>{{ $slot }}</span>
+            <span class="inline-flex items-center leading-none">
+                {{ $slot }}
+            </span>
         @endunless
     </button>
 @endif

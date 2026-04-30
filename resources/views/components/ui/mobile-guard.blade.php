@@ -10,12 +10,12 @@
                 <div class="w-full max-w-lg">
                     <x-ui.panel>
                         <x-slot:header>
-                            <h2 class="text-sm font-semibold text-slate-800">
+                            <h2 class="text-sm font-semibold text-zinc-800">
                                 Resolución insuficiente
                             </h2>
                         </x-slot:header>
 
-                        <div class="text-sm text-slate-600">
+                        <div class="text-sm text-zinc-600">
                             Este módulo requiere una resolución mínima recomendada equivalente a una tablet en
                             orientación horizontal.
                         </div>

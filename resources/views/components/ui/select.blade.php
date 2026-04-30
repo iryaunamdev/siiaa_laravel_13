@@ -149,15 +149,15 @@
     | Estética SIIAA: interacción sutil, elegante, viva y no recargada.
     */
     $baseClasses =
-        'w-full appearance-none border bg-white text-slate-800 shadow-sm outline-none transition duration-200 ease-out';
+        'w-full appearance-none border bg-white text-zinc-800 shadow-sm outline-none transition duration-200 ease-out';
 
     $stateClasses = $hasError
         ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100'
-        : 'border-slate-300 hover:border-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100';
+        : 'border-zinc-300 hover:border-zinc-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100';
 
     $disabledClasses = $disabled
-        ? 'cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200 opacity-80'
-        : 'hover:bg-slate-50/60';
+        ? 'cursor-not-allowed bg-zinc-100 text-zinc-400 border-zinc-200 opacity-80'
+        : 'hover:bg-zinc-50/60';
 
     $selectClasses = implode(' ', [
         $baseClasses,
@@ -234,7 +234,7 @@
 <div {{ $attributes->except(['value', 'class'])->class(['w-full']) }}>
     @if ($label)
         <div class="mb-1.5 flex items-center gap-2">
-            <label for="{{ $fieldId }}" class="inline-flex items-center gap-1 text-sm font-medium text-slate-700">
+            <label for="{{ $fieldId }}" class="inline-flex items-center gap-1 text-sm font-medium text-zinc-700">
                 <span>{{ $label }}</span>
 
                 @if ($required)
@@ -245,7 +245,7 @@
             @if ($helpPopover)
                 <div class="relative inline-flex" x-data="{ open: false }">
                     <button type="button"
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 bg-white text-[11px] text-slate-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
+                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-300 bg-white text-[11px] text-zinc-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
                         @mouseenter="open = true" @mouseleave="open = false" @focus="open = true" @blur="open = false"
                         aria-label="Mostrar ayuda">
                         ?
@@ -257,7 +257,7 @@
                         x-transition:leave="transition ease-in duration-150"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 translate-y-1"
-                        class="absolute left-0 top-full z-20 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-600 shadow-lg">
+                        class="absolute left-0 top-full z-20 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-3 text-sm leading-relaxed text-zinc-600 shadow-lg">
                         {{ $helpPopover }}
                     </div>
                 </div>
@@ -285,7 +285,7 @@
 
             @if (!$multiple)
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg class="h-4 w-4 text-slate-400 transition duration-200 ease-out" viewBox="0 0 20 20"
+                    <svg class="h-4 w-4 text-zinc-400 transition duration-200 ease-out" viewBox="0 0 20 20"
                         fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd"
                             d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
@@ -300,7 +300,7 @@
                 {{ $errorMessage }}
             </p>
         @elseif($help)
-            <p class="mt-1.5 text-sm text-slate-500">
+            <p class="mt-1.5 text-sm text-zinc-500">
                 {{ $help }}
             </p>
         @endif

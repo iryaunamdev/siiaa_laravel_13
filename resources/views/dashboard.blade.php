@@ -36,5 +36,8 @@
         </x-ui.accordion-item>
     </x-ui.accordion>
 
+    <x-ui.button type="button" x-on:click="$dispatch('toast', { type: 'success', message: 'Toast funcionando' })">
+        Probar toast
+    </x-ui.button>
 
 </x-layouts::app>

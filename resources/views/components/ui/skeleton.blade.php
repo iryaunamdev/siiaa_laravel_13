@@ -35,7 +35,7 @@
 @php
     $animationClass = $animated ? 'animate-pulse' : '';
 
-    $baseClass = trim("bg-slate-200 {$rounded} {$animationClass}");
+    $baseClass = trim("bg-zinc-200 {$rounded} {$animationClass}");
 
     $defaultSizes = [
         'line' => [

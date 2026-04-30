@@ -42,16 +42,16 @@
 @if ($paginator && $paginator->hasPages())
     <div
         {{ $attributes->merge([
-            'class' => "flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center {$alignClasses}",
+            'class' => "flex flex-col gap-3 border-t border-zinc-100 px-4 py-3 sm:flex-row sm:items-center {$alignClasses}",
         ]) }}>
         @if (!$simple && method_exists($paginator, 'firstItem'))
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-zinc-500">
                 Mostrando
-                <span class="font-medium text-slate-700">{{ $paginator->firstItem() }}</span>
+                <span class="font-medium text-zinc-700">{{ $paginator->firstItem() }}</span>
                 a
-                <span class="font-medium text-slate-700">{{ $paginator->lastItem() }}</span>
+                <span class="font-medium text-zinc-700">{{ $paginator->lastItem() }}</span>
                 de
-                <span class="font-medium text-slate-700">{{ $paginator->total() }}</span>
+                <span class="font-medium text-zinc-700">{{ $paginator->total() }}</span>
                 registros
             </p>
         @endif

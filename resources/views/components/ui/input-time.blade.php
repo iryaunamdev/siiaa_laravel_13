@@ -79,17 +79,17 @@
     $inputClasses = $compact ? 'h-9 px-3 py-1.5 text-sm' : 'h-10 px-3 py-2 text-sm';
 
     $baseClasses =
-        'block w-full rounded-xl border bg-white text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500';
+        'block w-full rounded-xl border bg-white text-zinc-800 shadow-sm transition placeholder:text-zinc-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500';
 
     $stateClasses = $fieldError
         ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-        : 'border-slate-300 focus:border-sky-500 focus:ring-sky-500/20';
+        : 'border-zinc-300 focus:border-sky-500 focus:ring-sky-500/20';
 @endphp
 
 <div class="space-y-1.5">
     @if ($label)
         <div class="flex items-center gap-2">
-            <label for="{{ $id }}" class="block text-sm font-medium text-slate-700">
+            <label for="{{ $id }}" class="block text-sm font-medium text-zinc-700">
                 {{ $label }}
 
                 @if ($required)
@@ -101,13 +101,13 @@
                 <div class="relative inline-flex" x-data="{ open: false }">
                     <button type="button" x-on:mouseenter="open = true" x-on:mouseleave="open = false"
                         x-on:focus="open = true" x-on:blur="open = false"
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs font-semibold text-slate-500 hover:bg-slate-50"
+                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-300 text-xs font-semibold text-zinc-500 hover:bg-zinc-50"
                         aria-label="Ayuda">
                         ?
                     </button>
 
                     <div x-show="open" x-transition.opacity.duration.150ms
-                        class="absolute left-0 top-6 z-30 w-64 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-600 shadow-lg">
+                        class="absolute left-0 top-6 z-30 w-64 rounded-xl border border-zinc-200 bg-white p-3 text-xs leading-5 text-zinc-600 shadow-lg">
                         {{ $helpText }}
                     </div>
                 </div>
@@ -125,7 +125,7 @@
         ]) }}>
 
     @if ($help)
-        <p class="text-xs leading-5 text-slate-500">
+        <p class="text-xs leading-5 text-zinc-500">
             {{ $help }}
         </p>
     @endif

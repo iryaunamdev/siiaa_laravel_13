@@ -29,8 +29,8 @@
 
     $variants = [
         'default' => 'bg-sky-100 text-sky-700 ring-sky-200',
-        'neutral' => 'bg-slate-100 text-slate-700 ring-slate-200',
-        'dark' => 'bg-slate-800 text-white ring-slate-700',
+        'neutral' => 'bg-zinc-100 text-zinc-700 ring-zinc-200',
+        'dark' => 'bg-zinc-800 text-white ring-zinc-700',
         'success' => 'bg-green-100 text-green-700 ring-green-200',
         'warning' => 'bg-yellow-100 text-yellow-700 ring-yellow-200',
         'danger' => 'bg-red-100 text-red-700 ring-red-200',

@@ -42,7 +42,7 @@
         default => 'grid-cols-1 md:grid-cols-2',
     };
 
-    $borderClass = $bordered ? 'border border-slate-200 rounded-xl' : '';
+    $borderClass = $bordered ? 'border border-zinc-200 rounded-xl' : '';
     $paddingClass = $padding ? 'p-5' : '';
 @endphp
 
@@ -53,13 +53,13 @@
         <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 @if ($title)
-                    <h3 class="text-base font-semibold text-slate-900">
+                    <h3 class="text-base font-semibold text-zinc-900">
                         {{ $title }}
                     </h3>
                 @endif
 
                 @if ($description)
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="mt-1 text-sm text-zinc-500">
                         {{ $description }}
                     </p>
                 @endif

@@ -33,22 +33,22 @@
 @endphp
 
 <nav {{ $attributes->merge([
-    'class' => 'hidden min-w-0 items-center gap-2 text-sm text-slate-500 sm:flex',
+    'class' => 'hidden min-w-0 items-center gap-2 text-sm text-zinc-500 sm:flex',
 ]) }}
     aria-label="Breadcrumb">
-    <a href="{{ $homeUrl }}" class="transition hover:text-slate-800">
+    <a href="{{ $homeUrl }}" class="transition hover:text-zinc-800">
         {{ $homeLabel }}
     </a>
 
     @foreach ($items as $item)
-        <span class="text-slate-300">/</span>
+        <span class="text-zinc-300">/</span>
 
         @if (!empty($item['url']))
-            <a href="{{ $item['url'] }}" class="truncate transition hover:text-slate-800">
+            <a href="{{ $item['url'] }}" class="truncate transition hover:text-zinc-800">
                 {{ $item['label'] }}
             </a>
         @else
-            <span class="truncate font-medium text-slate-700">
+            <span class="truncate font-medium text-zinc-700">
                 {{ $item['label'] }}
             </span>
         @endif

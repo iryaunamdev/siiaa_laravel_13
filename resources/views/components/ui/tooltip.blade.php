@@ -61,7 +61,7 @@
     {{-- Tooltip --}}
     <div x-show="show" x-transition.opacity.scale.95 x-cloak
         class="pointer-events-none absolute z-50 {{ $positionClass }}">
-        <div class="rounded-md bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
+        <div class="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
             {{ $content }}
         </div>
     </div>

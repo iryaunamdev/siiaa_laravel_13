@@ -23,7 +23,7 @@
 
     $classes = $danger
         ? 'text-red-600 hover:bg-red-50 hover:text-red-700'
-        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900';
+        : 'text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900';
 @endphp
 
 <a href="{{ $href }}"

@@ -16,9 +16,16 @@
                     Usuarios
                 </x-ui.menu.item>
             </x-ui.menu>
+            @role('super-admin')
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('sys.roles-permisos.index')" :active="request()->routeIs('roles*.*')">
+                        Roles y permisos
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endrole
         </div>
         <div>
-            <div class="mt-6 border-t border-slate-200 pt-4">
+            <div class="mt-6 border-t border-zinc-200 pt-4">
                 <x-ui.menu>
                     <x-ui.menu.item :href="route('profile.edit')" :active="request()->routeIs('settings.*')">
                         Perfil

@@ -62,15 +62,15 @@
     };
 
     $stateClasses = $resolvedError
-        ? 'border-red-300 text-slate-900 placeholder:text-slate-400 focus:border-red-500 focus:ring-red-500'
-        : 'border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500';
+        ? 'border-red-300 text-zinc-900 placeholder:text-zinc-400 focus:border-red-500 focus:ring-red-500'
+        : 'border-zinc-300 text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500';
 
-    $disabledClasses = $disabled ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white';
+    $disabledClasses = $disabled ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed' : 'bg-white';
 
     $classes = implode(
         ' ',
         array_filter([
-            'block w-full rounded-lg border shadow-sm transition-colors duration-200 ease-out focus:outline-none focus:ring-2/20',
+            'block w-full rounded-lg border shadow-sm transition-colors duration-zinc ease-out focus:outline-none focus:ring-2/20',
             $sizeClasses,
             $stateClasses,
             $disabledClasses,
@@ -81,7 +81,7 @@
 <div class="w-full">
     @if ($label)
         <div class="mb-1.5 flex items-center gap-2">
-            <label for="{{ $inputId }}" class="block text-sm font-medium text-slate-700">
+            <label for="{{ $inputId }}" class="block text-sm font-medium text-zinc-700">
                 {{ $label }}
 
                 @if ($required)
@@ -92,10 +92,10 @@
             @if ($helpPopover)
                 <div x-data="{ open: false }" class="relative inline-flex items-center">
                     <button type="button"
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        class="inline-flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         @mouseenter="open = true" @mouseleave="open = false" @focus="open = true" @blur="open = false"
                         @click="open = !open" :aria-expanded="open.toString()" aria-controls="{{ $popoverId }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"
+                        <svg xmlns="http://www.w3.org/zinc0/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"
                             aria-hidden="true">
                             <path fill-rule="evenodd"
                                 d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-3a1 1 0 10-2 0 1 1 0 002 0zm-2 3a1 1 0 000 2v2a1 1 0 102 0v-3a1 1 0 00-1-1H9z"
@@ -110,14 +110,14 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 translate-y-1" @mouseenter="open = true"
                         @mouseleave="open = false" x-cloak
-                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-zinc bg-white p-4 shadow-lg">
                         @if ($helpPopoverTitle)
-                            <div class="mb-1 text-sm font-semibold text-slate-800">
+                            <div class="mb-1 text-sm font-semibold text-zinc-800">
                                 {{ $helpPopoverTitle }}
                             </div>
                         @endif
 
-                        <div class="text-sm leading-6 text-slate-600">
+                        <div class="text-sm leading-6 text-zinc-600">
                             {{ $helpPopover }}
                         </div>
                     </div>
@@ -144,7 +144,7 @@
             {{ $resolvedError }}
         </p>
     @elseif ($resolvedHelp)
-        <p class="mt-1.5 text-sm text-slate-500">
+        <p class="mt-1.5 text-sm text-zinc-500">
             {{ $resolvedHelp }}
         </p>
     @endif

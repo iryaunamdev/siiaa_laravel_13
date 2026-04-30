@@ -129,7 +129,7 @@
 
     $trackBase =
         'relative inline-flex shrink-0 items-center rounded-full border transition duration-200 ease-out focus-within:outline-none';
-    $trackState = $hasError ? 'border-red-300 ring-red-100' : 'border-slate-300 ring-sky-100';
+    $trackState = $hasError ? 'border-red-300 ring-red-100' : 'border-zinc-300 ring-sky-100';
 
     $disabledClasses = $disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer';
 @endphp
@@ -144,10 +144,10 @@
             :class="checked
                 ?
                 'bg-sky-600 border-sky-600 shadow-sm hover:bg-sky-700' :
-                'bg-slate-200 hover:bg-slate-300'"
+                'bg-zinc-200 hover:bg-zinc-300'"
             @disabled($disabled)>
             <span
-                class="inline-block rounded-full bg-white shadow-sm ring-1 ring-slate-200 transition duration-200 ease-out {{ $sizes['thumb'] }}"
+                class="inline-block rounded-full bg-white shadow-sm ring-1 ring-zinc-200 transition duration-200 ease-out {{ $sizes['thumb'] }}"
                 :class="checked ? '{{ $sizes['translate'] }}' : 'translate-x-0.5'"></span>
         </button>
 
@@ -158,7 +158,7 @@
             @if ($label)
                 <div class="flex items-center gap-2">
                     <label for="{{ $fieldId }}"
-                        class="inline-flex items-center gap-1 font-medium text-slate-700 {{ $sizes['text'] }}">
+                        class="inline-flex items-center gap-1 font-medium text-zinc-700 {{ $sizes['text'] }}">
                         <span>{{ $label }}</span>
 
                         @if ($required)
@@ -169,7 +169,7 @@
                     @if ($helpPopover)
                         <div class="relative inline-flex" x-data="{ helpOpen: false }">
                             <button type="button"
-                                class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 bg-white text-[11px] text-slate-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
+                                class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-300 bg-white text-[11px] text-zinc-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
                                 @mouseenter="helpOpen = true" @mouseleave="helpOpen = false" @focus="helpOpen = true"
                                 @blur="helpOpen = false" aria-label="Mostrar ayuda">
                                 ?
@@ -181,7 +181,7 @@
                                 x-transition:leave="transition ease-in duration-150"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 translate-y-1"
-                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-600 shadow-lg">
+                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-3 text-sm leading-relaxed text-zinc-600 shadow-lg">
                                 {{ $helpPopover }}
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                     {{ $errorMessage }}
                 </p>
             @elseif($help)
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-zinc-500">
                     {{ $help }}
                 </p>
             @endif

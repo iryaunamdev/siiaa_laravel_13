@@ -179,11 +179,11 @@
 
     $triggerStateClasses = $hasError
         ? 'border-red-300 focus-within:border-red-500 focus-within:ring-4 focus-within:ring-red-100'
-        : 'border-slate-300 hover:border-slate-400 focus-within:border-sky-600 focus-within:ring-4 focus-within:ring-sky-100';
+        : 'border-zinc-300 hover:border-zinc-400 focus-within:border-sky-600 focus-within:ring-4 focus-within:ring-sky-100';
 
     $disabledClasses = $disabled
-        ? 'cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200 opacity-80'
-        : 'bg-white hover:bg-slate-50/60 cursor-pointer';
+        ? 'cursor-not-allowed bg-zinc-100 text-zinc-400 border-zinc-200 opacity-80'
+        : 'bg-white hover:bg-zinc-50/60 cursor-pointer';
 
     /*
     |--------------------------------------------------------------------------
@@ -378,7 +378,7 @@
     }" x-on:keydown.escape.window="close()">
     @if ($label)
         <div class="mb-1.5 flex items-center gap-2">
-            <label for="{{ $fieldId }}" class="inline-flex items-center gap-1 text-sm font-medium text-slate-700">
+            <label for="{{ $fieldId }}" class="inline-flex items-center gap-1 text-sm font-medium text-zinc-700">
                 <span>{{ $label }}</span>
 
                 @if ($required)
@@ -389,7 +389,7 @@
             @if ($helpPopover)
                 <div class="relative inline-flex" x-data="{ helpOpen: false }">
                     <button type="button"
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 bg-white text-[11px] text-slate-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
+                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-300 bg-white text-[11px] text-zinc-500 shadow-sm transition duration-200 ease-out hover:border-sky-400 hover:text-sky-700 hover:shadow focus:outline-none focus:ring-4 focus:ring-sky-100"
                         @mouseenter="helpOpen = true" @mouseleave="helpOpen = false" @focus="helpOpen = true"
                         @blur="helpOpen = false" aria-label="Mostrar ayuda">
                         ?
@@ -401,7 +401,7 @@
                         x-transition:leave="transition ease-in duration-150"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 translate-y-1"
-                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-600 shadow-lg">
+                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-3 text-sm leading-relaxed text-zinc-600 shadow-lg">
                         {{ $helpPopover }}
                     </div>
                 </div>
@@ -427,17 +427,17 @@
             x-on:click="toggle()" @disabled($disabled)>
             <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-left">
                 <template x-if="!hasSelection">
-                    <span class="truncate text-slate-400">
+                    <span class="truncate text-zinc-400">
                         {{ $placeholder }}
                     </span>
                 </template>
 
                 <template x-if="hasSelection && !multiple">
-                    <span class="truncate text-slate-800" x-text="selectedLabel"></span>
+                    <span class="truncate text-zinc-800" x-text="selectedLabel"></span>
                 </template>
 
                 <template x-if="hasSelection && multiple && selectedTextMode === 'summary'">
-                    <span class="truncate text-slate-700">
+                    <span class="truncate text-zinc-700">
                         <span x-text="selectedOptions.length"></span> seleccionados
                     </span>
                 </template>
@@ -463,13 +463,13 @@
             <div class="flex shrink-0 items-center gap-1">
                 <template x-if="clearable && hasSelection && !disabled">
                     <span role="button" tabindex="0"
-                        class="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                        class="rounded-full p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
                         x-on:click.stop="clearSelection()">
                         ×
                     </span>
                 </template>
 
-                <svg class="h-4 w-4 text-slate-400 transition duration-200 ease-out" :class="{ 'rotate-180': open }"
+                <svg class="h-4 w-4 text-zinc-400 transition duration-200 ease-out" :class="{ 'rotate-180': open }"
                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd"
                         d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
@@ -485,22 +485,22 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 translate-y-1 scale-[0.98]"
-            class="absolute z-40 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-            <div class="border-b border-slate-100 p-2">
+            class="absolute z-40 mt-2 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl">
+            <div class="border-b border-zinc-100 p-2">
                 <input x-ref="searchInput" type="text" x-model="search"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition duration-200 ease-out placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                    class="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 outline-none transition duration-200 ease-out placeholder:text-zinc-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
                     placeholder="{{ $searchPlaceholder }}">
             </div>
 
             <div class="max-h-64 overflow-y-auto p-1">
                 <template x-if="options.length === 0">
-                    <div class="px-3 py-2 text-sm text-slate-500">
+                    <div class="px-3 py-2 text-sm text-zinc-500">
                         {{ $emptyText }}
                     </div>
                 </template>
 
                 <template x-if="options.length > 0 && filteredOptions.length === 0">
-                    <div class="px-3 py-2 text-sm text-slate-500">
+                    <div class="px-3 py-2 text-sm text-zinc-500">
                         {{ $noResultsText }}
                     </div>
                 </template>
@@ -511,7 +511,7 @@
                         :class="{
                             'cursor-not-allowed opacity-50': option.disabled,
                             'bg-sky-50 text-sky-900': isSelected(option.value),
-                            'text-slate-700 hover:bg-slate-50 hover:text-slate-950': !isSelected(option.value) && !
+                            'text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950': !isSelected(option.value) && !
                                 option.disabled
                         }"
                         x-on:click="selectOption(option)">
@@ -519,7 +519,7 @@
                             <span class="block truncate font-medium" x-text="option.label"></span>
 
                             <template x-if="option.description">
-                                <span class="block truncate text-xs text-slate-500" x-text="option.description"></span>
+                                <span class="block truncate text-xs text-zinc-500" x-text="option.description"></span>
                             </template>
                         </span>
 
@@ -541,7 +541,7 @@
             {{ $errorMessage }}
         </p>
     @elseif($help)
-        <p class="mt-1.5 text-sm text-slate-500">
+        <p class="mt-1.5 text-sm text-zinc-500">
             {{ $help }}
         </p>
     @endif

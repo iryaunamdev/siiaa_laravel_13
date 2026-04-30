@@ -52,34 +52,34 @@
 
     $styles = [
         'default' => [
-            'wrapper' => 'rounded-xl border border-slate-200 bg-white shadow-sm',
-            'button' => 'px-5 py-4 hover:bg-slate-50',
-            'title' => 'text-slate-900',
-            'description' => 'text-slate-500',
-            'body' => 'border-t border-slate-100 px-5 py-4',
+            'wrapper' => 'rounded-xl border border-zinc-200 bg-white shadow-sm',
+            'button' => 'px-5 py-4 hover:bg-zinc-50',
+            'title' => 'text-zinc-900',
+            'description' => 'text-zinc-500',
+            'body' => 'border-t border-zinc-100 px-5 py-4',
         ],
 
         'form' => [
-            'wrapper' => 'rounded-xl border border-slate-200 bg-white shadow-sm',
-            'button' => 'px-5 py-4 hover:bg-slate-50',
-            'title' => 'text-slate-900',
-            'description' => 'text-slate-500',
-            'body' => 'border-t border-slate-100 px-5 py-5',
+            'wrapper' => 'rounded-xl border border-zinc-200 bg-white shadow-sm',
+            'button' => 'px-5 py-4 hover:bg-zinc-50',
+            'title' => 'text-zinc-900',
+            'description' => 'text-zinc-500',
+            'body' => 'border-t border-zinc-100 px-5 py-5',
         ],
 
         'filter' => [
-            'wrapper' => 'rounded-xl border border-slate-200 bg-slate-50',
-            'button' => 'px-4 py-3 hover:bg-slate-100',
-            'title' => 'text-slate-800',
-            'description' => 'text-slate-500',
-            'body' => 'border-t border-slate-200 px-4 py-4 bg-white',
+            'wrapper' => 'rounded-xl border border-zinc-200 bg-zinc-50',
+            'button' => 'px-4 py-3 hover:bg-zinc-100',
+            'title' => 'text-zinc-800',
+            'description' => 'text-zinc-500',
+            'body' => 'border-t border-zinc-200 px-4 py-4 bg-white',
         ],
 
         'nav' => [
             'wrapper' => 'rounded-lg border border-transparent bg-transparent shadow-none',
-            'button' => 'px-3 py-2 hover:bg-slate-100',
-            'title' => 'text-slate-700',
-            'description' => 'text-slate-400',
+            'button' => 'px-3 py-2 hover:bg-zinc-100',
+            'title' => 'text-zinc-700',
+            'description' => 'text-zinc-400',
             'body' => 'pl-5 pr-2 py-1',
         ],
     ];
@@ -93,7 +93,7 @@
         @disabled($disabled) :aria-expanded="isOpen(@js($itemName)).toString()">
         <div class="flex min-w-0 items-start gap-3">
             @isset($icon)
-                <div class="mt-0.5 shrink-0 text-slate-400">
+                <div class="mt-0.5 shrink-0 text-zinc-400">
                     {{ $icon }}
                 </div>
             @endisset
@@ -120,7 +120,7 @@
                 </div>
             @endisset
 
-            <svg class="h-4 w-4 text-slate-400 transition-transform duration-200"
+            <svg class="h-4 w-4 text-zinc-400 transition-transform duration-200"
                 :class="{ 'rotate-180': isOpen(@js($itemName)) }" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />

@@ -76,7 +76,7 @@
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
         x-on:click.outside="open = false" x-on:keydown.escape.window="open = false"
-        class="absolute z-50 {{ $positionClass }} {{ $alignClass }} {{ $originClass }} {{ $width }} overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5"
+        class="absolute z-50 {{ $positionClass }} {{ $alignClass }} {{ $originClass }} {{ $width }} overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg ring-1 ring-zinc-900/5"
         style="display: none;">
         {{ $slot }}
     </div>

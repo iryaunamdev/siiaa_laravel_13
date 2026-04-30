@@ -1,9 +1,9 @@
-<div class="flex h-full flex-col border-r border-slate-200">
+<div class="flex h-full flex-col border-r border-zinc-200">
     <div class="px-5 py-4">
-        <div class="text-base font-semibold text-slate-800">
+        <div class="text-base font-semibold text-zinc-800">
             SIIAA
         </div>
-        <p class="mt-1 text-sm leading-5 text-slate-500">
+        <p class="mt-1 text-sm leading-5 text-zinc-500">
             Sistema Integral de Información Académica y Administrativa
         </p>
     </div>

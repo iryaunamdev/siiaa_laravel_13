@@ -42,7 +42,7 @@
 
     $variantClasses = [
         'default' => 'text-center',
-        'subtle' => 'text-center text-slate-500',
+        'subtle' => 'text-center text-zinc-500',
     ];
 
     $sizeClass = $sizes[$size] ?? $sizes['md'];
@@ -55,11 +55,11 @@
     ]) }}>
     {{-- Icon --}}
     @if ($icon)
-        <div class="mb-4 text-slate-300">
+        <div class="mb-4 text-zinc-300">
             @isset($icon)
                 {{ $icon }}
             @else
-                <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                <svg class="h-10 w-10" xmlns="http://www.w3.org/zinc0/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 7.5A2.25 2.25 0 015.25 5.25h13.5A2.25 2.25 0 0121 7.5v9A2.25 2.25 0 0118.75 18.75H5.25A2.25 2.25 0 013 16.5v-9z" />
@@ -69,13 +69,13 @@
     @endif
 
     {{-- Title --}}
-    <h3 class="text-base font-semibold text-slate-900">
+    <h3 class="text-base font-semibold text-zinc-900">
         {{ $title }}
     </h3>
 
     {{-- Description --}}
     @if ($description)
-        <p class="mt-1 max-w-md text-sm text-slate-500">
+        <p class="mt-1 max-w-md text-sm text-zinc-500">
             {{ $description }}
         </p>
     @endif

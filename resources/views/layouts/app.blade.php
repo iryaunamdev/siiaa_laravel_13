@@ -10,6 +10,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <x-ui.toast />
     <div x-data="{ sidebarOpen: false }" class="min-h-screen lg:flex">
         {{-- Overlay móvil --}}
         <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"

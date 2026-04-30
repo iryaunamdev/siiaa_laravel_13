@@ -49,7 +49,7 @@
     */
 
     $sizes = [
-        'ch' => 'max-w-screen-sm',
+        'sm' => 'max-w-screen-sm',
         'md' => 'max-w-screen-md',
         'lg' => 'max-w-screen-lg',
         'xl' => 'max-w-screen-xl',
@@ -60,28 +60,28 @@
 
     $variants = [
         'default' => [
-            'wrapper' => 'rounded-md border-slate-200 bg-white',
-            'header' => 'rounded-t-md border-slate-200 bg-white',
-            'title' => 'text-slate-900',
-            'description' => 'text-slate-500',
+            'wrapper' => 'rounded-md border-zinc-200 bg-white',
+            'header' => 'rounded-t-md border-zinc-200 bg-white',
+            'title' => 'text-zinc-900',
+            'description' => 'text-zinc-500',
         ],
         'form' => [
-            'wrapper' => 'rounded-md border-slate-200 bg-white',
-            'header' => 'rounded-t-md border-slate-200 bg-slate-50',
-            'title' => 'text-slate-900',
-            'description' => 'text-slate-500',
+            'wrapper' => 'rounded-md border-zinc-200 bg-white',
+            'header' => 'rounded-t-md border-zinc-200 bg-zinc-50',
+            'title' => 'text-zinc-900',
+            'description' => 'text-zinc-500',
         ],
         'subtle' => [
-            'wrapper' => 'rounded-md border-transparent bg-slate-50',
-            'header' => 'rounded-t-md border-transparent bg-slate-50',
-            'title' => 'text-slate-800',
-            'description' => 'text-slate-500',
+            'wrapper' => 'rounded-md border-transparent bg-zinc-50',
+            'header' => 'rounded-t-md border-transparent bg-zinc-50',
+            'title' => 'text-zinc-800',
+            'description' => 'text-zinc-500',
         ],
     ];
 
     $sizeClass = $sizes[$size] ?? $sizes['full'];
     $variantClass = $variants[$variant] ?? $variants['default'];
-    $paddingClass = $padding ? 'p-5' : '';
+    $paddingClass = $padding ? 'p-0' : '';
 
     $hasHeader = $title || $description || isset($header) || isset($actions) || $collapsible;
     $resolvedPersistKey = $persistKey ?: 'siiaa.panel.' . md5($attributes->get('id') ?? ($title ?? uniqid()));
@@ -115,7 +115,7 @@
     ]) }}>
     {{-- Header --}}
     @if ($hasHeader)
-        <div class="flex items-start justify-between gap-4 border-b px-5 py-4 {{ $variantClass['header'] }}">
+        <div class="flex items-start justify-between gap-4 border-b px-4 py-3 {{ $variantClass['header'] }}">
             <div class="min-w-0">
                 @isset($header)
                     {{ $header }}
@@ -132,6 +132,8 @@
                         </p>
                     @endif
                 @endisset
+
+
             </div>
 
             <div class="flex items-center gap-2">
@@ -141,7 +143,7 @@
 
                 @if ($collapsible)
                     <button type="button" x-on:click="toggle()"
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                         :aria-expanded="open.toString()" aria-label="Contraer o expandir panel">
                         <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -164,7 +166,7 @@
     @isset($footer)
         <div @if ($collapsible) x-show="open"
                 x-collapse @endif
-            class="border-t border-slate-200 bg-slate-50 px-5 py-4">
+            class="border-t border-zinc-200 bg-zinc-50 px-4 py-3">
             {{ $footer }}
         </div>
     @endisset

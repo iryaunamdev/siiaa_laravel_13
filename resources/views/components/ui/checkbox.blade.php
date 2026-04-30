@@ -84,7 +84,7 @@
         }
     }
 
-    $baseClasses = 'h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/30 transition';
+    $baseClasses = 'h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/30 transition';
 
     $stateClasses = $resolvedError ? 'border-red-300 focus:ring-red-500/30' : '';
 
@@ -106,7 +106,7 @@
             @if ($label || $helpPopover)
                 <div class="flex items-center gap-2">
                     @if ($label)
-                        <label for="{{ $inputId }}" class="text-sm text-slate-700">
+                        <label for="{{ $inputId }}" class="text-sm text-zinc-700">
                             {{ $label }}
                         </label>
                     @endif
@@ -114,7 +114,7 @@
                     @if ($helpPopover)
                         <div x-data="{ open: false }" class="relative">
                             <button type="button"
-                                class="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                class="inline-flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                 @mouseenter="open = true" @mouseleave="open = false" @focus="open = true"
                                 @blur="open = false" @click="open = !open">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
@@ -127,14 +127,14 @@
 
                             <div x-show="open" x-transition @mouseenter="open = true" @mouseleave="open = false"
                                 x-cloak
-                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+                                class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-4 shadow-lg">
                                 @if ($helpPopoverTitle)
-                                    <div class="mb-1 text-sm font-semibold text-slate-800">
+                                    <div class="mb-1 text-sm font-semibold text-zinc-800">
                                         {{ $helpPopoverTitle }}
                                     </div>
                                 @endif
 
-                                <div class="text-sm text-slate-600">
+                                <div class="text-sm text-zinc-600">
                                     {{ $helpPopover }}
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
                     {{ $resolvedError }}
                 </p>
             @elseif ($help)
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-zinc-500">
                     {{ $help }}
                 </p>
             @endif

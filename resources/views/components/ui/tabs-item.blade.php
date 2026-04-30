@@ -41,15 +41,15 @@
     $classes = match ($variant) {
         'pills' => $active
             ? 'rounded-xl bg-white px-4 py-2 text-blue-700 shadow-sm'
-            : 'rounded-xl px-4 py-2 text-slate-600 hover:bg-white/70 hover:text-slate-900',
+            : 'rounded-xl px-4 py-2 text-zinc-600 hover:bg-white/70 hover:text-zinc-900',
 
         'buttons' => $active
             ? 'rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-blue-700 shadow-sm'
-            : 'rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-600 hover:border-blue-200 hover:text-blue-700',
+            : 'rounded-xl border border-zinc-200 bg-white px-4 py-2 text-zinc-600 hover:border-blue-200 hover:text-blue-700',
 
         default => $active
             ? 'border-b-2 border-blue-600 px-4 py-3 text-blue-700'
-            : 'border-b-2 border-transparent px-4 py-3 text-slate-500 hover:border-slate-300 hover:text-slate-800',
+            : 'border-b-2 border-transparent px-4 py-3 text-zinc-500 hover:border-zinc-300 hover:text-zinc-800',
     };
 
     $finalClasses = "{$base} {$classes}";

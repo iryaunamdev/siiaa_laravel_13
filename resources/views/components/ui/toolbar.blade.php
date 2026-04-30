@@ -44,7 +44,7 @@
 
     $stackClasses = $stacked ? 'flex-col gap-3 sm:flex-row sm:items-center' : 'flex-row items-center gap-3';
 
-    $borderClass = $bordered ? 'border-b border-slate-100' : '';
+    $borderClass = $bordered ? 'border-b border-zinc-100' : '';
     $paddingClass = $padding ? 'px-4 py-3' : '';
 @endphp
 
