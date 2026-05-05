@@ -7,6 +7,41 @@
         @endcan
     </x-slot:actions>
 
+    <x-ui.panel class="mb-4">
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="w-full md:w-72">
+                <x-ui.input wire:model.live.debounce.400ms="search" label="Buscar"
+                    placeholder="Nombre, usuario o correo" />
+            </div>
+
+            <div class="w-40">
+                <x-ui.select wire:model.live="status" label="Estado" :options="[
+                    'all' => 'Todos',
+                    'active' => 'Activos',
+                    'inactive' => 'Inactivos',
+                ]" />
+            </div>
+
+            <div class="w-40">
+                <x-ui.select wire:model.live="authType" label="Tipo de autenticación" :options="[
+                    'all' => 'Todos',
+                    'local' => 'Local',
+                    'ldap' => 'LDAP',
+                ]" />
+            </div>
+            <div class="w-40">
+                <x-ui.select wire:model.live="roleFilter" label="Rol" :options="$roles->pluck('name', 'name')->prepend('Todos', 'all')->toArray()" />
+            </div>
+            <div class="w-20">
+                <x-ui.button type="button" wire:click="resetFilters" variant="link" size="sm" class="mt-2"
+                    title="Restablecer filtros">
+                    <x-ui.icon name="cancel" class="h-4 w-4 text-red-500 hover:text-red-600" />
+                </x-ui.button>
+            </div>
+        </div>
+
+    </x-ui.panel>
+
     <x-ui.table>
         <x-ui.table.head>
             <x-ui.table.row>
@@ -29,19 +64,20 @@
                     </x-ui.table.cell>
 
                     <x-ui.table.cell>
-                        <div class="flex items-center gap-3">
-                            <x-ui.avatar :model="$user" size="sm" />
+                        <button class="flex justify-start gap-3 hover:bg-gray-100 rounded px-1.5 py-1 w-full"
+                            wire:click="openEditModal({{ $user->id }})">
+                            <x-ui.avatar :model="$user" size="sm" variant="neutral" />
 
-                            <div>
-                                <p class="font-medium text-slate-900">
+                            <div class="text-left">
+                                <div class="font-medium text-blue-600">
                                     {{ $user->username }}
-                                </p>
+                                </div>
 
-                                <p class="text-xs text-slate-500">
+                                <div class="text-xs text-zinc-500">
                                     {{ $user->name }}
-                                </p>
+                                </div>
                             </div>
-                        </div>
+                        </button>
                     </x-ui.table.cell>
 
                     <x-ui.table.cell>
@@ -75,10 +111,13 @@
                     </x-ui.table.cell>
 
                     <x-ui.table.cell align="right">
-                        @can('users.update')
-                            <x-ui.button wire:click="openEditModal({{ $user->id }})" variant="link" size="sm">
-                                Editar
-                            </x-ui.button>
+                        @can('users.delete')
+                            @if ($user->id !== auth()->id())
+                                <x-ui.button type="button" wire:click="confirmDelete({{ $user->id }})" variant="link"
+                                    size="sm" title="Eliminar usuario">
+                                    <x-ui.icon name="trash" class="h-4 w-4 text-red-500 hover:text-red-600" />
+                                </x-ui.button>
+                            @endif
                         @endcan
                     </x-ui.table.cell>
                 </x-ui.table.row>
@@ -89,6 +128,13 @@
             @endforelse
         </x-ui.table.body>
     </x-ui.table>
+    <div class="mt-4">
+        {{ $users->links() }}
+    </div>
 
     @include('livewire.sys.users._form-modal')
+    <x-ui.confirm-delete-modal model="confirmDeleteModal" title="Eliminar usuario" :name="$deleteName"
+        message="El usuario será eliminado de manera permanente del sistema."
+        warning="Esta acción eliminará el usuario local o LDAP registrado en SIIAA. No se permite eliminar tu propio usuario."
+        confirm-action="deleteConfirmed" cancel-action="resetDeleteForm" />
 </x-ui.panel>

@@ -8,9 +8,11 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
+    use WithPagination;
     public bool $userModal = false;
     public ?int $editingUserId = null;
 
@@ -27,6 +29,22 @@ class Index extends Component
     public ?string $password_confirmation = null;
 
     public $roles = [];
+
+    public bool $confirmDeleteModal = false;
+    public ?int $deleteId = null;
+    public ?string $deleteName = null;
+
+    public string $search = '';
+    public string $status = 'all';
+    public string $authType = 'all';
+    public string $roleFilter = 'all';
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'status' => ['except' => 'all'],
+        'authType' => ['except' => 'all'],
+        'roleFilter' => ['except' => 'all'],
+    ];
 
     public function mount()
     {
@@ -196,10 +214,129 @@ class Index extends Component
         $this->password_confirmation = $password;
     }
 
+    public function confirmDelete(int $userId): void
+    {
+        abort_unless(auth()->user()->can('users.delete'), 403);
+
+        $user = User::findOrFail($userId);
+
+        if ($user->id === auth()->id()) {
+            $this->dispatch('toast', [
+                'type' => 'error',
+                'message' => 'No puedes eliminar tu propio usuario.',
+            ]);
+
+            return;
+        }
+
+        $this->deleteId = $user->id;
+        $this->deleteName = $user->name . ' (' . $user->username . ')';
+        $this->confirmDeleteModal = true;
+    }
+
+    public function deleteConfirmed(): void
+    {
+        abort_unless(auth()->user()->can('users.delete'), 403);
+
+        if (! $this->deleteId) {
+            $this->resetDeleteForm();
+
+            $this->dispatch('toast', [
+                'type' => 'error',
+                'message' => 'No se encontró el usuario a eliminar.',
+            ]);
+
+            return;
+        }
+
+        $user = User::findOrFail($this->deleteId);
+
+        if ($user->id === auth()->id()) {
+            $this->resetDeleteForm();
+
+            $this->dispatch('toast', [
+                'type' => 'error',
+                'message' => 'No puedes eliminar tu propio usuario.',
+            ]);
+
+            return;
+        }
+
+        $user->syncRoles([]);
+        $user->delete();
+
+        $this->resetDeleteForm();
+
+        $this->dispatch('toast', [
+            'type' => 'success',
+            'message' => 'Usuario eliminado correctamente.',
+        ]);
+    }
+
+    public function resetDeleteForm(): void
+    {
+        $this->confirmDeleteModal = false;
+        $this->deleteId = null;
+        $this->deleteName = null;
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->status = 'all';
+        $this->authType = 'all';
+        $this->roleFilter = 'all';
+
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedAuthType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedRoleFilter(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $users = User::query()
+            ->with('roles')
+            ->when($this->search, function ($query) {
+                $query->where(function ($subquery) {
+                    $subquery
+                        ->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%')
+                        ->orWhere('username', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->when($this->status !== 'all', function ($query) {
+                $query->where('is_active', $this->status === 'active');
+            })
+            ->when($this->authType !== 'all', function ($query) {
+                $query->where('auth_type', $this->authType);
+            })
+            ->when($this->roleFilter !== 'all', function ($query) {
+                $query->role($this->roleFilter);
+            })
+            ->orderBy('name')
+            ->paginate(10);
+
         return view('livewire.sys.users.index', [
-            'users' => $this->users,
+            'users' => $users,
+            'roles' => Role::query()->orderBy('name')->get(),
         ]);
     }
 }

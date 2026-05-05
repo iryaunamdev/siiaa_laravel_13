@@ -56,6 +56,15 @@
             </svg>
         @break
 
+        @case('cancel')
+            <svg {{ $attributes->merge(['class' => 'size-5']) }} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true">
+
+                <path fill="currentColor"
+                    d="M420.48 121.81 390.19 91.52 256 225.71 121.81 91.52 91.52 121.81 225.71 256 91.52 390.19 121.81 420.48 256 286.29 390.19 420.48 420.48 390.19 286.29 256z" />
+            </svg>
+        @break
+
         @default
             <span {{ $attributes->merge(['class' => 'size-4']) }}>
                 {{ $name }}

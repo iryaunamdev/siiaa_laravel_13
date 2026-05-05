@@ -3,7 +3,7 @@
         {{ $editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}
     </x-slot>
 
-    <div class="space-y-5">
+    <div class="space-y-5 p-4">
 
         {{-- DATOS --}}
         <div class="grid grid-cols-1 gap-4">
@@ -17,11 +17,7 @@
             <div class="space-y-3">
 
                 <div class="flex items-center justify-between">
-                    <label class="text-sm font-medium text-slate-700">
-                        Cambiar contraseña
-                    </label>
-
-                    <input type="checkbox" wire:model.live="changePassword">
+                    <x-ui.checkbox wire:model.live="changePassword" label="Cambiar contraseña" />
                 </div>
 
                 @if ($changePassword)
@@ -132,7 +128,7 @@
         @endif
 
         {{-- ROLES --}}
-        <div>
+        <div class="p-2 border rounded-lg max-h-[100px] overflow-y-auto">
             <label class="mb-2 block text-sm font-medium text-slate-700">
                 Roles
             </label>
