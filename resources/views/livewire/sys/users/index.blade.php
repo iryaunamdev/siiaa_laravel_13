@@ -1,7 +1,8 @@
 <x-ui.panel title="Administración de usuarios" description="Listado de usuarios registrados en el sistema." size="full">
     <x-slot:actions>
         @can('users.create')
-            <x-ui.button type="button" wire:click="openCreateModal" variant="primary" size="sm">
+            <x-ui.button type="button" wire:click="openCreateModal" wire:loading.attr="disabled" wire:target="openCreateModal"
+                variant="primary" size="sm">
                 Crear usuario
             </x-ui.button>
         @endcan
@@ -114,7 +115,8 @@
                         @can('users.delete')
                             @if ($user->id !== auth()->id())
                                 <x-ui.button type="button" wire:click="confirmDelete({{ $user->id }})" variant="link"
-                                    size="sm" title="Eliminar usuario">
+                                    size="sm" title="Eliminar usuario" wire:loading.attr="disabled"
+                                    wire:target="confirmDelete({{ $user->id }})">
                                     <x-ui.icon name="trash" class="h-4 w-4 text-red-500 hover:text-red-600" />
                                 </x-ui.button>
                             @endif

@@ -35,7 +35,8 @@
                             wire:model.defer="password_confirmation" />
 
                         @can('users.change_password')
-                            <x-ui.button type="button" variant="secondary" size="sm" wire:click="generatePassword">
+                            <x-ui.button type="button" variant="secondary" size="sm" wire:click="generatePassword"
+                                wire:loading.attr="disabled" wire:target="generatePassword">
                                 Generar contraseña
                             </x-ui.button>
 
@@ -151,8 +152,9 @@
             Cancelar
         </x-ui.button>
 
-        <x-ui.button wire:click="saveUser">
-            Guardar
+        <x-ui.button wire:click="saveUser" wire:loading.attr="disabled" wire:target="saveUser">
+            <span wire:loading.remove wire:target="saveUser">Guardar</span>
+            <span wire:loading wire:target="saveUser">Guardando...</span>
         </x-ui.button>
     </x-slot>
 </x-ui.modal>

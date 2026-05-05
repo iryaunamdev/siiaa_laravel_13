@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Sys\Users;
 
+use App\Livewire\Concerns\AuthorizesSIIAA;
+
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -13,6 +15,7 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+    use AuthorizesSIIAA;
     public bool $userModal = false;
     public ?int $editingUserId = null;
 
@@ -79,9 +82,8 @@ class Index extends Component
     {
         $isEditing = filled($this->editingUserId);
 
-        abort_unless(
-            auth()->user()->can($isEditing ? 'users.update' : 'users.create'),
-            403
+        $this->authorizePermission(
+            $this->editingUserId ? 'users.update' : 'users.create'
         );
 
         if (! empty($this->selectedRoles)) {
@@ -146,18 +148,12 @@ class Index extends Component
         $this->userModal = false;
         $this->resetUserForm();
 
-        $this->dispatch('toast', [
-            'type' => 'success',
-            'message' => $isEditing
-                ? 'Usuario actualizado correctamente.'
-                : 'Usuario creado correctamente.',
-        ]);
+        $this->dispatch('toast', type: 'success', message: 'Usuario eliminado correctamente.');
     }
 
     public function openCreateModal()
     {
-        abort_unless(auth()->user()->can('users.create'), 403);
-
+        $this->authorizePermission('users.create');
         $this->resetUserForm();
 
         $this->editingUserId = null;
@@ -168,7 +164,7 @@ class Index extends Component
 
     public function openEditModal(int $userId)
     {
-        abort_unless(auth()->user()->can('users.update'), 403);
+        $this->authorizePermission('users.update');
 
         $user = User::findOrFail($userId);
 
@@ -206,7 +202,7 @@ class Index extends Component
 
     public function generatePassword()
     {
-        abort_unless(auth()->user()->can('users.change_password'), 403);
+        $this->authorizePermission('users.change_password');
 
         $password = Str::random(12);
 
@@ -216,15 +212,12 @@ class Index extends Component
 
     public function confirmDelete(int $userId): void
     {
-        abort_unless(auth()->user()->can('users.delete'), 403);
+        $this->authorizePermission('users.delete');
 
         $user = User::findOrFail($userId);
 
         if ($user->id === auth()->id()) {
-            $this->dispatch('toast', [
-                'type' => 'error',
-                'message' => 'No puedes eliminar tu propio usuario.',
-            ]);
+            $this->dispatch('toast', type: 'error', message: 'No puedes eliminar tu propio usuario.');
 
             return;
         }
@@ -236,15 +229,12 @@ class Index extends Component
 
     public function deleteConfirmed(): void
     {
-        abort_unless(auth()->user()->can('users.delete'), 403);
+        $this->authorizePermission('users.delete');
 
         if (! $this->deleteId) {
             $this->resetDeleteForm();
 
-            $this->dispatch('toast', [
-                'type' => 'error',
-                'message' => 'No se encontró el usuario a eliminar.',
-            ]);
+            $this->dispatch('toast', type: 'error', message: 'No se encontró el usuario a eliminar.');
 
             return;
         }
@@ -254,10 +244,7 @@ class Index extends Component
         if ($user->id === auth()->id()) {
             $this->resetDeleteForm();
 
-            $this->dispatch('toast', [
-                'type' => 'error',
-                'message' => 'No puedes eliminar tu propio usuario.',
-            ]);
+            $this->dispatch('toast', type: 'error', message: 'No puedes eliminar tu propio usuario.');
 
             return;
         }
@@ -267,10 +254,7 @@ class Index extends Component
 
         $this->resetDeleteForm();
 
-        $this->dispatch('toast', [
-            'type' => 'success',
-            'message' => 'Usuario eliminado correctamente.',
-        ]);
+        $this->dispatch('toast', type: 'success', message: 'Usuario eliminado correctamente.');
     }
 
     public function resetDeleteForm(): void

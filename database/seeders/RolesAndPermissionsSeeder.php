@@ -23,10 +23,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // ---- Permisos base ----
         $permissions = [
             'dashboard.view',
-            'sys.users.view',
-            'sys.users.create',
-            'sys.users.update',
-            'sys.users.assign-roles',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.assign_roles',
         ];
 
         foreach ($permissions as $perm) {
@@ -46,10 +46,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // admin-sistema: acceso a dashboard y gestión de usuarios
         $admin->givePermissionTo([
             'dashboard.view',
-            'sys.users.view',
-            'sys.users.create',
-            'sys.users.update',
-            'sys.users.assign-roles',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.assign_roles',
         ]);
 
         // usuario: acceso mínimo

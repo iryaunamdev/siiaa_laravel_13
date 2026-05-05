@@ -10,7 +10,7 @@ use App\Livewire\Sys\Catalogos\Index as CatalogosIndex;
 
 Route::view('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'can:dashboard.view'])->group(function () {
+Route::middleware(['auth', 'permission:dashboard.view'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 
@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified'])
     ->name('sys.')
     ->group(function () {
         Route::get('/users', UsersIndex::class)
-            ->middleware('can:users.view')
+            ->middleware('permission:users.view')
             ->name('users.index');
         Route::get('/roles-permisos', RolesPermissionsIndex::class)
             ->middleware(['auth', 'role:super-admin'])
@@ -27,10 +27,10 @@ Route::middleware(['auth', 'verified'])
         Route::get('/documentacion', DocumentacionIndex::class)
             ->name('documentacion.index');
         Route::get('/matriz-permisos', PermissionsMatrix::class)
-            ->middleware('can:matrix.view')
+            ->middleware('permission:matrix.view')
             ->name('permissions-matrix');
         Route::get('/catalogos', CatalogosIndex::class)
-            ->middleware('can:catalogos.view')
+            ->middleware('permission:catalogos.view')
             ->name('catalogos');
     });
 
