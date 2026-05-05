@@ -27,7 +27,7 @@ class Index extends Component
 
     public ?string $deleteType = null;
     public ?int $deleteId = null;
-    public string $deleteName = '';
+    public ?string $deleteName = null;
 
     public function mount(): void
     {
@@ -247,27 +247,13 @@ class Index extends Component
 
     public function confirmDelete(string $type, int $id): void
     {
-        $this->authorizeSuperAdmin();
-
-        if ($type === 'role') {
-            $item = Role::withCount(['users', 'permissions'])->findOrFail($id);
-
-            if ($item->users_count > 0 || $item->permissions_count > 0) {
-                $this->dispatch(
-                    'toast',
-                    type: 'warning',
-                    message: 'No se puede eliminar un rol con usuarios o permisos asignados.'
-                );
-
-                return;
-            }
-        } else {
-            $item = Permission::findOrFail($id);
-        }
-
         $this->deleteType = $type;
         $this->deleteId = $id;
-        $this->deleteName = $item->name;
+
+        $this->deleteName = $type === 'role'
+            ? Role::find($id)?->name
+            : Permission::find($id)?->name;
+
         $this->confirmDeleteModal = true;
     }
 
@@ -275,39 +261,46 @@ class Index extends Component
     {
         $this->authorizeSuperAdmin();
 
+        // 🔒 BLINDAJE
+        if (! $this->deleteType || ! $this->deleteId) {
+            $this->resetDeleteForm();
+
+            $this->dispatch(
+                'toast',
+                type: 'error',
+                message: 'No se encontró el registro a eliminar.'
+            );
+
+            return;
+        }
+
+        if (! $this->deleteType || ! $this->deleteId) {
+            $this->resetDeleteForm();
+            $this->dispatch('toast', type: 'error', message: 'No se encontró el registro a eliminar.');
+            return;
+        }
+
         if ($this->deleteType === 'role') {
             $role = Role::withCount(['users', 'permissions'])->findOrFail($this->deleteId);
 
             if ($role->users_count > 0 || $role->permissions_count > 0) {
-                $this->dispatch(
-                    'toast',
-                    type: 'warning',
-                    message: 'Solo se puede eliminar un rol sin usuarios ni permisos asignados.'
-                );
-
-                $this->resetDeleteForm();
+                $this->dispatch('toast', type: 'error', message: 'No se puede eliminar un rol con usuarios o permisos asignados.');
                 return;
             }
 
             $role->delete();
-
-            $message = 'Rol eliminado correctamente.';
-        } else {
-            $permission = Permission::findOrFail($this->deleteId);
-
-            // Solo elimina la relación de ESTE permiso con los roles que lo tengan.
-            // No elimina roles.
-            $permission->roles()->detach();
-
-            $permission->delete();
-
-            $message = 'Permiso eliminado correctamente. También fue retirado de los roles vinculados.';
         }
 
-        $this->loadData();
+        if ($this->deleteType === 'permission') {
+            $permission = Permission::findOrFail($this->deleteId);
+
+            $permission->roles()->detach();
+            $permission->delete();
+        }
+
         $this->resetDeleteForm();
 
-        $this->dispatch('toast', type: 'success', message: $message);
+        $this->dispatch('toast', type: 'success', message: 'Registro eliminado correctamente.');
     }
 
     public function closeDeleteModal(): void
@@ -315,13 +308,11 @@ class Index extends Component
         $this->resetDeleteForm();
     }
 
-    private function resetDeleteForm(): void
+    public function resetDeleteForm(): void
     {
-        $this->reset([
-            'confirmDeleteModal',
-            'deleteType',
-            'deleteId',
-            'deleteName',
-        ]);
+        $this->confirmDeleteModal = false;
+        $this->deleteType = null;
+        $this->deleteId = null;
+        $this->deleteName = null;
     }
 }

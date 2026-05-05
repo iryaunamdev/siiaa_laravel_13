@@ -144,5 +144,17 @@
 
     @include('livewire.sys.roles-permissions.modal_rol-editar')
     @include('livewire.sys.roles-permissions.modal_permisos-editar')
-    @include('livewire.confirm-delete-modal')
+    <x-ui.confirm-delete-modal
+        model="confirmDeleteModal"
+        :title="$deleteType === 'role' ? 'Eliminar rol' : 'Eliminar permiso'"
+        :name="$deleteName"
+        :message="$deleteType === 'role'
+            ? 'El rol ' . $deleteName . ' se eliminará de manera permanente.'
+            : 'El permiso ' . $deleteName . ' se eliminará de manera permanente y será retirado de los roles que lo tengan asignado.'"
+        :warning="$deleteType === 'role'
+            ? 'Solo se podrá eliminar si no tiene usuarios ni permisos asociados.'
+            : 'Esta acción no eliminará roles; solo desvinculará y eliminará el permiso.'"
+        confirm-action="deleteConfirmed"
+        cancel-action="resetDeleteForm"
+    />
 </div>

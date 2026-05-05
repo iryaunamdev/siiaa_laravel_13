@@ -123,10 +123,10 @@
     };
 
     $stateClasses = $resolvedError
-        ? 'border-red-300 text-slate-900 placeholder:text-slate-400 focus:border-red-500 focus:ring-red-500'
-        : 'border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500';
+        ? 'border-red-300 text-zinc-900 placeholder:text-zinc-400 focus:border-red-500 focus:ring-red-500'
+        : 'border-zinc-300 text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500';
 
-    $disabledClasses = $disabled ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white';
+    $disabledClasses = $disabled ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed' : 'bg-white';
 
     $classes = implode(
         ' ',
@@ -143,7 +143,7 @@
 <div class="w-full">
     @if ($label)
         <div class="mb-1.5 flex items-center gap-2">
-            <label for="{{ $textareaId }}" class="block text-sm font-medium text-slate-700">
+            <label for="{{ $textareaId }}" class="block text-sm font-medium text-zinc-700">
                 {{ $label }}
 
                 @if ($required)
@@ -162,11 +162,11 @@
         @disabled($disabled) @required($required) {{ $attributes->merge(['class' => $classes])->except(['id']) }}>{{ $resolvedValue }}</textarea>
 
     @if ($resolvedError)
-        <p class="mt-1.5 text-sm text-red-600">
+        <p class="mt-1.5 text-xs text-red-600">
             {{ $resolvedError }}
         </p>
     @elseif ($resolvedHelp)
-        <p class="mt-1.5 text-sm text-slate-500">
+        <p class="mt-1.5 text-xs text-zinc-400 italic">
             {{ $resolvedHelp }}
         </p>
     @endif

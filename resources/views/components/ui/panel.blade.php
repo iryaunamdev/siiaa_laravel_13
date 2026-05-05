@@ -81,7 +81,16 @@
 
     $sizeClass = $sizes[$size] ?? $sizes['full'];
     $variantClass = $variants[$variant] ?? $variants['default'];
-    $paddingClass = $padding ? 'p-0' : '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Padding del body
+    |--------------------------------------------------------------------------
+    | Se mantiene la prop original `padding`.
+    | - true: aplica padding interno estándar.
+    | - false: deja el contenido sin padding para layouts personalizados.
+    */
+    $paddingClass = $padding ? 'px-2 py-2' : '';
 
     $hasHeader = $title || $description || isset($header) || isset($actions) || $collapsible;
     $resolvedPersistKey = $persistKey ?: 'siiaa.panel.' . md5($attributes->get('id') ?? ($title ?? uniqid()));
@@ -111,11 +120,20 @@
             }
         }" @endif
     {{ $attributes->merge([
-        'class' => "w-full mx-auto {$sizeClass} rounded-md border shadow-sm {$variantClass['wrapper']}",
+        /*
+            |--------------------------------------------------------------------------
+            | Wrapper principal
+            |--------------------------------------------------------------------------
+            | - flex flex-col: permite separar header, body y footer.
+            | - h-full: permite que el panel respete la altura del contenedor padre.
+            | - overflow-hidden: evita que el contenido interno rompa el layout.
+            */
+        'class' => "flex h-full w-full flex-col mx-auto {$sizeClass} rounded-md border shadow-sm overflow-hidden {$variantClass['wrapper']}",
     ]) }}>
     {{-- Header --}}
     @if ($hasHeader)
-        <div class="flex items-start justify-between gap-4 border-b px-4 py-3 {{ $variantClass['header'] }}">
+        <div
+            class="shrink-0 flex items-start justify-between border-b border-zinc-100 px-4 py-3 {{ $variantClass['header'] }}">
             <div class="min-w-0">
                 @isset($header)
                     {{ $header }}
@@ -132,11 +150,9 @@
                         </p>
                     @endif
                 @endisset
-
-
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex shrink-0 items-center gap-2">
                 @isset($actions)
                     {{ $actions }}
                 @endisset
@@ -158,7 +174,8 @@
 
     {{-- Body --}}
     <div @if ($collapsible) x-show="open"
-            x-collapse @endif class="{{ $paddingClass }}">
+            x-collapse @endif
+        class="min-h-0 flex-1 overflow-hidden {{ $paddingClass }}">
         {{ $slot }}
     </div>
 
@@ -166,7 +183,7 @@
     @isset($footer)
         <div @if ($collapsible) x-show="open"
                 x-collapse @endif
-            class="border-t border-zinc-200 bg-zinc-50 px-4 py-3">
+            class="shrink-0 border-t border-zinc-100 px-4 py-2 text-xs text-zinc-500 flex justify-between">
             {{ $footer }}
         </div>
     @endisset

@@ -23,6 +23,16 @@
                     </x-ui.menu.item>
                 </x-ui.menu>
             @endrole
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('sys.permissions-matrix')" :active="request()->routeIs('permissions-matrix')">
+                    Matriz de permisos
+                </x-ui.menu.item>
+            </x-ui.menu>
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('sys.catalogos')" :active="request()->routeIs('catalogos')">
+                    Catálogos
+                </x-ui.menu.item>
+            </x-ui.menu>
         </div>
         <div>
             <div class="mt-6 border-t border-zinc-200 pt-4">
