@@ -33,12 +33,22 @@
                     Catálogos
                 </x-ui.menu.item>
             </x-ui.menu>
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('sys.settings')" :active="request()->routeIs('configuracion')">
+                    Configuracion global
+                </x-ui.menu.item>
+            </x-ui.menu>
         </div>
         <div>
             <div class="mt-6 border-t border-zinc-200 pt-4">
                 <x-ui.menu>
                     <x-ui.menu.item :href="route('profile.edit')" :active="request()->routeIs('settings.*')">
                         Perfil
+                    </x-ui.menu.item>
+                </x-ui.menu>
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('user.security')" :active="request()->routeIs('user.security')">
+                        Seguridad A2F
                     </x-ui.menu.item>
                 </x-ui.menu>
             </div>

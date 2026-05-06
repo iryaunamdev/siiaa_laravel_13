@@ -24,6 +24,7 @@ return new class extends Migration
             // Autenticación e identidad institucional
             $table->string('auth_type', 20)->default('local'); // local, ldap, hybrid
             $table->string('ldap_uid')->nullable()->index();
+            $table->string('ldap_dn')->nullable();
 
             // Estado y trazabilidad básica
             $table->boolean('is_active')->default(true);

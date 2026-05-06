@@ -1,4 +1,4 @@
-<x-ui.modal wire:model="userModal" max-width="md">
+<x-ui.modal wire:model="userModal" max-width="md" footer-position="between">
     <x-slot name="title">
         {{ $editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}
     </x-slot>
@@ -7,9 +7,18 @@
 
         {{-- DATOS --}}
         <div class="grid grid-cols-1 gap-4">
-            <x-ui.input label="Usuario" wire:model.defer="username" />
-            <x-ui.input label="Nombre" wire:model.defer="name" />
-            <x-ui.input label="Correo" type="email" wire:model.defer="email" />
+            @if ($isLdapUser)
+                <x-ui.alert type="info">
+                    Este usuario está vinculado a LDAP. Sus datos de identidad son visibles, pero no editables.
+                    Únicamente se permite modificar la asignación de roles.
+                </x-ui.alert>
+            @endif
+
+            <x-ui.input label="Usuario" wire:model.defer="username" :disabled="$isLdapUser" />
+
+            <x-ui.input label="Nombre" wire:model.defer="name" :disabled="$isLdapUser" />
+
+            <x-ui.input label="Correo" type="email" wire:model.defer="email" :disabled="$isLdapUser" />
         </div>
 
         {{-- CONTRASEÑA --}}
@@ -144,17 +153,56 @@
             </div>
         </div>
 
+        {{-- A2F --}}
+        @if ($editingUserId && $editingUserHasTwoFactor)
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-amber-800">
+                            Autenticación en dos factores activa
+                        </h3>
+
+                        <p class="mt-1 text-sm leading-5 text-amber-700">
+                            Este usuario tiene 2FA configurado. Puedes restablecerlo si perdió acceso a su aplicación
+                            autenticadora
+                            o necesita configurarlo nuevamente.
+                        </p>
+                    </div>
+
+                    @can('users.reset_2fa')
+                        <x-ui.button type="button" variant="warning" size="sm"
+                            wire:click="confirmResetTwoFactor({{ $editingUserId }})" wire:loading.attr="disabled"
+                            wire:target="confirmResetTwoFactor({{ $editingUserId }})">
+                            Restablecer 2FA
+                        </x-ui.button>
+                    @endcan
+                </div>
+            </div>
+        @endif
+
 
     </div>
 
     <x-slot name="footer">
-        <x-ui.button variant="secondary" wire:click="$set('userModal', false)">
-            Cancelar
-        </x-ui.button>
+        <div>
+            @if ($user->two_factor_secret || $user->two_factor_confirmed_at)
+                <x-ui.button type="button" wire:click="confirmResetTwoFactor({{ $user->id }})" variant="danger"
+                    size="sm" title="Restablecer 2FA" wire:loading.attr="disabled"
+                    wire:target="confirmResetTwoFactor({{ $user->id }})">
+                    Restablecer 2FA
+                </x-ui.button>
+            @endif
+        </div>
+        <div>
+            <x-ui.button variant="secondary" wire:click="$set('userModal', false)">
+                Cancelar
+            </x-ui.button>
 
-        <x-ui.button wire:click="saveUser" wire:loading.attr="disabled" wire:target="saveUser">
-            <span wire:loading.remove wire:target="saveUser">Guardar</span>
-            <span wire:loading wire:target="saveUser">Guardando...</span>
-        </x-ui.button>
+            <x-ui.button wire:click="saveUser" wire:loading.attr="disabled" wire:target="saveUser">
+                <span wire:loading.remove wire:target="saveUser">Guardar</span>
+                <span wire:loading wire:target="saveUser">Guardando...</span>
+            </x-ui.button>
+        </div>
+
     </x-slot>
 </x-ui.modal>

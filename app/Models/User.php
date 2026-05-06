@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Services\System\SettingService;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
 {
     use HasFactory;
     use Notifiable;
     use HasRoles;
+    use TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +30,7 @@ class User extends Authenticatable
         'password',
         'auth_type',
         'ldap_uid',
+        'ldap_dn',
         'is_active',
         'last_login_at',
         'last_login_ip',
@@ -40,6 +44,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -54,6 +60,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
@@ -98,6 +105,13 @@ class User extends Authenticatable
         $normalized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
 
         return $normalized ?: $value;
+    }
+
+    public function requiresTwoFactor(): bool
+    {
+        $settings = app(SettingService::class);
+
+        return (bool) $settings->get('auth.2fa.enabled', false);
     }
 
     /**

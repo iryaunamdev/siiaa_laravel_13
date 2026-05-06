@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use App\Services\Auth\LdapService;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -38,48 +39,219 @@ class FortifyServiceProvider extends ServiceProvider
         // autenticación LDAP y/o segundo factor sin romper la bitácora.
         Fortify::authenticateUsing(function (Request $request) {
             $accessLogger = app(AccessLogger::class);
+            $ldap = app(LdapService::class);
+            $ldapLogging = $ldap->isLoggingEnabled();
 
-            // En esta fase el acceso se resuelve por username.
-            // Se conserva como base local para luego convivir con LDAP.
-            $user = User::where('username', $request->username)->first();
+            $username = $request->username;
+            $password = $request->password;
 
-            if (
-                $user &&
-                $user->is_active &&
-                $user->password &&
-                Hash::check($request->password, $user->password)
-            ) {
-                // Se actualiza el último acceso exitoso directamente
-                // en el usuario para soporte y consulta rápida.
-                $user->update([
-                    'last_login_at' => now(),
-                    'last_login_ip' => $request->ip(),
-                ]);
+            $user = User::where('username', $username)->first();
 
-                // Se registra el acceso exitoso en la bitácora histórica.
+            /*
+    |--------------------------------------------------------------------------
+    | 1. Usuario existente en BD
+    |--------------------------------------------------------------------------
+    */
+            if ($user) {
+                if (! $user->is_active) {
+                    $accessLogger->log(
+                        request: $request,
+                        event: 'login_failed',
+                        user: $user,
+                        authType: $user->auth_type,
+                        context: [
+                            'username' => $username,
+                            'reason' => 'Usuario inactivo',
+                        ]
+                    );
+
+                    return null;
+                }
+
+                /*
+        |--------------------------------------------------------------------------
+        | Usuario LDAP existente
+        |--------------------------------------------------------------------------
+        */
+                if ($user->auth_type === 'ldap') {
+                    if (! $ldap->isEnabled()) {
+                        if ($ldapLogging) {
+                            $accessLogger->log(
+                                request: $request,
+                                event: 'login_failed',
+                                user: $user,
+                                authType: 'ldap',
+                                context: [
+                                    'username' => $username,
+                                    'reason' => 'LDAP desactivado',
+                                ]
+                            );
+                        }
+                        return null;
+                    }
+
+                    $ldapUser = $ldap->authenticate($username, $password);
+
+                    if (! $ldapUser) {
+                        if ($ldapLogging) {
+                            $accessLogger->log(
+                                request: $request,
+                                event: 'login_failed',
+                                user: $user,
+                                authType: 'ldap',
+                                context: [
+                                    'username' => $username,
+                                    'reason' => 'Credenciales LDAP inválidas',
+                                ]
+                            );
+                        }
+                        return null;
+                    }
+
+                    $syncData = array_filter([
+                        'name' => $ldapUser['name'] ?? null,
+                        'email' => $ldapUser['email'] ?? null,
+                        'ldap_uid' => $ldapUser['username'],
+                        'ldap_dn' => $ldapUser['dn'] ?? null,
+                    ], fn($value) => ! is_null($value));
+
+                    $changedData = [];
+
+                    foreach ($syncData as $field => $value) {
+                        if ($user->{$field} !== $value) {
+                            $changedData[$field] = $value;
+                        }
+                    }
+
+                    $user->update([
+                        ...$changedData,
+                        'last_login_at' => now(),
+                        'last_login_ip' => $request->ip(),
+                    ]);
+
+                    $accessLogger->log(
+                        request: $request,
+                        event: 'login_success',
+                        user: $user,
+                        authType: 'ldap',
+                        context: [
+                            'username' => $username,
+                            'synced_fields' => array_keys($changedData),
+                        ]
+                    );
+
+                    if ($user->requiresTwoFactor()) {
+                        if (empty($user->two_factor_secret)) {
+                            session(['2fa:setup_required' => true]);
+                        }
+                    }
+
+                    return $user;
+                }
+
+                /*
+        |--------------------------------------------------------------------------
+        | Usuario local existente
+        |--------------------------------------------------------------------------
+        */
+                if (
+                    $user->auth_type === 'local' &&
+                    $user->password &&
+                    Hash::check($password, $user->password)
+                ) {
+                    $user->update([
+                        'last_login_at' => now(),
+                        'last_login_ip' => $request->ip(),
+                    ]);
+
+                    $accessLogger->log(
+                        request: $request,
+                        event: 'login_success',
+                        user: $user,
+                        authType: 'local',
+                        context: [
+                            'username' => $username,
+                        ]
+                    );
+
+                    return $user;
+                }
+
                 $accessLogger->log(
                     request: $request,
-                    event: 'login_success',
+                    event: 'login_failed',
                     user: $user,
                     authType: $user->auth_type,
                     context: [
-                        'username' => $request->username,
+                        'username' => $username,
+                        'reason' => 'Credenciales inválidas',
                     ]
                 );
 
-                return $user;
+                return null;
             }
 
-            // Se registra también el intento fallido, incluso si el usuario
-            // no existe, para mantener trazabilidad completa de accesos.
+            /*
+    |--------------------------------------------------------------------------
+    | 2. Usuario no existe en BD: autoregistro LDAP
+    |--------------------------------------------------------------------------
+    */
+            if ($ldap->isEnabled()) {
+                $ldapUser = $ldap->authenticate($username, $password);
+
+                if ($ldapUser) {
+                    $user = User::create([
+                        'username' => $ldapUser['username'],
+                        'name' => $ldapUser['name'],
+                        'email' => $ldapUser['email'],
+                        'auth_type' => 'ldap',
+                        'ldap_uid' => $ldapUser['username'],
+                        'ldap_dn' => $ldapUser['dn'],
+                        'password' => null,
+                        'is_active' => true,
+                        'last_login_at' => now(),
+                        'last_login_ip' => $request->ip(),
+                    ]);
+
+                    /*
+             * Aquí después conectamos la asignación automática de rol:
+             * - investigador
+             * - academico
+             * - administrativo
+             * - estudiante
+             * - usuario
+             *
+             * Con base en tabla de personal / estudiantes.
+             */
+
+                    $accessLogger->log(
+                        request: $request,
+                        event: 'login_success',
+                        user: $user,
+                        authType: 'ldap',
+                        context: [
+                            'username' => $username,
+                            'reason' => 'Autoregistro LDAP',
+                        ]
+                    );
+
+                    return $user;
+                }
+            }
+
+            /*
+    |--------------------------------------------------------------------------
+    | 3. Fallo general
+    |--------------------------------------------------------------------------
+    */
             $accessLogger->log(
                 request: $request,
                 event: 'login_failed',
-                user: $user,
-                authType: $user?->auth_type ?? 'local',
+                user: null,
+                authType: $ldap->isEnabled() ? 'ldap' : 'local',
                 context: [
-                    'username' => $request->username,
-                    'reason' => 'Credenciales inválidas o usuario inactivo',
+                    'username' => $username,
+                    'reason' => 'Usuario no encontrado o credenciales inválidas',
                 ]
             );
 

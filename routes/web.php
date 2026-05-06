@@ -7,14 +7,17 @@ use App\Livewire\Sys\Documentacion\Index as DocumentacionIndex;
 use App\Livewire\Sys\RolesPermissions\Index as RolesPermissionsIndex;
 use App\Livewire\Sys\PermissionsMatrix;
 use App\Livewire\Sys\Catalogos\Index as CatalogosIndex;
+use App\Livewire\Sys\Config\AuthSettings;
+use App\Livewire\Sys\Users\Security;
+
 
 Route::view('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'permission:dashboard.view'])->group(function () {
+Route::middleware(['auth', '2fa.configured', 'permission:dashboard.view'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', '2fa.configured',])
     ->prefix('sys')
     ->name('sys.')
     ->group(function () {
@@ -32,6 +35,13 @@ Route::middleware(['auth', 'verified'])
         Route::get('/catalogos', CatalogosIndex::class)
             ->middleware('permission:catalogos.view')
             ->name('catalogos');
+        Route::get('/configuracion', AuthSettings::class)
+            ->middleware('permission:sys.settings')
+            ->name('settings');
     });
+
+Route::middleware(['auth', 'verified'])
+    ->get('/user/security', Security::class)
+    ->name('user.security');
 
 require __DIR__ . '/settings.php';

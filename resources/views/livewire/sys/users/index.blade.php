@@ -90,9 +90,15 @@
                     </x-ui.table.cell>
 
                     <x-ui.table.cell>
-                        <x-ui.badge variant="info" text-size="text-[0.65rem]">
-                            {{ strtoupper($user->auth_type) }}
-                        </x-ui.badge>
+                        @if ($user->auth_type === 'ldap')
+                            <x-ui.badge variant="info" text-size="text-[0.65rem]">
+                                {{ strtoupper($user->auth_type) }}
+                            </x-ui.badge>
+                        @else
+                            <x-ui.badge variant="secondary" text-size="text-[0.65rem]">
+                                {{ strtoupper($user->auth_type) }}
+                            </x-ui.badge>
+                        @endif
                     </x-ui.table.cell>
 
                     <x-ui.table.cell>
@@ -139,4 +145,8 @@
         message="El usuario será eliminado de manera permanente del sistema."
         warning="Esta acción eliminará el usuario local o LDAP registrado en SIIAA. No se permite eliminar tu propio usuario."
         confirm-action="deleteConfirmed" cancel-action="resetDeleteForm" />
+    <x-ui.confirm-delete-modal model="confirmResetTwoFactorModal" title="Restablecer 2FA" :name="$resetTwoFactorUserName"
+        message="Se eliminará la configuración de autenticación en dos factores de este usuario."
+        warning="El usuario deberá configurar nuevamente Google Authenticator o Microsoft Authenticator en su próximo acceso."
+        confirm-action="resetTwoFactorConfirmed" cancel-action="resetTwoFactorForm" />
 </x-ui.panel>

@@ -144,8 +144,12 @@ return [
     */
 
     'features' => [
-        Features::resetPasswords(),
-        Features::updatePasswords(),
+        //Features::resetPasswords(),
+        //Features::updatePasswords(),
+        \Laravel\Fortify\Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+        ]),
     ],
 
 ];

@@ -36,11 +36,18 @@ class Index extends Component
     public bool $confirmDeleteModal = false;
     public ?int $deleteId = null;
     public ?string $deleteName = null;
+    public bool $confirmResetTwoFactorModal = false;
+    public ?int $resetTwoFactorUserId = null;
+    public ?string $resetTwoFactorUserName = null;
+    public bool $editingUserHasTwoFactor = false;
 
     public string $search = '';
     public string $status = 'all';
     public string $authType = 'all';
     public string $roleFilter = 'all';
+
+    public bool $isLdapUser = false;
+    public string $auth_type = 'local';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -83,13 +90,54 @@ class Index extends Component
         $isEditing = filled($this->editingUserId);
 
         $this->authorizePermission(
-            $this->editingUserId ? 'users.update' : 'users.create'
+            $isEditing ? 'users.update' : 'users.create'
         );
 
         if (! empty($this->selectedRoles)) {
             abort_unless(auth()->user()->can('users.assign_roles'), 403);
         }
 
+        $user = $isEditing
+            ? User::findOrFail($this->editingUserId)
+            : new User();
+
+        /*
+    |--------------------------------------------------------------------------
+    | Usuario LDAP
+    |--------------------------------------------------------------------------
+    | Los usuarios LDAP no se editan manualmente.
+    | Solo se permite actualizar la asignación de roles.
+    */
+        if ($isEditing && $user->auth_type === 'ldap') {
+            abort_unless(auth()->user()->can('users.assign_roles'), 403);
+
+            $this->validate([
+                'selectedRoles' => ['array'],
+                'selectedRoles.*' => [
+                    'string',
+                    Rule::exists('roles', 'name'),
+                ],
+            ]);
+
+            $user->syncRoles($this->selectedRoles);
+
+            $this->userModal = false;
+            $this->resetUserForm();
+
+            $this->dispatch(
+                'toast',
+                type: 'success',
+                message: 'Roles del usuario LDAP actualizados correctamente.'
+            );
+
+            return;
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Usuario local
+    |--------------------------------------------------------------------------
+    */
         if ($this->changePassword) {
             abort_unless(auth()->user()->can('users.change_password'), 403);
         }
@@ -127,13 +175,10 @@ class Index extends Component
             ],
         ]);
 
-        $user = $isEditing
-            ? User::findOrFail($this->editingUserId)
-            : new User();
-
         $user->username = $validated['username'];
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->auth_type = 'local';
 
         if (! $isEditing || $this->changePassword) {
             $user->password = Hash::make($validated['password']);
@@ -148,13 +193,22 @@ class Index extends Component
         $this->userModal = false;
         $this->resetUserForm();
 
-        $this->dispatch('toast', type: 'success', message: 'Usuario eliminado correctamente.');
+        $this->dispatch(
+            'toast',
+            type: 'success',
+            message: $isEditing
+                ? 'Usuario actualizado correctamente.'
+                : 'Usuario creado correctamente.'
+        );
     }
 
     public function openCreateModal()
     {
         $this->authorizePermission('users.create');
         $this->resetUserForm();
+
+        $this->isLdapUser = false;
+        $this->auth_type = 'local';
 
         $this->editingUserId = null;
         $this->isLocalUser = true;
@@ -173,6 +227,9 @@ class Index extends Component
         $this->name = $user->name;
         $this->email = $user->email;
 
+        $this->editingUserHasTwoFactor = filled($user->two_factor_secret)
+            || filled($user->two_factor_confirmed_at);
+
         $this->selectedRoles = $user->roles()
             ->pluck('name')
             ->toArray();
@@ -180,6 +237,10 @@ class Index extends Component
         $this->changePassword = false;
         $this->password = null;
         $this->password_confirmation = null;
+
+        $this->isLdapUser = $user->auth_type === 'ldap';
+        $this->auth_type = $user->auth_type ?? 'local';
+        $this->isLocalUser = $user->auth_type === 'local';
 
         $this->userModal = true;
     }
@@ -195,9 +256,15 @@ class Index extends Component
             'changePassword',
             'password',
             'password_confirmation',
+            'auth_type',
+            'isLdapUser',
+            'editingUserHasTwoFactor',
         ]);
 
         $this->isLocalUser = true;
+        $this->auth_type = 'local';
+        $this->isLdapUser = false;
+        $this->editingUserHasTwoFactor = false;
     }
 
     public function generatePassword()
@@ -257,6 +324,69 @@ class Index extends Component
         $this->dispatch('toast', type: 'success', message: 'Usuario eliminado correctamente.');
     }
 
+    public function confirmResetTwoFactor(int $userId): void
+    {
+        $this->authorizePermission('users.reset_2fa');
+
+        $user = User::findOrFail($userId);
+
+        if (! $user->two_factor_secret && ! $user->two_factor_confirmed_at) {
+            $this->dispatch(
+                'toast',
+                type: 'info',
+                message: 'Este usuario no tiene autenticación en dos factores configurada.'
+            );
+
+            return;
+        }
+
+        $this->resetTwoFactorUserId = $user->id;
+        $this->resetTwoFactorUserName = $user->name . ' (' . $user->username . ')';
+        $this->confirmResetTwoFactorModal = true;
+    }
+
+    public function resetTwoFactorConfirmed(): void
+    {
+        $this->authorizePermission('users.reset_2fa');
+
+        if (! $this->resetTwoFactorUserId) {
+            $this->resetTwoFactorForm();
+
+            $this->dispatch(
+                'toast',
+                type: 'error',
+                message: 'No se encontró el usuario para restablecer 2FA.'
+            );
+
+            return;
+        }
+
+        $user = User::findOrFail($this->resetTwoFactorUserId);
+
+        $user->forceFill([
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+        ])->save();
+
+        $this->editingUserHasTwoFactor = false;
+
+        $this->resetTwoFactorForm();
+
+        $this->dispatch(
+            'toast',
+            type: 'success',
+            message: 'La autenticación en dos factores fue restablecida correctamente.'
+        );
+    }
+
+    public function resetTwoFactorForm(): void
+    {
+        $this->confirmResetTwoFactorModal = false;
+        $this->resetTwoFactorUserId = null;
+        $this->resetTwoFactorUserName = null;
+    }
+
     public function resetDeleteForm(): void
     {
         $this->confirmDeleteModal = false;
@@ -293,6 +423,7 @@ class Index extends Component
     {
         $this->resetPage();
     }
+
 
     public function render()
     {

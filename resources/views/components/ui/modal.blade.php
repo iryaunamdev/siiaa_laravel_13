@@ -1,5 +1,6 @@
 @props([
     'maxWidth' => '2xl',
+    'footerPosition' => 'right',
 ])
 
 @php
@@ -16,6 +17,14 @@
         '6xl' => 'max-w-6xl',
         '7xl' => 'max-w-7xl',
         default => 'max-w-2xl',
+    };
+
+    $footerPosition = match ($footerPosition) {
+        'left' => 'justify-start',
+        'center' => 'justify-center',
+        'right' => 'justify-end',
+        'between' => 'justify-between',
+        default => 'justify-end',
     };
 @endphp
 
@@ -51,7 +60,7 @@
 
         {{-- Footer --}}
         @isset($footer)
-            <div class="flex items-center justify-end gap-2 border-t border-zinc-100 px-4 py-3">
+            <div class="flex items-center {{ $footerPosition }} gap-2 border-t border-zinc-100 px-4 py-3">
                 {{ $footer }}
             </div>
         @endisset
