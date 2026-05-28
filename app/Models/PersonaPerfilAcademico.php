@@ -14,7 +14,7 @@ class PersonaPerfilAcademico extends Model
     protected $table = 'persona_perfiles_academicos';
 
     protected $fillable = [
-        'persona_id',
+        'identity_link_id',
         'orcid',
         'sni_id',
         'sni_vigencia',
@@ -35,6 +35,43 @@ class PersonaPerfilAcademico extends Model
         'pride_vigencia' => 'date',
         'sni_vigencia' => 'date',
     ];
+
+    public function identityLink()
+    {
+        return $this->belongsTo(IdentityLink::class, 'identity_link_id', 'id');
+    }
+
+    public function persona()
+    {
+        return $this->hasOneThrough(
+            Persona::class,
+            IdentityLink::class,
+            'id',
+            'id',
+            'identity_link_id',
+            'identity_id'
+        )->where('identity_links.identity_type', IdentityLink::TYPE_SIIAA);
+    }
+
+    public function sni()
+    {
+        return $this->belongsTo(CatalogoItem::class, 'sni_id');
+    }
+
+    public function pride()
+    {
+        return $this->belongsTo(CatalogoItem::class, 'pride_id');
+    }
+
+    public function creadoPor()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function actualizadoPor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     public function setOrcidAttribute($value): void
     {
@@ -62,31 +99,6 @@ class PersonaPerfilAcademico extends Model
         $this->attributes['ads_library_url'] = $value
             ? trim($value)
             : null;
-    }
-
-    public function persona()
-    {
-        return $this->belongsTo(Persona::class);
-    }
-
-    public function sni()
-    {
-        return $this->belongsTo(CatalogoItem::class, 'sni_id');
-    }
-
-    public function pride()
-    {
-        return $this->belongsTo(CatalogoItem::class, 'pride_id');
-    }
-
-    public function creadoPor()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function actualizadoPor()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function scopeConOrcid($query)

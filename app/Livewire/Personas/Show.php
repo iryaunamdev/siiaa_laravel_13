@@ -25,8 +25,8 @@ class Show extends Component
         $this->persona = $persona->load([
             'sexo',
             'nacionalidad',
-            'perfilAcademico.sni',
-            'perfilAcademico.pride',
+            'identityLink.perfilAcademico.sni',
+            'identityLink.perfilAcademico.pride',
             'identityLink.perfilPublico',
             'posdocBecas.beca',
             'posdocBecas.asesor',
@@ -77,7 +77,7 @@ class Show extends Component
                 ->orderByDesc('fecha_ingreso')
                 ->get(),
 
-            'perfilAcademico' => $this->persona->perfilAcademico,
+            'perfilAcademico' => $this->persona->identityLink?->perfilAcademico,
 
             /*
          * Perfil público resuelto desde identityLink, no desde Persona.

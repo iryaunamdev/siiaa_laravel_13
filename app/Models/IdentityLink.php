@@ -98,6 +98,11 @@ class IdentityLink extends Model
         return $this->hasOne(PerfilPublico::class, 'identity_link_id', 'id');
     }
 
+    public function perfilAcademico()
+    {
+        return $this->hasOne(PersonaPerfilAcademico::class, 'identity_link_id', 'id');
+    }
+
     public function scopeActivas($query)
     {
         return $query->where('active', true);

@@ -3,13 +3,14 @@
 namespace App\Livewire\Personas;
 
 use App\Models\CatalogoItem;
+use App\Models\IdentityLink;
 use App\Models\PerfilPublico;
-use App\Models\PersonaPosdocBeca;
 use App\Models\Persona;
 use App\Models\PersonaPerfilAcademico;
-use Livewire\Component;
-use Illuminate\Validation\Rule;
+use App\Models\PersonaPosdocBeca;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
+use Livewire\Component;
 
 class Edit extends Component
 {
@@ -596,6 +597,32 @@ class Edit extends Component
 |--------------------------------------------------------------------------
 */
 
+    protected function resolvedIdentityLink(): IdentityLink
+    {
+        $identityLink = $this->persona->identityLink;
+
+        if (! $identityLink) {
+            $identityLink = IdentityLink::create([
+                'id' => IdentityLink::makeIdentityId(
+                    IdentityLink::TYPE_SIIAA,
+                    $this->persona->id
+                ),
+                'identity_type' => IdentityLink::TYPE_SIIAA,
+                'identity_id' => $this->persona->id,
+                'email' => $this->persona->email,
+                'is_primary' => true,
+                'active' => true,
+                'matched_by' => IdentityLink::MATCHED_BY_MANUAL,
+                'matched_at' => now(),
+                'verified_at' => now(),
+            ]);
+
+            $this->persona->load('identityLink');
+        }
+
+        return $identityLink;
+    }
+
     /**
      * Carga en el formulario la información académica existente.
      *
@@ -604,7 +631,8 @@ class Edit extends Component
      */
     public function fillPerfilAcademicoForm(): void
     {
-        $perfil = $this->persona->perfilAcademico;
+        #$perfil = $this->persona->perfilAcademico;
+        $perfil = $this->persona->identityLink?->perfilAcademico;
 
         $this->orcid = $perfil?->orcid;
         $this->sni_id = $perfil?->sni_id;
@@ -633,8 +661,10 @@ class Edit extends Component
             $this->perfilAcademicoAttributes()
         );
 
-        $this->persona->perfilAcademico()->updateOrCreate(
-            ['persona_id' => $this->persona->id],
+        $identityLink = $this->resolvedIdentityLink();
+
+        PersonaPerfilAcademico::updateOrCreate(
+            ['identity_link_id' => $identityLink->id],
             [
                 'orcid' => $data['orcid'],
                 'sni_id' => $data['sni_id'],
@@ -652,7 +682,7 @@ class Edit extends Component
         );
 
         $this->persona->refresh();
-        $this->persona->load('perfilAcademico');
+        $this->persona->load('identityLink.perfilAcademico');
 
         $this->fillPerfilAcademicoForm();
 

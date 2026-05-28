@@ -110,7 +110,14 @@ class Persona extends Model
 
     public function perfilAcademico()
     {
-        return $this->hasOne(PersonaPerfilAcademico::class);
+        return $this->hasOneThrough(
+            PersonaPerfilAcademico::class,
+            IdentityLink::class,
+            'identity_id',
+            'identity_link_id',
+            'id',
+            'id'
+        )->where('identity_links.identity_type', IdentityLink::TYPE_SIIAA);
     }
 
     public function identityLink()
