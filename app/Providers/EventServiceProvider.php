@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Listeners\ClearCurrentIdentityOnLogout;
 use App\Listeners\LogSuccessfulLogout;
+use App\Listeners\ResolveUserIdentityOnLogin;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -15,7 +18,11 @@ class EventServiceProvider extends ServiceProvider
      * la trazabilidad básica del flujo de autenticación.
      */
     protected $listen = [
+        Login::class => [
+            ResolveUserIdentityOnLogin::class,
+        ],
         Logout::class => [
+            ClearCurrentIdentityOnLogout::class,
             LogSuccessfulLogout::class,
         ],
     ];

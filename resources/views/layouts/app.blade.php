@@ -27,6 +27,7 @@
         <div class="flex min-h-screen flex-1 flex-col">
             <x-ui.header />
             <x-ui.resolution-warning />
+            <x-ui.identity-warning />
 
             <main class="flex-1">
                 <div class="w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">

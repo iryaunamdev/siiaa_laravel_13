@@ -28,57 +28,41 @@
 @props([
     'title' => 'Sin información disponible',
     'description' => null,
-    'icon' => true,
-    'size' => 'md',
+    'icon' => false,
     'variant' => 'default',
 ])
 
 @php
-    $sizes = [
-        'sm' => 'py-6',
-        'md' => 'py-10',
-        'lg' => 'py-16',
-    ];
-
     $variantClasses = [
         'default' => 'text-center',
         'subtle' => 'text-center text-zinc-500',
     ];
 
-    $sizeClass = $sizes[$size] ?? $sizes['md'];
     $variantClass = $variantClasses[$variant] ?? $variantClasses['default'];
 @endphp
 
 <div
     {{ $attributes->merge([
-        'class' => "flex flex-col items-center justify-center px-4 {$sizeClass} {$variantClass}",
+        'class' => "flex flex-col items-center justify-center px-4 py-6 {$variantClass}",
     ]) }}>
     {{-- Icon --}}
     @if ($icon)
         <div class="mb-4 text-zinc-300">
-            @isset($icon)
-                {{ $icon }}
-            @else
-                <svg class="h-10 w-10" xmlns="http://www.w3.org/zinc0/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 7.5A2.25 2.25 0 015.25 5.25h13.5A2.25 2.25 0 0121 7.5v9A2.25 2.25 0 0118.75 18.75H5.25A2.25 2.25 0 013 16.5v-9z" />
-                </svg>
-            @endisset
+            {{ $icon }}
         </div>
     @endif
 
     {{-- Title --}}
-    <h3 class="text-base font-semibold text-zinc-900">
+    <h3 class="text-sm font-semibold text-zinc-900">
         {{ $title }}
     </h3>
 
     {{-- Description --}}
-    @if ($description)
-        <p class="mt-1 max-w-md text-sm text-zinc-500">
+    @isset($description)
+        <p class="mt-1 max-w-md text-xs text-zinc-500">
             {{ $description }}
         </p>
-    @endif
+    @endisset
 
     {{-- Actions --}}
     @isset($actions)

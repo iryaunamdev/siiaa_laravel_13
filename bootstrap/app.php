@@ -7,6 +7,8 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use App\Http\Middleware\EnsureTwoFactorIsConfigured;
+use App\Http\Middleware\BlockDuringImpersonation;
+use App\Http\Middleware\ResolveCurrentIdentity;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             '2fa.configured' => EnsureTwoFactorIsConfigured::class,
+            'block.impersonation' => BlockDuringImpersonation::class,
+            'identity.resolve' => ResolveCurrentIdentity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

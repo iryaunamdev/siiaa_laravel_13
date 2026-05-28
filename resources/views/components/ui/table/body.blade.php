@@ -10,7 +10,7 @@
 @endphp
 
 <tbody {{ $attributes->merge([
-    'class' => 'divide-y divide-slate-100 bg-white',
+    'class' => 'divide-y divide-zinc-100 bg-white',
 ]) }}>
     {{ $slot }}
 </tbody>

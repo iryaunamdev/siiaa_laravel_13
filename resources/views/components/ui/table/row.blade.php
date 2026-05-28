@@ -12,12 +12,12 @@
     | Detecta la variante striped desde el contenedor padre mediante CSS.
     */
 
-    $hoverClass = $hover ? 'hover:bg-slate-50/70' : '';
+    $hoverClass = $hover ? 'hover:bg-zinc-50/70' : '';
 @endphp
 
 <tr
     {{ $attributes->merge([
-        'class' => "transition {$hoverClass} odd:[.\\[data-table-variant\\=striped\\]_tbody_&]:bg-white even:[.\\[data-table-variant\\=striped\\]_tbody_&]:bg-slate-50/40",
+        'class' => "transition {$hoverClass} odd:[.\\[data-table-variant\\=striped\\]_tbody_&]:bg-white even:[.\\[data-table-variant\\=striped\\]_tbody_&]:bg-zinc-50/40",
     ]) }}>
     {{ $slot }}
 </tr>

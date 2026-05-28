@@ -107,6 +107,12 @@
     }
 
     $sizes = match ($size) {
+        'xs' => [
+            'track' => 'h-4 w-7',
+            'thumb' => 'h-3 w-3',
+            'translate' => 'translate-x-4',
+            'text' => 'text-xs',
+        ],
         'sm' => [
             'track' => 'h-5 w-9',
             'thumb' => 'h-4 w-4',
@@ -135,7 +141,7 @@
 @endphp
 
 <div {{ $attributes->except(['class', 'checked', 'value'])->class(['w-full']) }}>
-    <div x-data="{ checked: @js($isChecked), disabled: @js($disabled) }" class="flex items-start gap-3">
+    <div x-data="{ checked: @js($isChecked), disabled: @js($disabled) }" class="flex items-start {{ isset($label) ? 'gap-3' : '' }}">
         <input type="hidden" name="{{ $fieldName }}" value="0" @disabled($disabled)>
 
         <button type="button" id="{{ $fieldId }}" role="switch" :aria-checked="checked.toString()"
@@ -151,8 +157,9 @@
                 :class="checked ? '{{ $sizes['translate'] }}' : 'translate-x-0.5'"></span>
         </button>
 
-        <input type="checkbox" name="{{ $fieldName }}" value="{{ $value }}" class="sr-only" x-model="checked"
-            @checked($isChecked) @disabled($disabled) {{ $attributes->whereStartsWith('wire:model') }}>
+        <input type="checkbox" name="{{ $fieldName }}" value="{{ $value }}" class="sr-only"
+            x-model="checked" @checked($isChecked) @disabled($disabled)
+            {{ $attributes->whereStartsWith('wire:model') }}>
 
         <div class="min-w-0 flex-1">
             @if ($label)

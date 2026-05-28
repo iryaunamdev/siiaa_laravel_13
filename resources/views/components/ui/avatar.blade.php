@@ -1,7 +1,7 @@
 @props([
-    'user' => null,
-    'size' => 'md',
+    'size' => 'h-8 w-8',
     'variant' => 'default',
+    'name' => '',
 ])
 
 @php
@@ -21,12 +21,6 @@
     | default, neutral, dark, success, warning, danger
     */
 
-    $sizes = [
-        'sm' => 'h-8 w-8 text-xs',
-        'md' => 'h-9 w-9 text-sm',
-        'lg' => 'h-11 w-11 text-base',
-    ];
-
     $variants = [
         'default' => 'bg-sky-100 text-sky-700 ring-sky-200',
         'neutral' => 'bg-zinc-100 text-zinc-700 ring-zinc-200',
@@ -36,16 +30,13 @@
         'danger' => 'bg-red-100 text-red-700 ring-red-200',
     ];
 
-    $sizeClass = $sizes[$size] ?? $sizes['md'];
     $variantClass = $variants[$variant] ?? $variants['default'];
 
-    $name = $user?->name ?? 'Usuario';
-    $initials = $user ? $user->initials() : 'U';
 @endphp
 
 <div {{ $attributes->merge([
-    'class' => "flex {$sizeClass} shrink-0 items-center justify-center rounded-full font-semibold uppercase ring-1 {$variantClass}",
+    'class' => "flex {$size} shrink-0 items-center justify-center rounded-full font-semibold uppercase ring-1 {$variantClass}",
 ]) }}
     title="{{ $name }}" aria-label="{{ $name }}">
-    {{ $initials }}
+    {{ $slot }}
 </div>

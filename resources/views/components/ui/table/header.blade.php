@@ -27,7 +27,7 @@
     $classes = trim("
         px-[var(--table-cell-px)]
         py-[var(--table-cell-py)]
-        text-xs font-semibold uppercase tracking-wide text-slate-500
+        text-[0.69rem] font-semibold uppercase tracking-wide text-zinc-500
         {$alignClasses}
         {$nowrapClass}
         {$width}
@@ -37,7 +37,7 @@
 <th {{ $attributes->merge(['class' => $classes]) }}>
     @if ($sortable && $sortField)
         <button type="button" wire:click="sortBy('{{ $sortField }}', '{{ $nextDirection }}')"
-            class="inline-flex items-center gap-1 rounded-md text-inherit transition hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+            class="inline-flex items-center gap-1 rounded-md text-inherit transition hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
             <span>{{ $slot }}</span>
 
             @if ($isSorted)
@@ -45,7 +45,7 @@
                     {{ $currentDirection === 'asc' ? '▲' : '▼' }}
                 </span>
             @else
-                <span class="text-[0.65rem] text-slate-300">
+                <span class="text-[0.65rem] text-zinc-300">
                     ⇅
                 </span>
             @endif

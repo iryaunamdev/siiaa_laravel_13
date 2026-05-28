@@ -114,6 +114,22 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'siiap' => [
+            'driver' => 'mysql',
+            'host' => env('SIIAP_DB_HOST', '127.0.0.1'),
+            'port' => env('SIIAP_DB_PORT', '3306'),
+            'database' => env('SIIAP_DB_DATABASE', 'forge'),
+            'username' => env('SIIAP_DB_USERNAME', 'forge'),
+            'password' => env('SIIAP_DB_PASSWORD', ''),
+            'unix_socket' => env('SIIAP_DB_SOCKET', ''),
+            'charset' => env('SIIAP_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('SIIAP_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
+
     ],
 
     /*
@@ -149,7 +165,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

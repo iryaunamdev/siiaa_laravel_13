@@ -19,7 +19,7 @@
 
 <div
     {{ $attributes->merge([
-        'class' => 'w-full overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm',
+        'class' => 'w-full overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm',
     ]) }}>
     <table class="w-full {{ $layoutClass }} {{ $densityClasses }}">
         {{ $slot }}

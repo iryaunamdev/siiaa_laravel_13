@@ -18,7 +18,7 @@
 <td
     {{ $attributes->merge([
         'class' => trim(
-            "px-[var(--table-cell-px)] py-[var(--table-cell-py)] align-middle text-sm text-slate-700 {$alignClasses} {$nowrapClass} {$width}",
+            "px-[var(--table-cell-px)] py-[var(--table-cell-py)] align-middle text-sm text-zinc-700 {$alignClasses} {$nowrapClass} {$width}",
         ),
     ]) }}>
     {{ $slot }}

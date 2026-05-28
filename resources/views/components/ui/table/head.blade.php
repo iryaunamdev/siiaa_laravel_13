@@ -17,7 +17,7 @@
 @endphp
 
 <thead {{ $attributes->merge([
-    'class' => 'bg-slate-50/80',
+    'class' => 'bg-zinc-50/80',
 ]) }}>
     {{ $slot }}
 </thead>

@@ -8,6 +8,17 @@
                 </x-ui.menu.item>
             </x-ui.menu>
 
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('personas.index')" :active="request()->routeIs('personas.index')">
+                    Personal IRyA
+                </x-ui.menu.item>
+            </x-ui.menu>
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.index')">
+                    Estudiantes IRyA
+                </x-ui.menu.item>
+            </x-ui.menu>
+
 
 
             <x-ui.menu.section title="Administración" />
