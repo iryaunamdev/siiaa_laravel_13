@@ -96,6 +96,12 @@ Route::middleware(['auth', 'identity.resolve'])
             ->middleware('can:directorio.export');
     });
 
+Route::middleware(['auth', 'verified', '2fa.configured', 'identity.resolve'])
+    ->group(function () {
+        Route::get('/mi-perfil', MiPerfil::class)
+            ->name('mi-perfil');
+    });
+
 Route::middleware(['auth', 'verified'])
     ->get('/user/security', Security::class)
     ->name('user.security');

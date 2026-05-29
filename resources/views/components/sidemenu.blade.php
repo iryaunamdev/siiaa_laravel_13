@@ -8,16 +8,18 @@
                 </x-ui.menu.item>
             </x-ui.menu>
 
-            <x-ui.menu>
-                <x-ui.menu.item :href="route('personas.index')" :active="request()->routeIs('personas.index')">
-                    Personal IRyA
-                </x-ui.menu.item>
-            </x-ui.menu>
-            <x-ui.menu>
-                <x-ui.menu.item :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.index')">
-                    Estudiantes IRyA
-                </x-ui.menu.item>
-            </x-ui.menu>
+            @hasanyrole(['admin', 'super-admin'])
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('personas.index')" :active="request()->routeIs('personas.index')">
+                        Personal IRyA
+                    </x-ui.menu.item>
+                </x-ui.menu>
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.index')">
+                        Estudiantes IRyA
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endhasanyrole
 
             @haspermission('directorio.view')
                 <x-ui.menu>
@@ -43,21 +45,30 @@
                     </x-ui.menu.item>
                 </x-ui.menu>
             @endrole
-            <x-ui.menu>
-                <x-ui.menu.item :href="route('sys.permissions-matrix')" :active="request()->routeIs('permissions-matrix')">
-                    Matriz de permisos
-                </x-ui.menu.item>
-            </x-ui.menu>
-            <x-ui.menu>
-                <x-ui.menu.item :href="route('sys.catalogos')" :active="request()->routeIs('catalogos')">
-                    Catálogos
-                </x-ui.menu.item>
-            </x-ui.menu>
-            <x-ui.menu>
-                <x-ui.menu.item :href="route('sys.settings')" :active="request()->routeIs('configuracion')">
-                    Configuracion global
-                </x-ui.menu.item>
-            </x-ui.menu>
+
+            @haspermission('matrix.view')
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('sys.permissions-matrix')" :active="request()->routeIs('permissions-matrix')">
+                        Matriz de permisos
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endhaspermission
+
+            @haspermission('catalogos.view')
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('sys.catalogos')" :active="request()->routeIs('catalogos')">
+                        Catálogos
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endhaspermission
+
+            @haspermission('sys.settings')
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('sys.settings')" :active="request()->routeIs('configuracion')">
+                        Configuracion global
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endhaspermission
         </div>
         <div>
             <div class="mt-6 border-t border-zinc-200 pt-4">
