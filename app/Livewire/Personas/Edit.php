@@ -787,17 +787,7 @@ class Edit extends Component
     {
         $this->authorize('personas.manage_public_profile');
 
-        $identityLink = $this->persona->identityLink;
-
-        if (! $identityLink) {
-            $this->dispatch(
-                'toast',
-                type: 'warning',
-                message: 'No se puede crear el perfil público porque la persona aún no tiene una identidad institucional resuelta.'
-            );
-
-            return;
-        }
+        $identityLink = $this->resolvedIdentityLink();
 
         $data = $this->validate(
             $this->perfilPublicoRules(),

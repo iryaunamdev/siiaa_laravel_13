@@ -7,6 +7,10 @@ use App\Livewire\Personas\Show as PersonasShow;
 use App\Livewire\Personas\MiPerfil;
 use App\Livewire\Estudiantes\Index as EstudiantesIndex;
 
+use App\Http\Controllers\Directorio\DirectorioExportController;
+use App\Http\Controllers\Directorio\DirectorioPublicFeedController;
+use App\Livewire\Directorio\Index as DirectorioIndex;
+
 use App\Livewire\Sys\Catalogos\Index as CatalogosIndex;
 use App\Livewire\Sys\Config\AuthSettings;
 use App\Livewire\Sys\Documentacion\Index as DocumentacionIndex;
@@ -78,9 +82,31 @@ Route::middleware(['auth', 'verified', '2fa.configured', 'identity.resolve'])
             ->name('perfiles-publicos.index');
     });
 
+Route::middleware(['auth', 'identity.resolve'])
+    ->prefix('directorio')
+    ->name('directorio.')
+    ->group(function () {
+        Route::get('/', DirectorioIndex::class)
+            ->name('index')
+            ->middleware('permission:directorio.view');
+
+        Route::get('/export/{format}', DirectorioExportController::class)
+            ->name('export')
+            ->whereIn('format', ['csv', 'xlsx', 'json'])
+            ->middleware('can:directorio.export');
+    });
+
 Route::middleware(['auth', 'verified'])
     ->get('/user/security', Security::class)
     ->name('user.security');
+
+Route::prefix('api')
+    ->name('api.')
+    ->group(function () {
+        Route::get('/public/directorio.{format}', DirectorioPublicFeedController::class)
+            ->whereIn('format', ['json', 'csv'])
+            ->name('public.directorio.feed');
+    });
 
 Route::get('/test-identity', function () {
     return [

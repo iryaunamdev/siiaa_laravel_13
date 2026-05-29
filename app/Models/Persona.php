@@ -108,6 +108,18 @@ class Persona extends Model
             ->where('activo', true);
     }
 
+    public function perfilPublico()
+    {
+        return $this->hasOneThrough(
+            PerfilPublico::class,
+            IdentityLink::class,
+            'identity_id',
+            'identity_link_id',
+            'id',
+            'id'
+        )->where('identity_links.identity_type', IdentityLink::TYPE_SIIAA);
+    }
+
     public function perfilAcademico()
     {
         return $this->hasOneThrough(

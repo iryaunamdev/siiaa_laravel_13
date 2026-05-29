@@ -19,6 +19,15 @@
                 </x-ui.menu.item>
             </x-ui.menu>
 
+            @haspermission('directorio.view')
+                <x-ui.menu>
+                    <x-ui.menu.item :href="route('directorio.index')" :active="request()->routeIs('directorio.index')">
+                        Directorio IRyA
+                    </x-ui.menu.item>
+                </x-ui.menu>
+            @endhaspermission
+
+
 
 
             <x-ui.menu.section title="Administración" />

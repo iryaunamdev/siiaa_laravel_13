@@ -17,6 +17,7 @@ class PerfilPublico extends Model
 
     protected $fillable = [
         'identity_link_id',
+        'directorio_tipo',
         'photo_path',
         'titulo_es',
         'titulo_en',
