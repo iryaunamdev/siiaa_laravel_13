@@ -36,9 +36,9 @@ class SolicitudesCreate extends Component
             'form.informacion_adicional' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $identityId = activeIdentityLinkId();
+        $identityId = \currentIdentityId();
 
-        abort_if(! $identityId, 403, 'No se encontró una identidad institucional activa.');
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
 
         $solicitud = $solicitudService->crearBorrador(
             $validated['form'],
