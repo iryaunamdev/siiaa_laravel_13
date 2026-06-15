@@ -1,6 +1,5 @@
-.agents
-.codex
-.context
+#.codex
+#.context
 .env
 /vendor
 /node_modules
