@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 interface SolicitudServiceInterface
 {
-    public function crearBorrador(array $data, int $ownerId): Solicitud;
+    public function crearBorrador(array $data, int $ownerId, ?int $actorIdentityId = null): Solicitud;
 
     public function actualizar(Solicitud $solicitud, array $data, int $actorIdentityId): Solicitud;
 
