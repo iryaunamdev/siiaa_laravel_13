@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Solicitudes;
 
+use App\Models\CatalogoItem;
+use App\Models\IdentityLink;
 use App\Models\Solicitudes\Solicitud;
 use App\Services\Solicitudes\SolicitudServiceInterface;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -14,12 +16,23 @@ class SolicitudesEdit extends Component
     public Solicitud $solicitud;
 
     public array $form = [
+        'owner_id' => null,
         'tipo_solicitud_id' => null,
         'motivo_id' => null,
         'fecha_inicio' => null,
         'fecha_fin' => null,
         'informacion_adicional' => null,
     ];
+
+    public $c_tipos_solicitud;
+
+    public $c_motivos;
+
+    public $c_owner_identities;
+
+    public bool $can_manage_owner = false;
+
+    public bool $can_modify_owner = false;
 
     public function mount(Solicitud $solicitud): void
     {
@@ -36,7 +49,16 @@ class SolicitudesEdit extends Component
 
         $this->authorize('update', $this->solicitud);
 
+        $this->can_manage_owner = $this->canManageOwner();
+        $this->can_modify_owner = $this->canModifyOwner();
+        $this->c_tipos_solicitud = $this->catalogoItems('SOLTIPOS');
+        $this->c_motivos = $this->catalogoItems('SOLMOT');
+        $this->c_owner_identities = $this->can_manage_owner
+            ? $this->ownerIdentities()
+            : collect();
+
         $this->form = [
+            'owner_id' => $this->solicitud->owner_id,
             'tipo_solicitud_id' => $this->solicitud->tipo_solicitud_id,
             'motivo_id' => $this->solicitud->motivo_id,
             'fecha_inicio' => optional($this->solicitud->fecha_inicio)->format('Y-m-d'),
@@ -50,6 +72,12 @@ class SolicitudesEdit extends Component
         $this->authorize('update', $this->solicitud);
 
         $validated = $this->validate([
+            'form.owner_id' => [
+                $this->can_modify_owner ? 'required' : 'nullable',
+                'nullable',
+                'integer',
+                'exists:identity_links,id',
+            ],
             'form.tipo_solicitud_id' => ['required', 'integer', 'exists:catalogos_items,id'],
             'form.motivo_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
             'form.fecha_inicio' => ['nullable', 'date'],
@@ -60,6 +88,10 @@ class SolicitudesEdit extends Component
         $identityId = \currentIdentityId();
 
         abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        if (! $this->can_modify_owner) {
+            unset($validated['form']['owner_id']);
+        }
 
         $this->solicitud = $solicitudService->actualizar(
             $this->solicitud,
@@ -94,6 +126,39 @@ class SolicitudesEdit extends Component
         );
 
         return redirect()->route('solicitudes.show', $this->solicitud);
+    }
+
+    protected function canManageOwner(): bool
+    {
+        return auth()->user()?->can('solicitudes.manage') ?? false;
+    }
+
+    protected function canModifyOwner(): bool
+    {
+        if (! $this->canManageOwner()) {
+            return false;
+        }
+
+        return $this->solicitud->created_by === null
+            || (int) $this->solicitud->created_by !== (int) $this->solicitud->owner_id;
+    }
+
+    protected function catalogoItems(string $catalogoClave)
+    {
+        return CatalogoItem::query()
+            ->whereHas('catalogo', fn($query) => $query->where('clave', $catalogoClave))
+            ->orderBy('orden')
+            ->orderBy('nombre')
+            ->get();
+    }
+
+    protected function ownerIdentities()
+    {
+        return IdentityLink::query()
+            ->activas()
+            ->orderBy('identity_type')
+            ->orderBy('email')
+            ->get();
     }
 
     public function render()
