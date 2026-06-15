@@ -60,7 +60,7 @@ class SolicitudesIndex extends Component
     public function render()
     {
         $user = auth()->user();
-        $identityId = activeIdentityLinkId();
+        $identityId = \currentIdentityId();
 
         $query = Solicitud::query()
             ->with([
