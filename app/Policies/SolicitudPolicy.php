@@ -9,20 +9,10 @@ class SolicitudPolicy
 {
     /**
      * Obtiene la identidad institucional activa del usuario.
-     *
-     * Ajusta este método si ya tienes un helper oficial distinto.
      */
     protected function activeIdentityId(User $user): ?int
     {
-        if (method_exists($user, 'activeIdentityLinkId')) {
-            return $user->activeIdentityLinkId();
-        }
-
-        if (function_exists('activeIdentityLinkId')) {
-            return activeIdentityLinkId();
-        }
-
-        return session('identity_link_id');
+        return \currentIdentityId();
     }
 
     /**
