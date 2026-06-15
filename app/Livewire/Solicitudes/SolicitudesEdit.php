@@ -24,27 +24,28 @@ class SolicitudesEdit extends Component
         'informacion_adicional' => null,
     ];
 
+    public array $visitanteForm = [
+        'nombre' => null,
+        'apellidos' => null,
+        'email' => null,
+        'institucion' => null,
+        'lugar' => null,
+        'fecha_inicio' => null,
+        'fecha_fin' => null,
+    ];
+
     public $c_tipos_solicitud;
-
     public $c_motivos;
-
     public $c_owner_identities;
 
     public bool $can_manage_owner = false;
-
     public bool $can_modify_owner = false;
 
     public function mount(Solicitud $solicitud): void
     {
         $this->solicitud = $solicitud->load([
-            'owner',
-            'tipoSolicitud',
-            'motivo',
-            'estatus',
-            'recursos',
-            'documentos',
-            'visitante',
-            'requerimientos',
+            'owner', 'tipoSolicitud', 'motivo', 'estatus',
+            'recursos', 'documentos', 'visitante', 'requerimientos',
         ]);
 
         $this->authorize('update', $this->solicitud);
@@ -53,9 +54,7 @@ class SolicitudesEdit extends Component
         $this->can_modify_owner = $this->canModifyOwner();
         $this->c_tipos_solicitud = $this->catalogoItems('SOLTIPOS');
         $this->c_motivos = $this->catalogoItems('SOLMOT');
-        $this->c_owner_identities = $this->can_manage_owner
-            ? $this->ownerIdentities()
-            : collect();
+        $this->c_owner_identities = $this->can_manage_owner ? $this->ownerIdentities() : collect();
 
         $this->form = [
             'owner_id' => $this->solicitud->owner_id,
@@ -65,6 +64,16 @@ class SolicitudesEdit extends Component
             'fecha_fin' => optional($this->solicitud->fecha_fin)->format('Y-m-d'),
             'informacion_adicional' => $this->solicitud->informacion_adicional,
         ];
+
+        $this->visitanteForm = [
+            'nombre' => $this->solicitud->visitante?->nombre,
+            'apellidos' => $this->solicitud->visitante?->apellidos,
+            'email' => $this->solicitud->visitante?->email,
+            'institucion' => $this->solicitud->visitante?->institucion,
+            'lugar' => $this->solicitud->visitante?->lugar,
+            'fecha_inicio' => optional($this->solicitud->visitante?->fecha_inicio)->format('Y-m-d'),
+            'fecha_fin' => optional($this->solicitud->visitante?->fecha_fin)->format('Y-m-d'),
+        ];
     }
 
     public function save(SolicitudServiceInterface $solicitudService): void
@@ -72,12 +81,7 @@ class SolicitudesEdit extends Component
         $this->authorize('update', $this->solicitud);
 
         $validated = $this->validate([
-            'form.owner_id' => [
-                $this->can_modify_owner ? 'required' : 'nullable',
-                'nullable',
-                'integer',
-                'exists:identity_links,id',
-            ],
+            'form.owner_id' => [$this->can_modify_owner ? 'required' : 'nullable', 'nullable', 'integer', 'exists:identity_links,id'],
             'form.tipo_solicitud_id' => ['required', 'integer', 'exists:catalogos_items,id'],
             'form.motivo_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
             'form.fecha_inicio' => ['nullable', 'date'],
@@ -86,24 +90,39 @@ class SolicitudesEdit extends Component
         ]);
 
         $identityId = \currentIdentityId();
-
         abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
 
         if (! $this->can_modify_owner) {
             unset($validated['form']['owner_id']);
         }
 
-        $this->solicitud = $solicitudService->actualizar(
-            $this->solicitud,
-            $validated['form'],
-            $identityId
-        );
+        $this->solicitud = $solicitudService->actualizar($this->solicitud, $validated['form'], $identityId);
 
-        $this->dispatch(
-            'toast',
-            type: 'success',
-            message: 'Solicitud actualizada correctamente.'
-        );
+        $this->dispatch('toast', type: 'success', message: 'Solicitud actualizada correctamente.');
+    }
+
+    public function guardarVisitante(SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        $validated = $this->validate([
+            'visitanteForm.nombre' => ['nullable', 'string', 'max:255'],
+            'visitanteForm.apellidos' => ['nullable', 'string', 'max:255'],
+            'visitanteForm.email' => ['nullable', 'email', 'max:255'],
+            'visitanteForm.institucion' => ['nullable', 'string', 'max:255'],
+            'visitanteForm.lugar' => ['nullable', 'string', 'max:255'],
+            'visitanteForm.fecha_inicio' => ['nullable', 'date'],
+            'visitanteForm.fecha_fin' => ['nullable', 'date', 'after_or_equal:visitanteForm.fecha_inicio'],
+        ]);
+
+        $identityId = \currentIdentityId();
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        $this->solicitud = $solicitudService
+            ->guardarVisitante($this->solicitud, $validated['visitanteForm'], $identityId)
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos']);
+
+        $this->dispatch('toast', type: 'success', message: 'Visitante guardado correctamente.');
     }
 
     public function enviar(SolicitudServiceInterface $solicitudService)
@@ -111,19 +130,11 @@ class SolicitudesEdit extends Component
         $this->authorize('send', $this->solicitud);
 
         $identityId = \currentIdentityId();
-
         abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
 
-        $this->solicitud = $solicitudService->enviar(
-            $this->solicitud,
-            $identityId
-        );
+        $this->solicitud = $solicitudService->enviar($this->solicitud, $identityId);
 
-        $this->dispatch(
-            'toast',
-            type: 'success',
-            message: 'Solicitud enviada correctamente.'
-        );
+        $this->dispatch('toast', type: 'success', message: 'Solicitud enviada correctamente.');
 
         return redirect()->route('solicitudes.show', $this->solicitud);
     }
