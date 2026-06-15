@@ -18,13 +18,16 @@ class SolicitudService implements SolicitudServiceInterface
         protected NotificationServiceInterface $notificationService,
     ) {}
 
-    public function crearBorrador(array $data, int $ownerId): Solicitud
+    public function crearBorrador(array $data, int $ownerId, ?int $actorIdentityId = null): Solicitud
     {
-        return DB::transaction(function () use ($data, $ownerId) {
+        $actorIdentityId = $actorIdentityId ?? $ownerId;
+        unset($data['owner_id']);
+
+        return DB::transaction(function () use ($data, $ownerId, $actorIdentityId) {
             return Solicitud::create(array_merge($data, [
                 'owner_id' => $ownerId,
-                'created_by' => $ownerId,
-                'updated_by' => $ownerId,
+                'created_by' => $actorIdentityId,
+                'updated_by' => $actorIdentityId,
                 'estatus_id' => $this->estatusId(Solicitud::ESTATUS_BORRADOR),
             ]));
         });
@@ -151,7 +154,7 @@ class SolicitudService implements SolicitudServiceInterface
     {
         return DB::transaction(function () use ($solicitud, $actorIdentityId) {
             if (! $solicitud->puedePasarATramitePago()) {
-                throw new LogicException('La solicitud no puede pasar a trámite de pago.');
+                throw new LogicException('La solicitud no puede pasar a tramite de pago.');
             }
 
             $solicitud->forceFill([
