@@ -44,9 +44,9 @@ class SolicitudesReview extends Component
             'observaciones_sacad' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $identityId = activeIdentityLinkId();
+        $identityId = \currentIdentityId();
 
-        abort_if(! $identityId, 403, 'No se encontró una identidad institucional activa.');
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
 
         $this->solicitud = $solicitudService->aprobarCi(
             $this->solicitud,
@@ -71,9 +71,9 @@ class SolicitudesReview extends Component
             'reject_reason' => ['required', 'string', 'max:5000'],
         ]);
 
-        $identityId = activeIdentityLinkId();
+        $identityId = \currentIdentityId();
 
-        abort_if(! $identityId, 403, 'No se encontró una identidad institucional activa.');
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
 
         $this->solicitud = $solicitudService->rechazarCi(
             $this->solicitud,
@@ -84,7 +84,7 @@ class SolicitudesReview extends Component
         $this->dispatch(
             'toast',
             type: 'success',
-            message: 'Solicitud rechazada correctamente.'
+            message: 'Solicitud no aprobada correctamente.'
         );
 
         return redirect()->route('solicitudes.show', $this->solicitud);
