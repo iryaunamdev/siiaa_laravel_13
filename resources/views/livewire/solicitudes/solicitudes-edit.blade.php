@@ -16,7 +16,7 @@
                                 <option value="{{ $identity->id }}">
                                     {{ $identity->fullname() ?? 'Identidad sin nombre' }}
                                     @if($identity->emailResolved())
-                                        — {{ $identity->emailResolved() }}
+                                        - {{ $identity->emailResolved() }}
                                     @endif
                                     [{{ $identity->identity_type }} #{{ $identity->id }}]
                                 </option>
@@ -31,7 +31,7 @@
                         <div class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-gray-800">
                             {{ $solicitud->owner?->fullname() ?? 'Identidad sin nombre' }}
                             @if($solicitud->owner?->emailResolved())
-                                — {{ $solicitud->owner->emailResolved() }}
+                                - {{ $solicitud->owner->emailResolved() }}
                             @endif
                             [{{ $solicitud->owner?->identity_type ?? 'sin tipo' }} #{{ $solicitud->owner_id }}]
                         </div>
@@ -150,6 +150,90 @@
                         </button>
                     @endcan
                 </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <form wire:submit.prevent="guardarVisitante" class="space-y-5">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">Visitante principal</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Registre los datos base del visitante asociado al expediente.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" wire:model="visitanteForm.nombre"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.nombre')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Apellidos</label>
+                    <input type="text" wire:model="visitanteForm.apellidos"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.apellidos')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Correo</label>
+                    <input type="email" wire:model="visitanteForm.email"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Institucion</label>
+                    <input type="text" wire:model="visitanteForm.institucion"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.institucion')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Lugar</label>
+                    <input type="text" wire:model="visitanteForm.lugar"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.lugar')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de inicio</label>
+                    <input type="date" wire:model="visitanteForm.fecha_inicio"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.fecha_inicio')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de fin</label>
+                    <input type="date" wire:model="visitanteForm.fecha_fin"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('visitanteForm.fecha_fin')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex justify-end border-t border-gray-100 pt-4">
+                <button type="submit"
+                    class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                    wire:loading.attr="disabled">
+                    Guardar visitante
+                </button>
             </div>
         </form>
     </section>
