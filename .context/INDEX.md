@@ -1,50 +1,97 @@
 # Índice de contexto SIIAA
 
-Este directorio contiene documentos de referencia para mantener continuidad de diseño, reglas de negocio y estilo de desarrollo del proyecto SIIAA Laravel 13.
+Este directorio contiene documentos de referencia para mantener continuidad de diseño, reglas de negocio y estilo de desarrollo del proyecto **SIIAA Laravel 13**.
+
+La fuente viva del código es el repositorio:
+
+```text
+https://github.com/iryaunamdev/siiaa_laravel_13
+```
 
 ## Documentos disponibles
 
 | Área / módulo | Archivo | Tipo | Tamaño aproximado | Fecha local | Uso recomendado |
 |---|---|---:|---:|---:|---|
-| Capa de identidad institucional | `Capa_de_identidad_institucional_en_SIIAA_Laravel_13.pdf` | PDF | 282984 bytes | Jun 10 12:05 | Contexto de identidad |
-| Consejo Interno | `Modulo Consejo Interno - SIIAA Laravel 13.docx` | DOCX | 24032 bytes | Jun 8 10:38 | Contexto de módulo |
-| Solicitudes | `Modulo de Solicitudes - SIIAA Laravel 13.md` | MD | texto | Actualizado | **Fuente preferente para desarrollo** |
-| Solicitudes | `Modulo de Solicitudes - SIIAA Laravel 13.pdf` | PDF | 144027 bytes | Jun 4 12:56 | Fuente original / respaldo |
-| Visión general SIIAA | `Resumen_ejecutivo_del_SIIAA_Laravel_13.pdf` | PDF | 743980 bytes | Jun 4 12:57 | Contexto general |
+| Índice de contexto | `INDEX.md` | MD | 2093 bytes | Jun 15 13:19 | Punto de entrada documental |
+| Capa de identidad institucional | `capa_de_identidad_institucional-SIIAA_Laravel_13.md` | MD | 9517 bytes | Jun 15 13:31 | Identidad, autoría, ownership y permisos por identidad |
+| Consejo Interno | `modulo_consejo_interno-SIIAA_Laravel_13.md` | MD | 23874 bytes | Jun 15 13:41 | Diseño funcional aprobado del módulo CI |
+| Solicitudes | `modulo_solicitudes-SIIAA_Laravel_13.md` | MD | 20993 bytes | Jun 15 13:35 | Diseño funcional y técnico aprobado del módulo Solicitudes |
+| Sistema base | `resumen_ejecutivo_sistema_base-SIIAA_Laravel_13.md` | MD | 38561 bytes | Jun 15 13:32 | Arquitectura general, convenciones y decisiones base |
 
 ## Rutas exactas
 
 ```text
-.context/Capa_de_identidad_institucional_en_SIIAA_Laravel_13.pdf
-.context/Modulo Consejo Interno - SIIAA Laravel 13.docx
-.context/Modulo de Solicitudes - SIIAA Laravel 13.md
-.context/Modulo de Solicitudes - SIIAA Laravel 13.pdf
-.context/Resumen_ejecutivo_del_SIIAA_Laravel_13.pdf
+.context/INDEX.md
+.context/capa_de_identidad_institucional-SIIAA_Laravel_13.md
+.context/modulo_consejo_interno-SIIAA_Laravel_13.md
+.context/modulo_solicitudes-SIIAA_Laravel_13.md
+.context/resumen_ejecutivo_sistema_base-SIIAA_Laravel_13.md
 ```
 
-## Uso esperado
+## Prioridad de consulta
 
 Antes de modificar o diseñar un módulo, revisar primero el documento correspondiente en este directorio.
 
-Prioridad de consulta:
+Orden recomendado:
 
-1. Reglas explícitas del documento de contexto del módulo.
+1. Documento específico del módulo o capa.
 2. Código vigente en GitHub `main`.
-3. `.codex/SIIAA.md` como memoria operativa compacta.
+3. Documentación compacta operativa del proyecto, si existe.
 4. Conversación actual.
 
-## Nota para Solicitudes
+## Uso por módulo o capa
+
+### Sistema base
+
+Consultar:
+
+```text
+.context/resumen_ejecutivo_sistema_base-SIIAA_Laravel_13.md
+```
+
+Usar como referencia para arquitectura general, convenciones del proyecto, estilo SIIAA/IRyA, estructura base, criterios de UX y decisiones globales.
+
+### Capa de identidad institucional
+
+Consultar:
+
+```text
+.context/capa_de_identidad_institucional-SIIAA_Laravel_13.md
+```
+
+Usar como referencia obligatoria para cualquier módulo que necesite:
+
+- identidad activa;
+- `identity_links`;
+- autoría;
+- ownership;
+- trazabilidad;
+- permisos dependientes de identidad institucional.
+
+### Solicitudes
+
+Consultar:
+
+```text
+.context/modulo_solicitudes-SIIAA_Laravel_13.md
+```
 
 El módulo Solicitudes debe tratarse como expediente institucional por pasos/secciones, no como CRUD simple.
 
-Para desarrollo de Solicitudes, consultar primero la versión Markdown porque es legible directamente por herramientas de trabajo:
+Este documento es la fuente vigente para tipos, estados, reglas de negocio, flujo, recursos, visitantes, documentos, folios, permisos y notificaciones.
+
+### Consejo Interno
+
+Consultar:
 
 ```text
-.context/Modulo de Solicitudes - SIIAA Laravel 13.md
+.context/modulo_consejo_interno-SIIAA_Laravel_13.md
 ```
 
-La versión PDF queda como respaldo original:
+Usar como referencia para reuniones, puntos, evaluaciones, participantes, documentos, actas, permisos y reglas de acceso.
 
-```text
-.context/Modulo de Solicitudes - SIIAA Laravel 13.pdf
-```
+## Nota importante
+
+Ya no se usan PDFs ni DOCX como fuente principal de contexto dentro de `.context/`.
+
+Los documentos vigentes son archivos Markdown (`.md`) versionados en GitHub.
