@@ -130,3 +130,4 @@ Route::get('/test-identity', function () {
 })->middleware(['auth', 'identity.resolve']);
 
 require __DIR__ . '/settings.php';
+require __DIR__ . '/solicitudes.php';

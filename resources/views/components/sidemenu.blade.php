@@ -29,10 +29,15 @@
                 </x-ui.menu>
             @endhaspermission
 
+            <x-ui.menu.section title="SACAD" />
+            <x-ui.menu>
+                <x-ui.menu.item :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.index')">
+                    Solicitudes
+                </x-ui.menu.item>
+            </x-ui.menu>
 
 
-
-            <x-ui.menu.section title="Administración" />
+            <x-ui.menu.section title="Configuración" />
             <x-ui.menu>
                 <x-ui.menu.item :href="route('sys.users.index')" :active="request()->routeIs('users.*')">
                     Usuarios

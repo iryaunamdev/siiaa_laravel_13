@@ -12,7 +12,7 @@ class Show extends Component
 
     public Persona $persona;
 
-    public string $section = 'academico';
+    public string $section = 'ingresos';
 
     public function mount(Persona $persona): void
     {

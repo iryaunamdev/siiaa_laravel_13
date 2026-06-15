@@ -64,14 +64,15 @@
                             : 'border-transparent text-zinc-500 hover:border-b-2 hover:border-zinc-300 hover:text-zinc-800' }}">
                                 Perfil público
                             </button>
-
-                            <button type="button" wire:click="setSection('posdoc_becas')"
-                                class="border-b-2 px-3 py-2 text-sm font-medium transition
+                            @if ($ingresoPrincipal->tipoPersonal?->clave === 'POS')
+                                <button type="button" wire:click="setSection('posdoc_becas')"
+                                    class="border-b-2 px-3 py-2 text-sm font-medium transition
                         {{ $section === 'posdoc_becas'
                             ? 'border-blue-600 text-zinc-900'
                             : 'border-transparent text-zinc-500 hover:border-b-2 hover:border-zinc-300 hover:text-zinc-800' }}">
-                                Becas posdoctorales
-                            </button>
+                                    Becas posdoctorales
+                                </button>
+                            @endif
                         </nav>
                     </div>
 

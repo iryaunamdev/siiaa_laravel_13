@@ -18,7 +18,7 @@ class Edit extends Component
 
     public Persona $persona;
 
-    public string $section = 'ingresos';
+    public string $section = 'general';
 
     /*
     |--------------------------------------------------------------------------
@@ -140,7 +140,7 @@ class Edit extends Component
             'identityLink.perfilPublico',
         ]);
 
-        //$this->section = request('section', 'general');
+        $this->section = request('section', 'general');
 
         $ingreso_principal = $this->persona->ingresos()->where('activo', true)
             ->where('principal', true)->first();

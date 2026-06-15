@@ -27,6 +27,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.create',
             'users.update',
             'users.assign_roles',
+            'solicitudes.access',
+            'solicitudes.review',
+            'solicitudes.manage',
         ];
 
         foreach ($permissions as $perm) {
@@ -36,6 +39,8 @@ class RolesAndPermissionsSeeder extends Seeder
         // ---- Roles base ----
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $admin      = Role::firstOrCreate(['name' => 'admin-sistema']);
+        $adminAlias = Role::firstOrCreate(['name' => 'admin']);
+        $sacad      = Role::firstOrCreate(['name' => 'sacad']);
         $usuario    = Role::firstOrCreate(['name' => 'usuario']);
 
         // ---- Asignación de permisos ----
@@ -50,11 +55,33 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.create',
             'users.update',
             'users.assign_roles',
+            'solicitudes.access',
+            'solicitudes.review',
+            'solicitudes.manage',
+        ]);
+
+        $adminAlias->givePermissionTo([
+            'dashboard.view',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.assign_roles',
+            'solicitudes.access',
+            'solicitudes.review',
+            'solicitudes.manage',
+        ]);
+
+        // sacad: revisión institucional de solicitudes
+        $sacad->givePermissionTo([
+            'dashboard.view',
+            'solicitudes.access',
+            'solicitudes.review',
         ]);
 
         // usuario: acceso mínimo
         $usuario->givePermissionTo([
             'dashboard.view',
+            'solicitudes.access',
         ]);
     }
 }
