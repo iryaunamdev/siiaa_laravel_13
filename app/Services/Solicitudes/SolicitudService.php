@@ -20,7 +20,6 @@ class SolicitudService implements SolicitudServiceInterface
 
     public function crearBorrador(array $data, int $ownerId, ?int $actorIdentityId = null): Solicitud
     {
-        $actorIdentityId = $actorIdentityId ?? $ownerId;
         unset($data['owner_id']);
 
         return DB::transaction(function () use ($data, $ownerId, $actorIdentityId) {
