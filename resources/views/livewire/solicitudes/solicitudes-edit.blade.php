@@ -96,6 +96,28 @@
                         @enderror
                     </div>
 
+                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 md:col-span-2">
+                        <label class="flex items-start gap-3 text-sm text-gray-700">
+                            <input type="checkbox" wire:model="form.requiere_recursos"
+                                class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+
+                            <span>
+                                <span class="block font-medium text-gray-800">
+                                    Requiere recursos
+                                </span>
+                                <span class="block text-xs text-gray-500">
+                                    Para ausencia con recursos, solo recursos y recursos IRyA para estudiantes se
+                                    activará automáticamente.
+                                    En visitantes puede marcarse si aplica.
+                                </span>
+                            </span>
+                        </label>
+
+                        @error('form.requiere_recursos')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">
                             Motivo
@@ -535,5 +557,151 @@
                 </form>
             </section>
         @endif
+    @endif
+
+    @if ($paso === 2 && $solicitud->requiere_recursos)
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <form wire:submit.prevent="guardarRecursos" class="space-y-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Recursos solicitados</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Capture los recursos asociados al expediente. Puede registrar uno o varios bloques según el
+                            origen del recurso.
+                        </p>
+                    </div>
+
+                    <button type="button" wire:click="agregarRecurso"
+                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Agregar recurso
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    @forelse($recursosForm as $index => $recurso)
+                        <div class="rounded-xl border border-gray-200 p-4">
+                            <div class="mb-4 flex items-center justify-between gap-4">
+                                <h4 class="text-sm font-semibold text-gray-900">
+                                    Recurso {{ $index + 1 }}
+                                </h4>
+
+                                <button type="button" wire:click="quitarRecurso({{ $index }})"
+                                    class="text-sm font-medium text-red-600 hover:text-red-700">
+                                    Quitar
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Origen</label>
+                                    <select wire:model="recursosForm.{{ $index }}.origen_id"
+                                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="">Seleccione una opción</option>
+
+                                        @foreach ($c_origenes_recurso as $origen)
+                                            <option value="{{ $origen->id }}">
+                                                {{ $origen->nombre }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error("recursosForm.$index.origen_id")
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Proyecto /
+                                        nombre</label>
+                                    <input type="text"
+                                        wire:model="recursosForm.{{ $index }}.proyecto_nombre"
+                                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    @error("recursosForm.$index.proyecto_nombre")
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Días nacionales</label>
+                                    <input type="number" min="0"
+                                        wire:model="recursosForm.{{ $index }}.dias_n"
+                                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    @error("recursosForm.$index.dias_n")
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Días
+                                        internacionales</label>
+                                    <input type="number" min="0"
+                                        wire:model="recursosForm.{{ $index }}.dias_i"
+                                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    @error("recursosForm.$index.dias_i")
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                @foreach (['cuota' => 'Cuota', 'avion' => 'Avión', 'otro' => 'Otro'] as $campo => $label)
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-sm font-medium text-gray-700">{{ $label }}</label>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <input type="number" step="0.01" min="0"
+                                                wire:model="recursosForm.{{ $index }}.{{ $campo }}"
+                                                class="col-span-2 rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                                            <select
+                                                wire:model="recursosForm.{{ $index }}.{{ $campo }}_divisa"
+                                                class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="">Divisa</option>
+
+                                                @foreach ($c_divisas as $divisa)
+                                                    <option value="{{ $divisa->id }}">
+                                                        {{ $divisa->clave }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        @error("recursosForm.$index.$campo")
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+
+                                        @error("recursosForm.$index.{$campo}_divisa")
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                @endforeach
+
+                                <div class="md:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        Información adicional del recurso
+                                    </label>
+
+                                    <textarea wire:model="recursosForm.{{ $index }}.informacion_adicional" rows="3"
+                                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+
+                                    @error("recursosForm.$index.informacion_adicional")
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                            No hay recursos capturados. Use “Agregar recurso” para iniciar.
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="flex justify-end border-t border-gray-100 pt-4">
+                    <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                        wire:loading.attr="disabled">
+                        Guardar recursos
+                    </button>
+                </div>
+            </form>
+        </section>
     @endif
 </div>

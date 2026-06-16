@@ -22,6 +22,7 @@ class SolicitudesEdit extends Component
     public array $form = [
         'owner_id' => null,
         'tipo_solicitud_id' => null,
+        'requiere_recursos' => false,
         'motivo_id' => null,
         'motivo_otro' => null,
         'fecha_inicio' => null,
@@ -52,13 +53,13 @@ class SolicitudesEdit extends Component
         'fecha_fin' => null,
     ];
 
-    public array $requerimientosSeleccionados = [];
+    public array $requerimientosSeleccionados = [], $recursosForm = [];
 
-    public bool $can_manage_owner = false;
-    public bool $can_modify_owner = false;
+    public bool $can_manage_owner = false,  $can_modify_owner = false;
 
     /* catalogos */
     public Collection $c_tipos_solicitud, $c_motivos, $c_paises, $c_tutores, $c_tipos_visitante, $c_requerimientos_visitante, $c_owner_identities;
+    public Collection $c_origenes_recurso, $c_divisas;
 
     public function mount(Solicitud $solicitud): void
     {
@@ -84,11 +85,14 @@ class SolicitudesEdit extends Component
         $this->c_tutores = $this->tutorIdentities();
         $this->c_tipos_visitante = $this->catalogoItems('C_SOLTVIS');
         $this->c_requerimientos_visitante = $this->catalogoItems('VIS_REQ');
+        $this->c_origenes_recurso = $this->catalogoItems('C_OREC');
+        $this->c_divisas = $this->catalogoItems('DIVISAS');
         $this->c_owner_identities = $this->can_manage_owner ? $this->ownerIdentities() : collect();
 
         $this->form = [
             'owner_id' => $this->solicitud->owner_id,
             'tipo_solicitud_id' => $this->solicitud->tipo_solicitud_id,
+            'requiere_recursos' => (bool) $this->solicitud->requiere_recursos,
             'motivo_id' => $this->solicitud->motivo_id,
             'motivo_otro' => $this->solicitud->motivo_otro,
             'fecha_inicio' => optional($this->solicitud->fecha_inicio)->format('Y-m-d'),
@@ -124,6 +128,28 @@ class SolicitudesEdit extends Component
             ->map(fn($id) => (int) $id)
             ->values()
             ->all();
+
+        $this->recursosForm = $this->solicitud->recursos
+            ->map(fn($recurso) => [
+                'origen_id' => $recurso->origen_id,
+                'proyecto_id' => $recurso->proyecto_id,
+                'proyecto_nombre' => $recurso->proyecto_nombre,
+                'dias_n' => $recurso->dias_n,
+                'dias_i' => $recurso->dias_i,
+                'cuota' => $recurso->cuota,
+                'cuota_divisa' => $recurso->cuota_divisa,
+                'avion' => $recurso->avion,
+                'avion_divisa' => $recurso->avion_divisa,
+                'otro' => $recurso->otro,
+                'otro_divisa' => $recurso->otro_divisa,
+                'informacion_adicional' => $recurso->informacion_adicional,
+            ])
+            ->values()
+            ->all();
+
+        if ($this->solicitud->requiere_recursos && empty($this->recursosForm)) {
+            $this->agregarRecurso();
+        }
     }
 
     public function guardarPaso1(SolicitudServiceInterface $solicitudService): void
@@ -138,6 +164,7 @@ class SolicitudesEdit extends Component
                 'exists:identity_links,id',
             ],
             'form.tipo_solicitud_id' => ['required', 'integer', 'exists:catalogos_items,id'],
+            'form.requiere_recursos' => ['boolean'],
             'form.motivo_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
             'form.motivo_otro' => ['nullable', 'string', 'max:255'],
             'form.fecha_inicio' => ['nullable', 'date'],
@@ -153,6 +180,17 @@ class SolicitudesEdit extends Component
             'form.requiere_seguro_unam' => ['boolean'],
             'form.seguro_unam_beneficiario' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $tipoSeleccionado = $this->c_tipos_solicitud
+            ->firstWhere('id', (int) $validated['form']['tipo_solicitud_id']);
+
+        if ($tipoSeleccionado) {
+            $validated['form']['requiere_recursos'] = SolicitudCatalogos::requiereRecursosPorTipo($tipoSeleccionado->clave)
+                || (
+                    SolicitudCatalogos::recursosSeleccionablesPorTipo($tipoSeleccionado->clave)
+                    && (bool) ($this->form['requiere_recursos'] ?? false)
+                );
+        }
 
         $identityId = \currentIdentityId();
         abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
@@ -177,6 +215,13 @@ class SolicitudesEdit extends Component
         return $this->c_tipos_solicitud
             ->firstWhere('id', (int) $tipoId)
             ?->clave === SolicitudCatalogos::TIPO_VISITANTE;
+    }
+
+    protected function divisaMxnId(): ?int
+    {
+        return $this->c_divisas
+            ->firstWhere('clave', SolicitudCatalogos::DIVISA_MXN)
+            ?->id;
     }
 
     public function guardarVisitante(SolicitudServiceInterface $solicitudService): void
@@ -328,6 +373,78 @@ class SolicitudesEdit extends Component
             ->where('identity_type', 'persona')
             ->orderBy('email')
             ->get();
+    }
+
+    public function agregarRecurso(): void
+    {
+        $mxnId = $this->divisaMxnId();
+
+        $this->recursosForm[] = [
+            'origen_id' => null,
+            'proyecto_id' => null,
+            'proyecto_nombre' => null,
+            'dias_n' => null,
+            'dias_i' => null,
+            'cuota' => null,
+            'cuota_divisa' => $mxnId,
+            'avion' => null,
+            'avion_divisa' => $mxnId,
+            'otro' => null,
+            'otro_divisa' => $mxnId,
+            'informacion_adicional' => null,
+        ];
+    }
+
+    public function quitarRecurso(int $index): void
+    {
+        unset($this->recursosForm[$index]);
+
+        $this->recursosForm = array_values($this->recursosForm);
+    }
+
+    public function guardarRecursos(SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        if (! $this->solicitud->requiere_recursos) {
+            $this->recursosForm = [];
+        }
+
+        $validated = $this->validate([
+            'recursosForm' => ['array'],
+            'recursosForm.*.origen_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'recursosForm.*.proyecto_id' => ['nullable', 'integer'],
+            'recursosForm.*.proyecto_nombre' => ['nullable', 'string', 'max:255'],
+            'recursosForm.*.dias_n' => ['nullable', 'integer', 'min:0'],
+            'recursosForm.*.dias_i' => ['nullable', 'integer', 'min:0'],
+            'recursosForm.*.cuota' => ['nullable', 'numeric', 'min:0'],
+            'recursosForm.*.cuota_divisa' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'recursosForm.*.avion' => ['nullable', 'numeric', 'min:0'],
+            'recursosForm.*.avion_divisa' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'recursosForm.*.otro' => ['nullable', 'numeric', 'min:0'],
+            'recursosForm.*.otro_divisa' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'recursosForm.*.informacion_adicional' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $identityId = \currentIdentityId();
+
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        $recursos = collect($validated['recursosForm'] ?? [])
+            ->filter(function (array $recurso) {
+                return collect($recurso)
+                    ->except(['cuota_divisa', 'avion_divisa', 'otro_divisa'])
+                    ->filter(fn($value) => ! blank($value))
+                    ->isNotEmpty();
+            })
+            ->values()
+            ->all();
+
+        $this->solicitud = $solicitudService
+            ->sincronizarRecursos($this->solicitud, $recursos, $identityId)
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos.requerimiento']);
+
+        $this->dispatch('toast', type: 'success', message: 'Recursos guardados correctamente.');
     }
 
     public function render()
