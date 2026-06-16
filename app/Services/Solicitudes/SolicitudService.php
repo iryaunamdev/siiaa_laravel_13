@@ -84,7 +84,7 @@ class SolicitudService implements SolicitudServiceInterface
                 'estatus_id' => $this->estatusId(Solicitud::ESTATUS_CANCELADA),
                 'cancelled_at' => now(),
                 'cancelled_by' => $actorIdentityId,
-                'cancel_reason' => $motivo,
+                'observaciones_administracion' => $motivo ?: $solicitud->observaciones_administracion,
                 'updated_by' => $actorIdentityId,
             ])->save();
 
@@ -130,7 +130,7 @@ class SolicitudService implements SolicitudServiceInterface
 
     public function rechazarCi(Solicitud $solicitud, int $actorIdentityId, string $motivo): Solicitud
     {
-        return DB::transaction(function () use ($solicitud, $actorIdentityId, $motivo) {
+        $solicitud = DB::transaction(function () use ($solicitud, $actorIdentityId, $motivo) {
             if (! $solicitud->puedeRevisarse()) {
                 throw new LogicException('La solicitud no se encuentra en estado revisable.');
             }
@@ -139,14 +139,16 @@ class SolicitudService implements SolicitudServiceInterface
                 'estatus_id' => $this->estatusId(Solicitud::ESTATUS_RECHAZADA_CI),
                 'rejected_at' => now(),
                 'rejected_by' => $actorIdentityId,
-                'reject_reason' => $motivo,
+                'observaciones_sacad' => $motivo,
                 'updated_by' => $actorIdentityId,
             ])->save();
 
-            $this->notificationService->solicitudRechazada($solicitud);
-
             return $solicitud->refresh();
         });
+
+        $this->notificationService->solicitudRechazada($solicitud);
+
+        return $solicitud;
     }
 
     public function pasarATramitePago(Solicitud $solicitud, int $actorIdentityId): Solicitud
@@ -195,8 +197,6 @@ class SolicitudService implements SolicitudServiceInterface
                 'observaciones_administracion' => $observaciones,
                 'updated_by' => $actorIdentityId,
             ])->save();
-
-            $this->notificationService->solicitudRechazada($solicitud);
 
             return $solicitud->refresh();
         });

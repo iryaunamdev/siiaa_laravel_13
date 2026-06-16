@@ -8,10 +8,10 @@
     Su solicitud <strong>{{ $folio }}</strong> no fue aprobada.
 </p>
 
-@if (!empty($solicitud->reject_reason))
+@if (!empty($solicitud->observaciones_sacad))
     <p>
         <strong>Motivo:</strong><br>
-        {{ $solicitud->reject_reason }}
+        {{ $solicitud->observaciones_sacad }}
     </p>
 @endif
 

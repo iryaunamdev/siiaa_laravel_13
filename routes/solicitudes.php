@@ -5,7 +5,7 @@ use App\Livewire\Solicitudes\SolicitudesEdit;
 use App\Livewire\Solicitudes\SolicitudesIndex;
 use App\Livewire\Solicitudes\SolicitudesReview;
 use App\Livewire\Solicitudes\SolicitudesShow;
-use Illuminate\Support\Facades\SolicitudesRoute;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])
     ->prefix('solicitudes')

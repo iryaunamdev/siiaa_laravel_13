@@ -56,10 +56,10 @@
         <label class="mb-1 block text-sm font-medium text-gray-700">
             Motivo de rechazo
         </label>
-        <textarea wire:model="reject_reason" rows="4"
+        <textarea wire:model="observaciones_sacad" rows="4"
             class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             placeholder="Requerido únicamente si se rechaza la solicitud."></textarea>
-        @error('reject_reason')
+        @error('observaciones_sacad')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
         @enderror
     </section>

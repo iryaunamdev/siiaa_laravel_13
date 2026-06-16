@@ -15,7 +15,6 @@ class SolicitudesReview extends Component
 
     public ?string $observaciones_sacad = null;
 
-    public ?string $reject_reason = null;
 
     public function mount(Solicitud $solicitud): void
     {
@@ -33,7 +32,6 @@ class SolicitudesReview extends Component
         $this->authorize('review', $this->solicitud);
 
         $this->observaciones_sacad = $this->solicitud->observaciones_sacad;
-        $this->reject_reason = $this->solicitud->reject_reason;
     }
 
     public function aprobar(SolicitudServiceInterface $solicitudService)
@@ -68,7 +66,7 @@ class SolicitudesReview extends Component
         $this->authorize('reject', $this->solicitud);
 
         $validated = $this->validate([
-            'reject_reason' => ['required', 'string', 'max:5000'],
+            'observaciones_sacad' => ['required', 'string', 'max:5000'],
         ]);
 
         $identityId = \currentIdentityId();
@@ -78,7 +76,7 @@ class SolicitudesReview extends Component
         $this->solicitud = $solicitudService->rechazarCi(
             $this->solicitud,
             $identityId,
-            $validated['reject_reason']
+            $validated['observaciones_sacad']
         );
 
         $this->dispatch(

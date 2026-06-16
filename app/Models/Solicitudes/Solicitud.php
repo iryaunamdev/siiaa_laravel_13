@@ -21,22 +21,23 @@ use App\Support\Solicitudes\SolicitudCatalogos;
 class Solicitud extends Model
 {
     /*
-|--------------------------------------------------------------------------
-| Claves de estatus
-|--------------------------------------------------------------------------
-|
-| Estas claves deben coincidir con catalogos_items.clave para el catálogo
-| institucional de estatus de solicitudes.
-|
-*/
-    public const ESTATUS_BORRADOR = 'BORRADOR';
-    public const ESTATUS_ENVIADA = 'ENVIADA';
-    public const ESTATUS_APROBADA_CI = 'APROBADA_CI';
-    public const ESTATUS_RECHAZADA_CI = 'RECHAZADA_CI';
-    public const ESTATUS_TRAMITE_PAGO = 'TRAMITE_PAGO';
-    public const ESTATUS_PAGADA = 'PAGADA';
-    public const ESTATUS_CERRADA = 'CERRADA';
-    public const ESTATUS_CANCELADA = 'CANCELADA';
+    |--------------------------------------------------------------------------
+    | Claves de estatus
+    |--------------------------------------------------------------------------
+    |
+    | Estas claves deben coincidir con catalogos_items.clave para el catálogo
+    | institucional de estatus de solicitudes.
+    |
+    */
+    public const ESTATUS_BORRADOR = SolicitudCatalogos::ESTATUS_BORRADOR;
+    public const ESTATUS_ENVIADA = SolicitudCatalogos::ESTATUS_ENVIADA;
+    public const ESTATUS_APROBADA_CI = SolicitudCatalogos::ESTATUS_APROBADA_CI;
+    public const ESTATUS_RECHAZADA_CI = SolicitudCatalogos::ESTATUS_RECHAZADA_CI;
+    public const ESTATUS_TRAMITE_PAGO = SolicitudCatalogos::ESTATUS_TRAMITE_PAGO;
+    public const ESTATUS_PAGADA = SolicitudCatalogos::ESTATUS_PAGADA;
+    public const ESTATUS_CERRADA = SolicitudCatalogos::ESTATUS_CERRADA;
+    public const ESTATUS_CANCELADA = SolicitudCatalogos::ESTATUS_CANCELADA;
+
     protected $table = 'solicitudes';
 
     protected $fillable = [
@@ -389,7 +390,7 @@ class Solicitud extends Model
      */
     public function puedeEditarPropietario(): bool
     {
-        return $this->esBorrador();
+        return $this->tieneEstatus(SolicitudCatalogos::estatusEditablesPorPropietario());
     }
 
     /**
