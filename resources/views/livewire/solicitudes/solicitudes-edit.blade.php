@@ -117,6 +117,20 @@
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Motivo otro
+                        </label>
+
+                        <input type="text" wire:model="form.motivo_otro"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder="Especifique el motivo si seleccionó Otro">
+
+                        @error('form.motivo_otro')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
                             Fecha de inicio
                         </label>
                         <input type="date" wire:model="form.fecha_inicio"
@@ -136,6 +150,146 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            País
+                        </label>
+
+                        <select wire:model="form.pais_id"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Seleccione una opción</option>
+
+                            @foreach ($c_paises as $pais)
+                                <option value="{{ $pais->id }}">
+                                    {{ $pais->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('form.pais_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Nombre del evento
+                        </label>
+
+                        <input type="text" wire:model="form.nombre_evento"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                        @error('form.nombre_evento')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Tipo de presentación
+                        </label>
+
+                        <input type="text" wire:model="form.tipo_presentacion"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder="Ponencia, cartel, charla, participación, etc.">
+
+                        @error('form.tipo_presentacion')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Institución
+                        </label>
+
+                        <input type="text" wire:model="form.institucion"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                        @error('form.institucion')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Anfitrión
+                        </label>
+
+                        <input type="text" wire:model="form.anfitrion"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                        @error('form.anfitrion')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Lugar
+                        </label>
+
+                        <input type="text" wire:model="form.lugar"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                        @error('form.lugar')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                        Tutor / responsable institucional
+                    </label>
+
+                    <select wire:model="form.tutor_id"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">Seleccione una opción</option>
+
+                        @foreach ($c_tutores as $tutor)
+                            <option value="{{ $tutor->id }}">
+                                {{ $tutor->fullname() ?? ($tutor->emailResolved() ?? 'Identidad #' . $tutor->id) }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('form.tutor_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <label class="flex items-start gap-3 text-sm text-gray-700">
+                        <input type="checkbox" wire:model="form.requiere_seguro_unam"
+                            class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+
+                        <span>
+                            <span class="block font-medium text-gray-800">
+                                Requiere seguro UNAM
+                            </span>
+                            <span class="block text-xs text-gray-500">
+                                Marcar cuando la solicitud requiera documentación o trámite de seguro institucional.
+                            </span>
+                        </span>
+                    </label>
+
+                    @error('form.requiere_seguro_unam')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                        Beneficiario del seguro UNAM
+                    </label>
+
+                    <input type="text" wire:model="form.seguro_unam_beneficiario"
+                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                    @error('form.seguro_unam_beneficiario')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>

@@ -21,9 +21,19 @@ class SolicitudesEdit extends Component
         'owner_id' => null,
         'tipo_solicitud_id' => null,
         'motivo_id' => null,
+        'motivo_otro' => null,
         'fecha_inicio' => null,
         'fecha_fin' => null,
+        'pais_id' => null,
+        'nombre_evento' => null,
+        'tipo_presentacion' => null,
+        'institucion' => null,
+        'anfitrion' => null,
+        'lugar' => null,
+        'tutor_id' => null,
         'informacion_adicional' => null,
+        'requiere_seguro_unam' => false,
+        'seguro_unam_beneficiario' => null,
     ];
 
     public array $visitanteForm = [
@@ -38,6 +48,8 @@ class SolicitudesEdit extends Component
 
     public $c_tipos_solicitud;
     public $c_motivos;
+    public $c_paises;
+    public $c_tutores;
     public $c_owner_identities;
 
     public bool $can_manage_owner = false;
@@ -56,15 +68,27 @@ class SolicitudesEdit extends Component
         $this->can_modify_owner = $this->canModifyOwner();
         $this->c_tipos_solicitud = $this->catalogoItems('SOLTIPOS');
         $this->c_motivos = $this->catalogoItems('SOLMOT');
+        $this->c_paises = $this->catalogoItems('PAISES');
+        $this->c_tutores = $this->tutorIdentities();
         $this->c_owner_identities = $this->can_manage_owner ? $this->ownerIdentities() : collect();
 
         $this->form = [
             'owner_id' => $this->solicitud->owner_id,
             'tipo_solicitud_id' => $this->solicitud->tipo_solicitud_id,
             'motivo_id' => $this->solicitud->motivo_id,
+            'motivo_otro' => $this->solicitud->motivo_otro,
             'fecha_inicio' => optional($this->solicitud->fecha_inicio)->format('Y-m-d'),
             'fecha_fin' => optional($this->solicitud->fecha_fin)->format('Y-m-d'),
+            'pais_id' => $this->solicitud->pais_id,
+            'nombre_evento' => $this->solicitud->nombre_evento,
+            'tipo_presentacion' => $this->solicitud->tipo_presentacion,
+            'institucion' => $this->solicitud->institucion,
+            'anfitrion' => $this->solicitud->anfitrion,
+            'lugar' => $this->solicitud->lugar,
+            'tutor_id' => $this->solicitud->tutor_id,
             'informacion_adicional' => $this->solicitud->informacion_adicional,
+            'requiere_seguro_unam' => (bool) $this->solicitud->requiere_seguro_unam,
+            'seguro_unam_beneficiario' => $this->solicitud->seguro_unam_beneficiario,
         ];
 
         $this->visitanteForm = [
@@ -83,12 +107,27 @@ class SolicitudesEdit extends Component
         $this->authorize('update', $this->solicitud);
 
         $validated = $this->validate([
-            'form.owner_id' => [$this->can_modify_owner ? 'required' : 'nullable', 'nullable', 'integer', 'exists:identity_links,id'],
+            'form.owner_id' => [
+                $this->can_modify_owner ? 'required' : 'nullable',
+                'nullable',
+                'integer',
+                'exists:identity_links,id',
+            ],
             'form.tipo_solicitud_id' => ['required', 'integer', 'exists:catalogos_items,id'],
             'form.motivo_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'form.motivo_otro' => ['nullable', 'string', 'max:255'],
             'form.fecha_inicio' => ['nullable', 'date'],
             'form.fecha_fin' => ['nullable', 'date', 'after_or_equal:form.fecha_inicio'],
+            'form.pais_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'form.nombre_evento' => ['nullable', 'string', 'max:255'],
+            'form.tipo_presentacion' => ['nullable', 'string', 'max:255'],
+            'form.institucion' => ['nullable', 'string', 'max:255'],
+            'form.anfitrion' => ['nullable', 'string', 'max:255'],
+            'form.lugar' => ['nullable', 'string', 'max:255'],
+            'form.tutor_id' => ['nullable', 'integer', 'exists:identity_links,id'],
             'form.informacion_adicional' => ['nullable', 'string', 'max:5000'],
+            'form.requiere_seguro_unam' => ['boolean'],
+            'form.seguro_unam_beneficiario' => ['nullable', 'string', 'max:255'],
         ]);
 
         $identityId = \currentIdentityId();
@@ -209,6 +248,15 @@ class SolicitudesEdit extends Component
         return IdentityLink::query()
             ->activas()
             ->orderBy('identity_type')
+            ->orderBy('email')
+            ->get();
+    }
+
+    protected function tutorIdentities()
+    {
+        return IdentityLink::query()
+            ->activas()
+            ->where('identity_type', 'persona')
             ->orderBy('email')
             ->get();
     }
