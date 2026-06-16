@@ -194,8 +194,7 @@ class SolicitudesEdit extends Component
                 );
         }
 
-        $identityId = \currentIdentityId();
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         if (! $this->can_modify_owner) {
             unset($validated['form']['owner_id']);
@@ -244,8 +243,7 @@ class SolicitudesEdit extends Component
             'visitanteForm.fecha_fin' => ['nullable', 'date', 'after_or_equal:visitanteForm.fecha_inicio'],
         ]);
 
-        $identityId = \currentIdentityId();
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $this->solicitud = $solicitudService
             ->guardarVisitante($this->solicitud, $validated['visitanteForm'], $identityId)
@@ -267,9 +265,7 @@ class SolicitudesEdit extends Component
             'requerimientosSeleccionados.*' => ['integer', 'exists:catalogos_items,id'],
         ]);
 
-        $identityId = \currentIdentityId();
-
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $this->solicitud = $solicitudService
             ->sincronizarRequerimientos(
@@ -286,8 +282,7 @@ class SolicitudesEdit extends Component
     {
         $this->authorize('send', $this->solicitud);
 
-        $identityId = \currentIdentityId();
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $this->solicitud = $solicitudService->enviar($this->solicitud, $identityId);
 
@@ -333,6 +328,21 @@ class SolicitudesEdit extends Component
         if ($this->paso === 2 && ! $this->solicitud->requiere_recursos) {
             $this->paso = 3;
         }
+    }
+
+    protected function actorIdentityId(bool $allowManageWithoutIdentity = false): ?int
+    {
+        $identityId = \currentIdentityId();
+
+        if ($identityId) {
+            return $identityId;
+        }
+
+        if ($allowManageWithoutIdentity && auth()->user()?->can('solicitudes.manage')) {
+            return null;
+        }
+
+        abort(403, 'No se encontro una identidad institucional activa.');
     }
 
     protected function canManageOwner(): bool
@@ -428,9 +438,7 @@ class SolicitudesEdit extends Component
             'recursosForm.*.informacion_adicional' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $identityId = \currentIdentityId();
-
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $recursos = collect($validated['recursosForm'] ?? [])
             ->filter(function (array $recurso) {
@@ -458,9 +466,7 @@ class SolicitudesEdit extends Component
             'documentosUpload.*' => ['file', 'max:10240'],
         ]);
 
-        $identityId = \currentIdentityId();
-
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         foreach ($validated['documentosUpload'] as $documento) {
             $solicitudService->adjuntarDocumento($this->solicitud, $documento, $identityId);
@@ -492,9 +498,7 @@ class SolicitudesEdit extends Component
             ->whereKey($documentoId)
             ->firstOrFail();
 
-        $identityId = \currentIdentityId();
-
-        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $solicitudService->eliminarDocumento($documento, $identityId);
 

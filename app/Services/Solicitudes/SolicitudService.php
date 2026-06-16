@@ -32,7 +32,7 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function actualizar(Solicitud $solicitud, array $data, int $actorIdentityId): Solicitud
+    public function actualizar(Solicitud $solicitud, array $data, ?int $actorIdentityId): Solicitud
     {
         return DB::transaction(function () use ($solicitud, $data, $actorIdentityId) {
             if ($solicitud->perteneceA($actorIdentityId) && ! $solicitud->puedeEditarPropietario()) {
@@ -47,11 +47,13 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function enviar(Solicitud $solicitud, int $actorIdentityId): Solicitud
+    public function enviar(Solicitud $solicitud, ?int $actorIdentityId): Solicitud
     {
         $solicitud = DB::transaction(function () use ($solicitud, $actorIdentityId) {
-            if (! $solicitud->perteneceA($actorIdentityId)) {
-                throw new LogicException('Solo el propietario puede enviar esta solicitud.');
+            $puedeGestionar = auth()->user()?->can('solicitudes.manage') ?? false;
+
+            if (! $puedeGestionar && (! $actorIdentityId || ! $solicitud->perteneceA($actorIdentityId))) {
+                throw new LogicException('Solo el propietario o un administrador puede enviar la solicitud.');
             }
 
             if (! $solicitud->puedeEnviar()) {
@@ -220,7 +222,7 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function guardarVisitante(Solicitud $solicitud, array $data, int $actorIdentityId): Solicitud
+    public function guardarVisitante(Solicitud $solicitud, array $data, ?int $actorIdentityId): Solicitud
     {
         return DB::transaction(function () use ($solicitud, $data, $actorIdentityId) {
             $visitante = $solicitud->visitante;
@@ -237,7 +239,7 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function sincronizarRecursos(Solicitud $solicitud, array $recursos, int $actorIdentityId): Solicitud
+    public function sincronizarRecursos(Solicitud $solicitud, array $recursos, ?int $actorIdentityId): Solicitud
     {
         return DB::transaction(function () use ($solicitud, $recursos, $actorIdentityId) {
             $solicitud->recursos()->delete();
@@ -253,7 +255,7 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function sincronizarRequerimientos(Solicitud $solicitud, array $requerimientoIds, int $actorIdentityId): Solicitud
+    public function sincronizarRequerimientos(Solicitud $solicitud, array $requerimientoIds, ?int $actorIdentityId): Solicitud
     {
         return DB::transaction(function () use ($solicitud, $requerimientoIds, $actorIdentityId) {
             $syncData = collect($requerimientoIds)
@@ -273,32 +275,38 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function adjuntarDocumento(Solicitud $solicitud, UploadedFile $file, int $actorIdentityId): SolicitudDocumento
+    public function adjuntarDocumento(Solicitud $solicitud, UploadedFile $file, ?int $actorIdentityId): SolicitudDocumento
     {
         return DB::transaction(function () use ($solicitud, $file, $actorIdentityId) {
             $year = now()->year;
+            $disk = config('filesystems.default', 'local');
+
+            $originalName = $file->getClientOriginalName();
+            $mimeType = $file->getMimeType();
+            $size = $file->getSize();
 
             $path = $file->store(
                 "documentos/solicitudes/{$year}/{$solicitud->id}",
-                'private'
+                $disk
             );
 
             return $solicitud->documentos()->create([
                 'filename' => basename($path),
-                'original_name' => $file->getClientOriginalName(),
+                'original_name' => $originalName,
                 'path' => $path,
-                'mime_type' => $file->getMimeType(),
-                'size' => $file->getSize(),
+                'mime_type' => $mimeType,
+                'size' => $size,
                 'uploaded_by' => $actorIdentityId,
             ]);
         });
     }
-
-    public function eliminarDocumento(SolicitudDocumento $documento, int $actorIdentityId): void
+    public function eliminarDocumento(SolicitudDocumento $documento, ?int $actorIdentityId): void
     {
         DB::transaction(function () use ($documento) {
-            if ($documento->path && Storage::disk('private')->exists($documento->path)) {
-                Storage::disk('private')->delete($documento->path);
+            $disk = config('filesystems.default', 'local');
+
+            if ($documento->path && Storage::disk($disk)->exists($documento->path)) {
+                Storage::disk($disk)->delete($documento->path);
             }
 
             $documento->delete();

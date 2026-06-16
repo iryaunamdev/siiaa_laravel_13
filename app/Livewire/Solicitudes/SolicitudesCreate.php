@@ -16,15 +16,10 @@ class SolicitudesCreate extends Component
     public array $form = [
         'owner_id' => null,
         'tipo_solicitud_id' => null,
-        'motivo_id' => null,
-        'fecha_inicio' => null,
-        'fecha_fin' => null,
-        'informacion_adicional' => null,
     ];
 
     public $c_tipos_solicitud;
 
-    public $c_motivos;
 
     public $c_owner_identities;
 
@@ -33,7 +28,6 @@ class SolicitudesCreate extends Component
         $this->authorize('create', Solicitud::class);
 
         $this->c_tipos_solicitud = $this->catalogoItems('SOLTIPOS');
-        $this->c_motivos = $this->catalogoItems('SOLMOT');
         $this->c_owner_identities = $this->canSelectOwner()
             ? $this->ownerIdentities()
             : collect();
@@ -51,10 +45,6 @@ class SolicitudesCreate extends Component
                 'exists:identity_links,id',
             ],
             'form.tipo_solicitud_id' => ['required', 'integer', 'exists:catalogos_items,id'],
-            'form.motivo_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
-            'form.fecha_inicio' => ['nullable', 'date'],
-            'form.fecha_fin' => ['nullable', 'date', 'after_or_equal:form.fecha_inicio'],
-            'form.informacion_adicional' => ['nullable', 'string', 'max:5000'],
         ]);
 
         $actorIdentityId = \currentIdentityId();

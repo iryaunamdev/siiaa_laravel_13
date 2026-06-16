@@ -33,78 +33,29 @@
                 </div>
             @endcan
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">
-                        Tipo de solicitud
-                    </label>
-                    <select wire:model="form.tipo_solicitud_id"
-                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Seleccione una opcion</option>
-
-                        @foreach($c_tipos_solicitud as $tipo)
-                            <option value="{{ $tipo->id }}">
-                                {{ $tipo->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('form.tipo_solicitud_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">
-                        Motivo
-                    </label>
-                    <select wire:model="form.motivo_id"
-                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Seleccione una opcion</option>
-
-                        @foreach($c_motivos as $motivo)
-                            <option value="{{ $motivo->id }}">
-                                {{ $motivo->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('form.motivo_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">
-                        Fecha de inicio
-                    </label>
-                    <input type="date" wire:model="form.fecha_inicio"
-                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    @error('form.fecha_inicio')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">
-                        Fecha de fin
-                    </label>
-                    <input type="date" wire:model="form.fecha_fin"
-                        class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    @error('form.fecha_fin')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
             <div>
                 <label class="mb-1 block text-sm font-medium text-gray-700">
-                    Informacion adicional
+                    Tipo de solicitud
                 </label>
-                <textarea wire:model="form.informacion_adicional" rows="5"
-                    class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    placeholder="Describa brevemente la solicitud."></textarea>
-                @error('form.informacion_adicional')
+
+                <select wire:model="form.tipo_solicitud_id"
+                    class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Seleccione una opción</option>
+
+                    @foreach($c_tipos_solicitud as $tipo)
+                        <option value="{{ $tipo->id }}">
+                            {{ $tipo->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('form.tipo_solicitud_id')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+
+                <p class="mt-2 text-xs text-gray-500">
+                    Se creará un borrador inicial. Los datos completos de la solicitud se capturan en el expediente de edición.
+                </p>
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">

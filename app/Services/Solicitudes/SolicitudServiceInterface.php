@@ -11,10 +11,9 @@ interface SolicitudServiceInterface
 {
     public function crearBorrador(array $data, int $ownerId, ?int $actorIdentityId = null): Solicitud;
 
-    public function actualizar(Solicitud $solicitud, array $data, int $actorIdentityId): Solicitud;
+    public function actualizar(Solicitud $solicitud, array $data, ?int $actorIdentityId): Solicitud;
 
-    public function enviar(Solicitud $solicitud, int $actorIdentityId): Solicitud;
-
+    public function enviar(Solicitud $solicitud, ?int $actorIdentityId): Solicitud;
     public function cancelar(Solicitud $solicitud, int $actorIdentityId, ?string $motivo = null): Solicitud;
 
     public function eliminar(Solicitud $solicitud, int $actorIdentityId): void;
@@ -31,9 +30,9 @@ interface SolicitudServiceInterface
 
     public function archivar(Solicitud $solicitud, int $actorIdentityId, string $motivo): Solicitud;
 
-    public function guardarVisitante(Solicitud $solicitud, array $data, int $actorIdentityId): Solicitud;
+    public function guardarVisitante(Solicitud $solicitud, array $data, ?int $actorIdentityId): Solicitud;
 
-    public function sincronizarRecursos(Solicitud $solicitud, array $recursos, int $actorIdentityId): Solicitud;
+    public function sincronizarRecursos(Solicitud $solicitud, array $recursos, ?int $actorIdentityId): Solicitud;
 
     /**
      * Los requerimientos pertenecen al expediente de solicitud,
@@ -41,11 +40,11 @@ interface SolicitudServiceInterface
      *
      * @param array<int> $requerimientoIds
      */
-    public function sincronizarRequerimientos(Solicitud $solicitud, array $requerimientoIds, int $actorIdentityId): Solicitud;
+    public function sincronizarRequerimientos(Solicitud $solicitud, array $requerimientoIds, ?int $actorIdentityId): Solicitud;
 
-    public function adjuntarDocumento(Solicitud $solicitud, UploadedFile $file, int $actorIdentityId): SolicitudDocumento;
+    public function adjuntarDocumento(Solicitud $solicitud, UploadedFile $file, ?int $actorIdentityId): SolicitudDocumento;
 
-    public function eliminarDocumento(SolicitudDocumento $documento, int $actorIdentityId): void;
+    public function eliminarDocumento(SolicitudDocumento $documento, ?int $actorIdentityId): void;
 
     public function listarParaIdentity(int $identityId, array $filters = []): Collection;
 }

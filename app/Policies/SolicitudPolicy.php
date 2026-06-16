@@ -80,15 +80,15 @@ class SolicitudPolicy
      */
     public function send(User $user, Solicitud $solicitud): bool
     {
-        if ($solicitud->estaArchivada()) {
-            return false;
+        if ($this->manage($user)) {
+            return $solicitud->puedeEnviar();
         }
 
-        if (! $user->can('solicitudes.access')) {
-            return false;
-        }
+        $identityId = $this->activeIdentityId($user);
 
-        return $solicitud->perteneceA($this->activeIdentityId($user))
+        return $user->can('solicitudes.access')
+            && $identityId
+            && $solicitud->perteneceA($identityId)
             && $solicitud->puedeEnviar();
     }
 
