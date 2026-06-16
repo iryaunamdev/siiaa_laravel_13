@@ -15,6 +15,8 @@ class SolicitudesEdit extends Component
 
     public Solicitud $solicitud;
 
+    public int $paso = 1;
+
     public array $form = [
         'owner_id' => null,
         'tipo_solicitud_id' => null,
@@ -76,7 +78,7 @@ class SolicitudesEdit extends Component
         ];
     }
 
-    public function save(SolicitudServiceInterface $solicitudService): void
+    public function guardarPaso1(SolicitudServiceInterface $solicitudService): void
     {
         $this->authorize('update', $this->solicitud);
 
@@ -98,7 +100,7 @@ class SolicitudesEdit extends Component
 
         $this->solicitud = $solicitudService->actualizar($this->solicitud, $validated['form'], $identityId);
 
-        $this->dispatch('toast', type: 'success', message: 'Solicitud actualizada correctamente.');
+        $this->dispatch('toast', type: 'success', message: 'Datos generales guardados correctamente.');
     }
 
     public function guardarVisitante(SolicitudServiceInterface $solicitudService): void
@@ -125,7 +127,7 @@ class SolicitudesEdit extends Component
         $this->dispatch('toast', type: 'success', message: 'Visitante guardado correctamente.');
     }
 
-    public function enviar(SolicitudServiceInterface $solicitudService)
+    public function enviarSolicitud(SolicitudServiceInterface $solicitudService)
     {
         $this->authorize('send', $this->solicitud);
 
@@ -137,6 +139,45 @@ class SolicitudesEdit extends Component
         $this->dispatch('toast', type: 'success', message: 'Solicitud enviada correctamente.');
 
         return redirect()->route('solicitudes.show', $this->solicitud);
+    }
+
+    public function irAPaso(int $paso): void
+    {
+        if ($paso < 1 || $paso > 4) {
+            return;
+        }
+
+        if ($paso === 2 && ! $this->solicitud->requiere_recursos) {
+            return;
+        }
+
+        $this->paso = $paso;
+    }
+
+    public function pasoAnterior(): void
+    {
+        if ($this->paso <= 1) {
+            return;
+        }
+
+        $this->paso--;
+
+        if ($this->paso === 2 && ! $this->solicitud->requiere_recursos) {
+            $this->paso = 1;
+        }
+    }
+
+    public function pasoSiguiente(): void
+    {
+        if ($this->paso >= 4) {
+            return;
+        }
+
+        $this->paso++;
+
+        if ($this->paso === 2 && ! $this->solicitud->requiere_recursos) {
+            $this->paso = 3;
+        }
     }
 
     protected function canManageOwner(): bool
