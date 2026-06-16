@@ -276,7 +276,12 @@ class SolicitudService implements SolicitudServiceInterface
     public function adjuntarDocumento(Solicitud $solicitud, UploadedFile $file, int $actorIdentityId): SolicitudDocumento
     {
         return DB::transaction(function () use ($solicitud, $file, $actorIdentityId) {
-            $path = $file->store("solicitudes/{$solicitud->id}", 'private');
+            $year = now()->year;
+
+            $path = $file->store(
+                "documentos/solicitudes/{$year}/{$solicitud->id}",
+                'private'
+            );
 
             return $solicitud->documentos()->create([
                 'filename' => basename($path),

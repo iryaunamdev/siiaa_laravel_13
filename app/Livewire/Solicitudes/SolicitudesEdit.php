@@ -10,10 +10,12 @@ use App\Support\Solicitudes\SolicitudCatalogos;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class SolicitudesEdit extends Component
 {
     use AuthorizesRequests;
+    use WithFileUploads;
 
     public Solicitud $solicitud;
 
@@ -53,7 +55,7 @@ class SolicitudesEdit extends Component
         'fecha_fin' => null,
     ];
 
-    public array $requerimientosSeleccionados = [], $recursosForm = [];
+    public array $requerimientosSeleccionados = [], $recursosForm = [], $documentosUpload = [];
 
     public bool $can_manage_owner = false,  $can_modify_owner = false;
 
@@ -69,7 +71,7 @@ class SolicitudesEdit extends Component
             'motivo',
             'estatus',
             'recursos',
-            'documentos',
+            'documentos.uploadedBy',
             'visitante',
             'requerimientos',
         ]);
@@ -247,7 +249,7 @@ class SolicitudesEdit extends Component
 
         $this->solicitud = $solicitudService
             ->guardarVisitante($this->solicitud, $validated['visitanteForm'], $identityId)
-            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos']);
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos.uploadedBy', 'visitante', 'requerimientos']);
 
         $this->dispatch('toast', type: 'success', message: 'Visitante guardado correctamente.');
     }
@@ -275,7 +277,7 @@ class SolicitudesEdit extends Component
                 $validated['requerimientosSeleccionados'] ?? [],
                 $identityId
             )
-            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos.requerimiento']);
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos.uploadedBy', 'visitante', 'requerimientos.requerimiento']);
 
         $this->dispatch('toast', type: 'success', message: 'Requerimientos guardados correctamente.');
     }
@@ -442,9 +444,74 @@ class SolicitudesEdit extends Component
 
         $this->solicitud = $solicitudService
             ->sincronizarRecursos($this->solicitud, $recursos, $identityId)
-            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos.requerimiento']);
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos.uploadedBy', 'visitante', 'requerimientos.requerimiento']);
 
         $this->dispatch('toast', type: 'success', message: 'Recursos guardados correctamente.');
+    }
+
+    public function subirDocumentos(SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        $validated = $this->validate([
+            'documentosUpload' => ['required', 'array', 'min:1'],
+            'documentosUpload.*' => ['file', 'max:10240'],
+        ]);
+
+        $identityId = \currentIdentityId();
+
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        foreach ($validated['documentosUpload'] as $documento) {
+            $solicitudService->adjuntarDocumento($this->solicitud, $documento, $identityId);
+        }
+
+        $this->reset('documentosUpload');
+
+        $this->solicitud = $this->solicitud
+            ->refresh()
+            ->load([
+                'owner',
+                'tipoSolicitud',
+                'motivo',
+                'estatus',
+                'recursos',
+                'documentos.uploadedBy',
+                'visitante',
+                'requerimientos.requerimiento',
+            ]);
+
+        $this->dispatch('toast', type: 'success', message: 'Documento(s) adjuntado(s) correctamente.');
+    }
+
+    public function eliminarDocumento(int $documentoId, SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        $documento = $this->solicitud->documentos()
+            ->whereKey($documentoId)
+            ->firstOrFail();
+
+        $identityId = \currentIdentityId();
+
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        $solicitudService->eliminarDocumento($documento, $identityId);
+
+        $this->solicitud = $this->solicitud
+            ->refresh()
+            ->load([
+                'owner',
+                'tipoSolicitud',
+                'motivo',
+                'estatus',
+                'recursos',
+                'documentos.uploadedBy',
+                'visitante',
+                'requerimientos.requerimiento',
+            ]);
+
+        $this->dispatch('toast', type: 'success', message: 'Documento eliminado correctamente.');
     }
 
     public function render()

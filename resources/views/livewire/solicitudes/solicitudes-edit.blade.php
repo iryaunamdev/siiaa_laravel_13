@@ -704,4 +704,115 @@
             </form>
         </section>
     @endif
+
+    @if ($paso === 3)
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <form wire:submit.prevent="subirDocumentos" class="space-y-5">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">
+                        Documentos del expediente
+                    </h3>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        Adjunte documentos relacionados con la solicitud. Esta sección es flexible y no bloquea el
+                        envío.
+                    </p>
+                </div>
+
+                <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Adjuntar documentos
+                    </label>
+
+                    <input type="file" wire:model="documentosUpload" multiple
+                        class="mt-2 block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100">
+
+                    <p class="mt-2 text-xs text-gray-500">
+                        Puede subir varios archivos. Tamaño máximo sugerido: 10 MB por archivo.
+                    </p>
+
+                    @error('documentosUpload')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    @error('documentosUpload.*')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    <div wire:loading wire:target="documentosUpload" class="mt-2 text-sm text-gray-500">
+                        Preparando archivo(s)...
+                    </div>
+                </div>
+
+                <div class="flex justify-end border-t border-gray-100 pt-4">
+                    <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                        wire:loading.attr="disabled" wire:target="subirDocumentos,documentosUpload">
+                        Subir documento(s)
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">
+                    Documentos adjuntos
+                </h3>
+
+                <p class="mt-1 text-sm text-gray-500">
+                    Los documentos cargados forman parte del expediente de la solicitud.
+                </p>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                @forelse($solicitud->documentos as $documento)
+                    <div class="flex items-start justify-between gap-4 rounded-lg border border-gray-200 p-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ $documento->nombreDisplay() }}
+                            </p>
+
+                            <p class="mt-1 text-xs text-gray-500">
+                                {{ $documento->sizeDisplay() }}
+
+                                @if ($documento->mime_type)
+                                    · {{ $documento->mime_type }}
+                                @endif
+
+                                @if ($documento->uploadedBy)
+                                    · Subido por
+                                    {{ $documento->uploadedBy->fullname() ?? ($documento->uploadedBy->emailResolved() ?? 'identidad institucional') }}
+                                @endif
+                            </p>
+
+                            <p class="mt-1 text-xs text-gray-400">
+                                {{ $documento->path }}
+                            </p>
+                        </div>
+
+                        <div class="flex shrink-0 items-center gap-2">
+                            <a href="{{ route('solicitudes.documentos.download', $documento) }}"
+                                class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Descargar
+                            </a>
+
+                            @can('update', $solicitud)
+                                <button type="button" wire:click="eliminarDocumento({{ $documento->id }})"
+                                    wire:confirm="¿Desea eliminar este documento del expediente?"
+                                    class="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
+                                    Eliminar
+                                </button>
+                            @endcan
+                        </div>
+                    </div>
+                @empty
+                    <div class="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                        No hay documentos adjuntos. Puede enviar la solicitud sin documentos, pero el sistema mostrará
+                        esta advertencia en la revisión final.
+                    </div>
+                @endforelse
+            </div>
+        </section>
+    @endif
 </div>
