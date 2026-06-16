@@ -57,6 +57,8 @@ class SolicitudesEdit extends Component
 
     public array $requerimientosSeleccionados = [], $recursosForm = [], $documentosUpload = [];
 
+    public ?int $documentoEliminarId = null;
+
     public bool $can_manage_owner = false,  $can_modify_owner = false;
 
     /* catalogos */
@@ -490,17 +492,37 @@ class SolicitudesEdit extends Component
         $this->dispatch('toast', type: 'success', message: 'Documento(s) adjuntado(s) correctamente.');
     }
 
-    public function eliminarDocumento(int $documentoId, SolicitudServiceInterface $solicitudService): void
+    public function confirmarEliminarDocumento(int $documentoId): void
     {
         $this->authorize('update', $this->solicitud);
 
+        $this->documentoEliminarId = $documentoId;
+
+        $this->dispatch('open-modal', name: 'eliminar-documento-solicitud');
+    }
+
+    public function cancelarEliminarDocumento(): void
+    {
+        $this->documentoEliminarId = null;
+
+        $this->dispatch('close-modal', name: 'eliminar-documento-solicitud');
+    }
+
+    public function eliminarDocumento(SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        abort_if(! $this->documentoEliminarId, 404);
+
         $documento = $this->solicitud->documentos()
-            ->whereKey($documentoId)
+            ->whereKey($this->documentoEliminarId)
             ->firstOrFail();
 
         $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $solicitudService->eliminarDocumento($documento, $identityId);
+
+        $this->documentoEliminarId = null;
 
         $this->solicitud = $this->solicitud
             ->refresh()
@@ -515,6 +537,7 @@ class SolicitudesEdit extends Component
                 'requerimientos.requerimiento',
             ]);
 
+        $this->dispatch('close-modal', name: 'eliminar-documento-solicitud');
         $this->dispatch('toast', type: 'success', message: 'Documento eliminado correctamente.');
     }
 
