@@ -339,88 +339,201 @@
             </form>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <form wire:submit.prevent="guardarVisitante" class="space-y-5">
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-900">Visitante principal</h3>
-                    <p class="mt-1 text-sm text-gray-500">
-                        Registre los datos base del visitante asociado al expediente.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        @if ($this->esTipoVisitante())
+            <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <form wire:submit.prevent="guardarVisitante" class="space-y-5">
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Nombre</label>
-                        <input type="text" wire:model="visitanteForm.nombre"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.nombre')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <h3 class="text-sm font-semibold text-gray-900">Visitante principal</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Registre los datos base del visitante asociado al expediente.
+                        </p>
                     </div>
 
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Apellidos</label>
-                        <input type="text" wire:model="visitanteForm.apellidos"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.apellidos')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Tipo de visitante
+                            </label>
+
+                            <select wire:model="visitanteForm.tipo_visitante_id"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Seleccione una opción</option>
+
+                                @foreach ($c_tipos_visitante as $tipoVisitante)
+                                    <option value="{{ $tipoVisitante->id }}">
+                                        {{ $tipoVisitante->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('visitanteForm.tipo_visitante_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Estudiante asociado
+                            </label>
+
+                            <input type="number" wire:model="visitanteForm.estudiante_asociado_id"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="ID del estudiante asociado">
+
+                            @error('visitanteForm.estudiante_asociado_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            <p class="mt-1 text-xs text-gray-500">
+                                Selector definitivo pendiente para el mini módulo de estudiantes asociados.
+                            </p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Nombre</label>
+                            <input type="text" wire:model="visitanteForm.nombre"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.nombre')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Apellidos</label>
+                            <input type="text" wire:model="visitanteForm.apellidos"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.apellidos')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Correo</label>
+                            <input type="email" wire:model="visitanteForm.email"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.email')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                País del visitante
+                            </label>
+
+                            <select wire:model="visitanteForm.pais_id"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Seleccione una opción</option>
+
+                                @foreach ($c_paises as $pais)
+                                    <option value="{{ $pais->id }}">
+                                        {{ $pais->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('visitanteForm.pais_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Institucion</label>
+                            <input type="text" wire:model="visitanteForm.institucion"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.institucion')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Lugar</label>
+                            <input type="text" wire:model="visitanteForm.lugar"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.lugar')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de inicio</label>
+                            <input type="date" wire:model="visitanteForm.fecha_inicio"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.fecha_inicio')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de fin</label>
+                            <input type="date" wire:model="visitanteForm.fecha_fin"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('visitanteForm.fecha_fin')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
+                    <div class="flex justify-end border-t border-gray-100 pt-4">
+                        <button type="submit"
+                            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                            wire:loading.attr="disabled">
+                            Guardar visitante
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <form wire:submit.prevent="guardarRequerimientos" class="space-y-5">
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Correo</label>
-                        <input type="email" wire:model="visitanteForm.email"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.email')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <h3 class="text-sm font-semibold text-gray-900">
+                            Requerimientos de visita
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Seleccione solo los requerimientos necesarios para la visita. No son obligatorios.
+                        </p>
                     </div>
 
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Institucion</label>
-                        <input type="text" wire:model="visitanteForm.institucion"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.institucion')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        @foreach ($c_requerimientos_visitante as $requerimiento)
+                            <label
+                                class="flex items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm hover:bg-gray-50">
+                                <input type="checkbox" wire:model="requerimientosSeleccionados"
+                                    value="{{ $requerimiento->id }}"
+                                    class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+
+                                <span>
+                                    <span class="block font-medium text-gray-800">
+                                        {{ $requerimiento->nombre }}
+                                    </span>
+
+                                    @if ($requerimiento->descripcion)
+                                        <span class="block text-xs text-gray-500">
+                                            {{ $requerimiento->descripcion }}
+                                        </span>
+                                    @endif
+                                </span>
+                            </label>
+                        @endforeach
                     </div>
 
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Lugar</label>
-                        <input type="text" wire:model="visitanteForm.lugar"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.lugar')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    @error('requerimientosSeleccionados')
+                        <p class="text-sm text-red-600">{{ $message }}</p>
+                    @enderror
 
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de inicio</label>
-                        <input type="date" wire:model="visitanteForm.fecha_inicio"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.fecha_inicio')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    @error('requerimientosSeleccionados.*')
+                        <p class="text-sm text-red-600">{{ $message }}</p>
+                    @enderror
 
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Fecha de fin</label>
-                        <input type="date" wire:model="visitanteForm.fecha_fin"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('visitanteForm.fecha_fin')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="flex justify-end border-t border-gray-100 pt-4">
+                        <button type="submit"
+                            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                            wire:loading.attr="disabled">
+                            Guardar requerimientos
+                        </button>
                     </div>
-                </div>
-
-                <div class="flex justify-end border-t border-gray-100 pt-4">
-                    <button type="submit"
-                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-                        wire:loading.attr="disabled">
-                        Guardar visitante
-                    </button>
-                </div>
-            </form>
-        </section>
+                </form>
+            </section>
+        @endif
     @endif
 </div>

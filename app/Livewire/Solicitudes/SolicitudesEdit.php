@@ -6,7 +6,9 @@ use App\Models\CatalogoItem;
 use App\Models\IdentityLink;
 use App\Models\Solicitudes\Solicitud;
 use App\Services\Solicitudes\SolicitudServiceInterface;
+use App\Support\Solicitudes\SolicitudCatalogos;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 class SolicitudesEdit extends Component
@@ -37,39 +39,51 @@ class SolicitudesEdit extends Component
     ];
 
     public array $visitanteForm = [
+        'tipo_visitante_id' => null,
+        'estudiante_asociado_id' => null,
         'nombre' => null,
         'apellidos' => null,
         'email' => null,
+        'pais_id' => null,
+        'institucion_id' => null,
         'institucion' => null,
         'lugar' => null,
         'fecha_inicio' => null,
         'fecha_fin' => null,
     ];
 
-    public $c_tipos_solicitud;
-    public $c_motivos;
-    public $c_paises;
-    public $c_tutores;
-    public $c_owner_identities;
+    public array $requerimientosSeleccionados = [];
 
     public bool $can_manage_owner = false;
     public bool $can_modify_owner = false;
 
+    /* catalogos */
+    public Collection $c_tipos_solicitud, $c_motivos, $c_paises, $c_tutores, $c_tipos_visitante, $c_requerimientos_visitante, $c_owner_identities;
+
     public function mount(Solicitud $solicitud): void
     {
         $this->solicitud = $solicitud->load([
-            'owner', 'tipoSolicitud', 'motivo', 'estatus',
-            'recursos', 'documentos', 'visitante', 'requerimientos',
+            'owner',
+            'tipoSolicitud',
+            'motivo',
+            'estatus',
+            'recursos',
+            'documentos',
+            'visitante',
+            'requerimientos',
         ]);
 
         $this->authorize('update', $this->solicitud);
 
         $this->can_manage_owner = $this->canManageOwner();
         $this->can_modify_owner = $this->canModifyOwner();
+
         $this->c_tipos_solicitud = $this->catalogoItems('SOLTIPOS');
         $this->c_motivos = $this->catalogoItems('SOLMOT');
         $this->c_paises = $this->catalogoItems('PAISES');
         $this->c_tutores = $this->tutorIdentities();
+        $this->c_tipos_visitante = $this->catalogoItems('C_SOLTVIS');
+        $this->c_requerimientos_visitante = $this->catalogoItems('VIS_REQ');
         $this->c_owner_identities = $this->can_manage_owner ? $this->ownerIdentities() : collect();
 
         $this->form = [
@@ -92,14 +106,24 @@ class SolicitudesEdit extends Component
         ];
 
         $this->visitanteForm = [
+            'tipo_visitante_id' => $this->solicitud->visitante?->tipo_visitante_id,
+            'estudiante_asociado_id' => $this->solicitud->visitante?->estudiante_asociado_id,
             'nombre' => $this->solicitud->visitante?->nombre,
             'apellidos' => $this->solicitud->visitante?->apellidos,
             'email' => $this->solicitud->visitante?->email,
+            'pais_id' => $this->solicitud->visitante?->pais_id,
+            'institucion_id' => $this->solicitud->visitante?->institucion_id,
             'institucion' => $this->solicitud->visitante?->institucion,
             'lugar' => $this->solicitud->visitante?->lugar,
             'fecha_inicio' => optional($this->solicitud->visitante?->fecha_inicio)->format('Y-m-d'),
             'fecha_fin' => optional($this->solicitud->visitante?->fecha_fin)->format('Y-m-d'),
         ];
+
+        $this->requerimientosSeleccionados = $this->solicitud->requerimientos
+            ->pluck('requerimiento_id')
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
     }
 
     public function guardarPaso1(SolicitudServiceInterface $solicitudService): void
@@ -142,14 +166,31 @@ class SolicitudesEdit extends Component
         $this->dispatch('toast', type: 'success', message: 'Datos generales guardados correctamente.');
     }
 
+    public function esTipoVisitante(): bool
+    {
+        $tipoId = $this->form['tipo_solicitud_id'] ?? $this->solicitud->tipo_solicitud_id;
+
+        if (! $tipoId) {
+            return false;
+        }
+
+        return $this->c_tipos_solicitud
+            ->firstWhere('id', (int) $tipoId)
+            ?->clave === SolicitudCatalogos::TIPO_VISITANTE;
+    }
+
     public function guardarVisitante(SolicitudServiceInterface $solicitudService): void
     {
         $this->authorize('update', $this->solicitud);
 
         $validated = $this->validate([
+            'visitanteForm.tipo_visitante_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'visitanteForm.estudiante_asociado_id' => ['nullable', 'integer', 'exists:estudiantes_asociados,id'],
             'visitanteForm.nombre' => ['nullable', 'string', 'max:255'],
             'visitanteForm.apellidos' => ['nullable', 'string', 'max:255'],
             'visitanteForm.email' => ['nullable', 'email', 'max:255'],
+            'visitanteForm.pais_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
+            'visitanteForm.institucion_id' => ['nullable', 'integer', 'exists:catalogos_items,id'],
             'visitanteForm.institucion' => ['nullable', 'string', 'max:255'],
             'visitanteForm.lugar' => ['nullable', 'string', 'max:255'],
             'visitanteForm.fecha_inicio' => ['nullable', 'date'],
@@ -164,6 +205,34 @@ class SolicitudesEdit extends Component
             ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos']);
 
         $this->dispatch('toast', type: 'success', message: 'Visitante guardado correctamente.');
+    }
+
+    public function guardarRequerimientos(SolicitudServiceInterface $solicitudService): void
+    {
+        $this->authorize('update', $this->solicitud);
+
+        if (! $this->esTipoVisitante()) {
+            $this->requerimientosSeleccionados = [];
+        }
+
+        $validated = $this->validate([
+            'requerimientosSeleccionados' => ['array'],
+            'requerimientosSeleccionados.*' => ['integer', 'exists:catalogos_items,id'],
+        ]);
+
+        $identityId = \currentIdentityId();
+
+        abort_if(! $identityId, 403, 'No se encontro una identidad institucional activa.');
+
+        $this->solicitud = $solicitudService
+            ->sincronizarRequerimientos(
+                $this->solicitud,
+                $validated['requerimientosSeleccionados'] ?? [],
+                $identityId
+            )
+            ->load(['owner', 'tipoSolicitud', 'motivo', 'estatus', 'recursos', 'documentos', 'visitante', 'requerimientos.requerimiento']);
+
+        $this->dispatch('toast', type: 'success', message: 'Requerimientos guardados correctamente.');
     }
 
     public function enviarSolicitud(SolicitudServiceInterface $solicitudService)

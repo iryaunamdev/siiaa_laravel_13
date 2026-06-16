@@ -7,6 +7,7 @@ use App\Models\IdentityLink;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Support\Solicitudes\SolicitudCatalogos;
@@ -251,6 +252,18 @@ class Solicitud extends Model
     public function requerimientos(): HasMany
     {
         return $this->hasMany(SolicitudRequerimiento::class, 'solicitud_id');
+    }
+
+    public function requerimientosCatalogo(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CatalogoItem::class,
+            'solicitudes_requerimientos',
+            'solicitud_id',
+            'requerimiento_id'
+        )
+            ->withPivot(['created_by', 'updated_by'])
+            ->withTimestamps();
     }
 
     /*
