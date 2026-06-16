@@ -59,6 +59,8 @@ class SolicitudesEdit extends Component
 
     public ?int $documentoEliminarId = null;
 
+    public bool $confirmDeleteModal = false;
+
     public bool $can_manage_owner = false,  $can_modify_owner = false;
 
     /* catalogos */
@@ -497,15 +499,13 @@ class SolicitudesEdit extends Component
         $this->authorize('update', $this->solicitud);
 
         $this->documentoEliminarId = $documentoId;
-
-        $this->dispatch('open-modal', name: 'eliminar-documento-solicitud');
+        $this->confirmDeleteModal = true;
     }
 
     public function cancelarEliminarDocumento(): void
     {
         $this->documentoEliminarId = null;
-
-        $this->dispatch('close-modal', name: 'eliminar-documento-solicitud');
+        $this->confirmDeleteModal = false;
     }
 
     public function eliminarDocumento(SolicitudServiceInterface $solicitudService): void
@@ -523,6 +523,7 @@ class SolicitudesEdit extends Component
         $solicitudService->eliminarDocumento($documento, $identityId);
 
         $this->documentoEliminarId = null;
+        $this->confirmDeleteModal = false;
 
         $this->solicitud = $this->solicitud
             ->refresh()
@@ -537,7 +538,6 @@ class SolicitudesEdit extends Component
                 'requerimientos.requerimiento',
             ]);
 
-        $this->dispatch('close-modal', name: 'eliminar-documento-solicitud');
         $this->dispatch('toast', type: 'success', message: 'Documento eliminado correctamente.');
     }
 
