@@ -62,14 +62,14 @@
 
 <div x-data="{
     isDragging: false,
-    fileName: null,
+    fileNames: [],
 
     handleDrop(e) {
         this.isDragging = false;
 
         if (e.dataTransfer.files.length) {
             this.$refs.input.files = e.dataTransfer.files;
-            this.fileName = e.dataTransfer.files[0].name;
+            this.fileNames = Array.from(e.dataTransfer.files).map(file => file.name);
 
             this.$refs.input.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -77,7 +77,7 @@
 
     handleChange(e) {
         if (e.target.files.length) {
-            this.fileName = e.target.files[0].name;
+            this.fileNames = Array.from(e.target.files).map(file => file.name);
         }
     }
 }" class="space-y-1.5">
@@ -128,8 +128,21 @@
                 </div>
             @endif
 
-            <template x-if="fileName">
-                <div class="text-xs text-zinc-500 mt-2" x-text="fileName"></div>
+            <template x-if="fileNames.length">
+                <div class="mt-2 text-left text-xs text-zinc-500">
+                    <p class="mb-1 font-medium text-zinc-600">
+                        Archivo(s) seleccionado(s):
+                    </p>
+
+                    <ul class="space-y-1">
+                        <template x-for="fileName in fileNames" :key="fileName">
+                            <li class="flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-sky-500"></span>
+                                <span x-text="fileName"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
             </template>
         </div>
 

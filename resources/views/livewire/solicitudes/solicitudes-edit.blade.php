@@ -719,30 +719,10 @@
                     </p>
                 </div>
 
-                <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
-                    <label class="block text-sm font-medium text-gray-700">
-                        Adjuntar documentos
-                    </label>
-
-                    <input type="file" wire:model="documentosUpload" multiple
-                        class="mt-2 block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100">
-
-                    <p class="mt-2 text-xs text-gray-500">
-                        Puede subir varios archivos. Tamaño máximo sugerido: 10 MB por archivo.
-                    </p>
-
-                    @error('documentosUpload')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-
-                    @error('documentosUpload.*')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-
-                    <div wire:loading wire:target="documentosUpload" class="mt-2 text-sm text-gray-500">
-                        Preparando archivo(s)...
-                    </div>
-                </div>
+                <x-ui.input-file name="documentosUpload" label="Adjuntar documentos" wire:model="documentosUpload"
+                    multiple drag-drop drag-text="Arrastra documentos aquí o haz clic para seleccionarlos"
+                    drag-hint="Puede subir varios archivos. Tamaño máximo sugerido: 10 MB por archivo."
+                    help="Los documentos son flexibles y no bloquean el envío de la solicitud." />
 
                 <div class="flex justify-end border-t border-gray-100 pt-4">
                     <button type="submit"
