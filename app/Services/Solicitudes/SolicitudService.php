@@ -60,12 +60,16 @@ class SolicitudService implements SolicitudServiceInterface
                 throw new LogicException('La solicitud no se encuentra en estado borrador.');
             }
 
-            $solicitud->forceFill([
+            $folioData = $solicitud->tieneFolio()
+                ? []
+                : $this->siguienteFolioData();
+
+            $solicitud->forceFill(array_merge($folioData, [
                 'estatus_id' => $this->estatusId(Solicitud::ESTATUS_ENVIADA),
                 'submitted_at' => now(),
                 'submitted_by' => $actorIdentityId,
                 'updated_by' => $actorIdentityId,
-            ])->save();
+            ]))->save();
 
             return $solicitud->refresh();
         });
@@ -329,6 +333,21 @@ class SolicitudService implements SolicitudServiceInterface
             ->when($filters['tipo_solicitud_id'] ?? null, fn($query, $tipoId) => $query->where('tipo_solicitud_id', $tipoId))
             ->latest()
             ->get();
+    }
+
+    protected function siguienteFolioData(): array
+    {
+        $year = now()->year;
+        $number = ((int) Solicitud::query()
+            ->where('folio_year', $year)
+            ->lockForUpdate()
+            ->max('folio_number')) + 1;
+
+        return [
+            'folio_year' => $year,
+            'folio_number' => $number,
+            'folio' => sprintf('%d/%03d', $year, $number),
+        ];
     }
 
     protected function estatusId(string $clave): int
