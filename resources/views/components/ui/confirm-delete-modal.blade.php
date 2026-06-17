@@ -10,7 +10,7 @@
     'cancelText' => 'Cancelar',
 ])
 
-<x-ui.modal wire:model="{{ $model }}" maxWidth="md">
+<x-ui.modal wire:model="{{ $model }}" maxWidth="md" :close-action="$cancelAction">
     <div class="space-y-4 px-4 py-5">
         <div class="flex items-start">
             <div
