@@ -6,7 +6,7 @@
                 1. Datos generales
             </button>
 
-            @if ($solicitud->requiere_recursos)
+            @if ($form['requiere_recursos'])
                 <button type="button" wire:click="irAPaso(2)"
                     class="rounded-lg border px-3 py-2 text-sm font-medium {{ $paso === 2 ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50' }}">
                     2. Recursos
@@ -15,12 +15,12 @@
 
             <button type="button" wire:click="irAPaso(3)"
                 class="rounded-lg border px-3 py-2 text-sm font-medium {{ $paso === 3 ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50' }}">
-                {{ $solicitud->requiere_recursos ? '3' : '2' }}. Documentos
+                {{ $form['requiere_recursos'] ? '3' : '2' }}. Documentos
             </button>
 
             <button type="button" wire:click="irAPaso(4)"
                 class="rounded-lg border px-3 py-2 text-sm font-medium {{ $paso === 4 ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50' }}">
-                {{ $solicitud->requiere_recursos ? '4' : '3' }}. Revisión y envío
+                {{ $form['requiere_recursos'] ? '4' : '3' }}. Revisión y envío
             </button>
         </div>
     </section>
@@ -53,17 +53,24 @@
                     <x-ui.select
                         label="Tipo de solicitud"
                         name="tipo_solicitud_id"
-                        wire:model="form.tipo_solicitud_id"
+                        wire:model.live="form.tipo_solicitud_id"
                         :options="$c_tipos_solicitud"
                         placeholder="Seleccione una opción"
                         required />
 
                     <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 md:col-span-2">
-                        <x-ui.checkbox
-                            name="requiere_recursos"
-                            label="Requiere recursos"
-                            wire:model="form.requiere_recursos"
-                            help="Para ausencia con recursos, solo recursos y recursos IRyA para estudiantes se activará automáticamente. En visitantes puede marcarse si aplica." />
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Recursos</p>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Esta opción se determina automáticamente según el tipo de solicitud seleccionado.
+                                </p>
+                            </div>
+
+                            <x-ui.badge :variant="$form['requiere_recursos'] ? 'info' : 'neutral'">
+                                {{ $form['requiere_recursos'] ? 'Requiere recursos' : 'No requiere recursos' }}
+                            </x-ui.badge>
+                        </div>
                     </div>
 
                     <x-ui.select
@@ -83,13 +90,16 @@
                         label="Fecha de inicio"
                         name="fecha_inicio"
                         type="date"
-                        wire:model="form.fecha_inicio" />
+                        wire:model.live="form.fecha_inicio"
+                        max="{{ $form['fecha_fin'] ?: '' }}" />
 
                     <x-ui.input
                         label="Fecha de fin"
                         name="fecha_fin"
                         type="date"
-                        wire:model="form.fecha_fin" />
+                        wire:model="form.fecha_fin"
+                        min="{{ $form['fecha_inicio'] ?: '' }}"
+                        help="Debe ser igual o posterior a la fecha inicial." />
 
                     <x-ui.select
                         label="País"
@@ -206,8 +216,8 @@
 
                         <x-ui.input label="Institución" name="institucion" wire:model="visitanteForm.institucion" />
                         <x-ui.input label="Lugar" name="lugar" wire:model="visitanteForm.lugar" />
-                        <x-ui.input label="Fecha de inicio" name="fecha_inicio" type="date" wire:model="visitanteForm.fecha_inicio" />
-                        <x-ui.input label="Fecha de fin" name="fecha_fin" type="date" wire:model="visitanteForm.fecha_fin" />
+                        <x-ui.input label="Fecha de inicio" name="fecha_inicio" type="date" wire:model="visitanteForm.fecha_inicio" max="{{ $visitanteForm['fecha_fin'] ?: '' }}" />
+                        <x-ui.input label="Fecha de fin" name="fecha_fin" type="date" wire:model="visitanteForm.fecha_fin" min="{{ $visitanteForm['fecha_inicio'] ?: '' }}" help="Debe ser igual o posterior a la fecha inicial." />
                     </div>
 
                     <div class="flex justify-end border-t border-gray-100 pt-4">
@@ -266,7 +276,7 @@
         @endif
     @endif
 
-    @if ($paso === 2 && $solicitud->requiere_recursos)
+    @if ($paso === 2 && $form['requiere_recursos'])
         <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <form wire:submit.prevent="guardarRecursos" class="space-y-5">
                 <div class="flex items-start justify-between gap-4">
