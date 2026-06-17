@@ -231,6 +231,11 @@ Confirmado por pruebas del usuario:
 - Eliminación física de solicitudes desde índice implementada según policy:
   - propietario solo borrador propio
   - `solicitudes.manage` con advertencia explícita
+- La superficie `SolicitudesReview` fue retirada temporalmente del módulo Solicitudes:
+  - sin ruta `/solicitudes/{solicitud}/revisar`
+  - sin enlace `Revisar` en el índice
+  - sin componente Livewire ni vista Blade de revisión.
+- Revisión, aprobación, rechazo y estados posteriores quedan para el módulo Consejo Interno.
 
 ### Documentos
 
@@ -262,6 +267,11 @@ Descarga:
 - `MailService` redirige destinatarios a prueba fuera de producción y usa reales en producción según `config('siiaa.mail.use_real_recipients')`.
 - Métodos de aprobado/rechazado/cerrado se conservan en servicios de notificación/correo para reutilización desde CI.
 
+### Limpieza posterior pendiente
+
+- No eliminar todavía métodos de servicios, policies, estados o mailables relacionados con aprobación/rechazo/cierre; pueden reutilizarse en CI.
+- Cuando el módulo Consejo Interno quede terminado, hacer una limpieza profunda para decidir qué permanece en servicios compartidos y qué se mueve o elimina.
+
 ---
 
 ## 8. Comandos útiles para retomar
@@ -275,7 +285,10 @@ git pull origin main
 Validar PHP:
 
 ```bash
+php -l app/Livewire/Solicitudes/SolicitudesIndex.php
+php -l app/Livewire/Solicitudes/SolicitudesCreate.php
 php -l app/Livewire/Solicitudes/SolicitudesEdit.php
+php -l app/Livewire/Solicitudes/SolicitudesShow.php
 php -l app/Services/Solicitudes/SolicitudService.php
 php -l app/Services/Solicitudes/SolicitudServiceInterface.php
 php -l app/Services/Notifications/NotificationService.php
@@ -289,7 +302,7 @@ php artisan optimize:clear
 Revisar referencias peligrosas:
 
 ```bash
-grep -R "activeIdentityLinkId\|cancel_reason\|reject_reason\|wire:confirm" -n app resources database routes
+grep -R "activeIdentityLinkId\|cancel_reason\|reject_reason\|wire:confirm\|SolicitudesReview\|solicitudes.review" -n app resources database routes
 ```
 
 Revisar componentes UI:
@@ -311,10 +324,10 @@ find storage/app/documentos/solicitudes -type f | head
 Al continuar:
 
 1. No reabrir diseño de documentos salvo bug.
-2. Cerrar notificación/correo de envío si queda algún ajuste fino.
-3. Revisar `SolicitudesShow` para que represente bien el expediente enviado.
-4. Mantener métodos reutilizables de servicios si sirven a CI u otros módulos.
-5. No atomizar ni dispersar archivos sin necesidad institucional real.
-6. Mantener componentes UI existentes; evitar crear duplicados.
-7. Todo cambio de eliminación debe usar `x-ui.confirm-delete-modal`.
-8. Antes de escribir HTML/Tailwind manual, revisar si existe componente `x-ui` aplicable.
+2. Iniciar módulo Consejo Interno como continuación natural de solicitudes enviadas (`SENV`).
+3. Mantener métodos reutilizables de servicios si sirven a CI u otros módulos.
+4. No atomizar ni dispersar archivos sin necesidad institucional real.
+5. Mantener componentes UI existentes; evitar crear duplicados.
+6. Todo cambio de eliminación debe usar `x-ui.confirm-delete-modal`.
+7. Antes de escribir HTML/Tailwind manual, revisar si existe componente `x-ui` aplicable.
+8. Al finalizar CI, hacer limpieza profunda de servicios, policies, métodos y mailables relacionados con estados posteriores a `SENV`.
