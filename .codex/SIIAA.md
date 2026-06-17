@@ -1,6 +1,6 @@
 # SIIAA - Memoria operativa
 
-Fecha de actualización: 2026-06-16
+Fecha de actualización: 2026-06-17
 Repositorio: `iryaunamdev/siiaa_laravel_13`
 Rama base: `main`
 
@@ -52,9 +52,54 @@ Este archivo es la memoria operativa para Codex/agentes. Cada vez que se actuali
 
 ---
 
-## 4. Módulo Solicitudes — diseño aprobado
+## 4. Componentes UI SIIAA
 
-### 4.1 Catálogos
+Antes de escribir Tailwind manual en vistas nuevas o refactorizadas, revisar y priorizar componentes en `resources/views/components/ui`.
+
+Inventario actual usable:
+
+- `x-ui.alert`: alertas success/error/warning/info/status y flash messages.
+- `x-ui.badge`: estados, etiquetas, pills y contadores.
+- `x-ui.button`: botones primary/secondary/danger/ghost/link; también renderiza enlace si recibe `href`.
+- `x-ui.checkbox`: checkboxes simples o listas; ya soporta ayuda contextual con `x-ui.help`.
+- `x-ui.confirm-delete-modal`: confirmación institucional de eliminación. Debe reemplazar `wire:confirm`.
+- `x-ui.help`: ayuda contextual tipo tooltip/popover. Escapa texto por defecto; usar `html` solo con contenido controlado por desarrollador.
+- `x-ui.icon`: íconos internos disponibles: `trash`, `edit`, `chevron-down`, `plus`, `exclamation-triangle`, `cancel`, `eye-open`, `eye-closed`, `eye-cancel`.
+- `x-ui.identity-warning`: advertencias de identidad/suplantación.
+- `x-ui.input`: inputs generales; texto, email, número, fecha, etc.
+- `x-ui.input-file`: carga de archivos normal o drag & drop, compatible con Livewire, `multiple` y `accept`.
+- `x-ui.modal`: modal base con `wire:model`, Alpine y `closeAction` opcional.
+- `x-ui.radio`: radio buttons simples.
+- `x-ui.select`: select simple/múltiple para arrays, Collections y Eloquent Collections. Ideal para catálogos SIIAA por defaults `id`/`nombre`.
+- `x-ui.switch`: booleanos visuales; activo/inactivo, visible/oculto, requiere autorización, habilitar configuración.
+- `x-ui.textarea`: campos largos con label, error, ayuda y popover.
+
+Componentes revisados y limpiados el 2026-06-17:
+
+- `x-ui.help`: corrige `border-zinc-zinc`, agrega prop `html`, escapa texto por defecto.
+- `x-ui.input`: corrige `duration-zinc`, `border-zinc-zinc` y namespace SVG inválido.
+- `x-ui.icon`: corrige namespace SVG inválido.
+- `x-ui.input-file`: corrige namespace SVG, usa `x-ui.help` para ayuda y solo muestra estado Livewire cuando existe `wire:model`.
+- `x-ui.checkbox`: implementa `helpPopover` con `x-ui.help`.
+- `x-ui.modal`: agrega `closeAction` opcional para limpiar estado al cerrar por overlay.
+- `x-ui.confirm-delete-modal`: pasa `cancelAction` al modal base como `closeAction`.
+
+Reglas prácticas:
+
+- Formularios: usar `x-ui.input`, `x-ui.select`, `x-ui.textarea`, `x-ui.checkbox`, `x-ui.switch`, `x-ui.radio`.
+- Acciones: usar `x-ui.button`.
+- Estados: usar `x-ui.badge`.
+- Alertas: usar `x-ui.alert`.
+- Modales: usar `x-ui.modal`; para eliminar, usar `x-ui.confirm-delete-modal`.
+- Archivos: usar `x-ui.input-file`.
+- Ayuda contextual: usar `x-ui.help`.
+- Si no existe un componente necesario, crear uno reutilizable en `components/ui` en vez de duplicar estilos por módulo.
+
+---
+
+## 5. Módulo Solicitudes — diseño aprobado
+
+### 5.1 Catálogos
 
 Tipos `SOLTIPOS`:
 
@@ -95,13 +140,13 @@ Reglas de edición:
 - Propietario solo borra físicamente borradores propios.
 - SACAD/admin con `solicitudes.manage` puede gestionar administrativamente.
 
-### 4.2 Permisos
+### 5.2 Permisos
 
 - `solicitudes.access`: acceso normal del propietario.
 - `solicitudes.review`: revisión SACAD/CI; permite ver todas y editar observaciones de revisión/administración.
 - `solicitudes.manage`: gestión completa; crear en representación de otra identidad, cambiar estados, archivar/eliminar y enviar administrativamente.
 
-### 4.3 Flujo aprobado
+### 5.3 Flujo aprobado
 
 - `SolicitudesCreate`: creación mínima de borrador.
   - `owner_id` si puede crear a nombre de otra identidad.
@@ -115,7 +160,7 @@ Reglas de edición:
 
 ---
 
-## 5. Autoría y operación administrativa
+## 6. Autoría y operación administrativa
 
 Regla aprobada:
 
@@ -161,11 +206,9 @@ Campos de auditoría que deben admitir `null` para operación admin sin identida
 
 ---
 
-## 6. Estado implementado y probado en Solicitudes
+## 7. Estado implementado y probado en Solicitudes
 
-### 6.1 Limpieza de estados y observaciones
-
-Hecho:
+### 7.1 Limpieza de estados y observaciones
 
 - Se eliminaron usos funcionales de `cancel_reason` y `reject_reason`.
 - Cancelación escribe en `observaciones_administracion`.
@@ -173,9 +216,7 @@ Hecho:
 - Se corrigió uso de estados funcionales actuales.
 - Se corrigió el uso de `currentIdentityId()`.
 
-### 6.2 Creación mínima
-
-Hecho:
+### 7.2 Creación mínima
 
 - `SolicitudesCreate` crea borrador mínimo.
 - Campos principales:
@@ -183,95 +224,43 @@ Hecho:
   - `tipo_solicitud_id`.
 - El resto se captura en `SolicitudesEdit`.
 
-### 6.3 Paso 1: datos generales
+### 7.3 Paso 1: datos generales
 
-Hecho:
+Campos implementados:
 
-- Campos:
-  - `owner_id`
-  - `tipo_solicitud_id`
-  - `requiere_recursos`
-  - `motivo_id`
-  - `motivo_otro`
-  - `fecha_inicio`
-  - `fecha_fin`
-  - `pais_id`
-  - `nombre_evento`
-  - `tipo_presentacion`
-  - `institucion`
-  - `anfitrion`
-  - `lugar`
-  - `tutor_id`
-  - `informacion_adicional`
-  - `requiere_seguro_unam`
-  - `seguro_unam_beneficiario`
-- Catálogos:
-  - `SOLTIPOS`
-  - `SOLMOT`
-  - `PAISES`
-  - tutores por `identity_links` tipo `persona`.
+- `owner_id`, `tipo_solicitud_id`, `requiere_recursos`, `motivo_id`, `motivo_otro`, `fecha_inicio`, `fecha_fin`, `pais_id`, `nombre_evento`, `tipo_presentacion`, `institucion`, `anfitrion`, `lugar`, `tutor_id`, `informacion_adicional`, `requiere_seguro_unam`, `seguro_unam_beneficiario`.
+
+Catálogos:
+
+- `SOLTIPOS`, `SOLMOT`, `PAISES`, tutores por `identity_links` tipo `persona`.
 - Consulta de tutores queda amplia temporalmente; después podrá restringirse a investigadores IRyA si se define relación exacta.
 
-### 6.4 Visitante y requerimientos
-
-Hecho:
+### 7.4 Visitante y requerimientos
 
 - Visitante condicionado a tipo `VISITA`.
 - Un visitante principal por solicitud.
-- Campos de visitante:
-  - `tipo_visitante_id`
-  - `estudiante_asociado_id`
-  - `nombre`
-  - `apellidos`
-  - `email`
-  - `pais_id`
-  - `institucion_id`
-  - `institucion`
-  - `lugar`
-  - `fecha_inicio`
-  - `fecha_fin`
+- Campos de visitante: `tipo_visitante_id`, `estudiante_asociado_id`, `nombre`, `apellidos`, `email`, `pais_id`, `institucion_id`, `institucion`, `lugar`, `fecha_inicio`, `fecha_fin`.
 - Requerimientos por checkboxes desde `VIS_REQ`.
 - No hay requerimiento “Otro”.
 - `requerimientosCatalogo()` en modelo `Solicitud` usa `belongsToMany` vía `solicitudes_requerimientos`.
 
-### 6.5 Recursos
-
-Hecho:
+### 7.5 Recursos
 
 - Paso 2 activo solo si `requiere_recursos`.
 - Múltiples bloques de recursos.
-- Catálogos:
-  - `C_OREC`
-  - `DIVISAS`
+- Catálogos: `C_OREC`, `DIVISAS`.
 - MXN como divisa default cuando exista en catálogo.
-- Campos:
-  - `origen_id`
-  - `proyecto_id`
-  - `proyecto_nombre`
-  - `dias_n`
-  - `dias_i`
-  - `cuota`
-  - `cuota_divisa`
-  - `avion`
-  - `avion_divisa`
-  - `otro`
-  - `otro_divisa`
-  - `informacion_adicional`
+- Campos: `origen_id`, `proyecto_id`, `proyecto_nombre`, `dias_n`, `dias_i`, `cuota`, `cuota_divisa`, `avion`, `avion_divisa`, `otro`, `otro_divisa`, `informacion_adicional`.
 - `guardarRecursos()` filtra bloques vacíos.
 
-### 6.6 Documentos
+### 7.6 Documentos
 
-Hecho y probado:
+Confirmado por pruebas:
 
-- Paso 3 de documentos funciona.
 - Adjuntar documentos funciona.
 - Descargar documentos funciona.
-- Eliminar documentos funciona.
-- Eliminación usa componente homogéneo `x-ui.confirm-delete-modal`.
-- Upload usa componente existente `x-ui.input-file` con:
-  - `drag-drop`
-  - `multiple`
-  - `wire:model`
+- Eliminar documentos funciona con `x-ui.confirm-delete-modal`.
+- Upload usa `x-ui.input-file` con `drag-drop`, `multiple`, `wire:model`.
 
 Ruta aprobada de almacenamiento:
 
@@ -296,38 +285,24 @@ Descarga:
 
 Errores resueltos:
 
-1. `Unable to retrieve the file_size`:
-   - Causa: se obtenía tamaño/mime después de mover archivo temporal Livewire.
-   - Solución: capturar `originalName`, `mimeType`, `size` antes de `store()`.
-
-2. `Call to undefined method SolicitudDocumentoDownloadController::authorize()`:
-   - Solución: agregar trait `AuthorizesRequests`.
-
-3. `Multiple root elements detected`:
-   - Causa: modal fuera del `<div class="space-y-6">` raíz.
-   - Solución: colocar `<x-ui.confirm-delete-modal />` dentro del único root.
-
-4. Confirmación de eliminación:
-   - Se reemplazó `wire:confirm` por `x-ui.confirm-delete-modal`.
-   - `SolicitudesEdit` controla:
-     - `public ?int $documentoEliminarId = null;`
-     - `public bool $confirmDeleteModal = false;`
-     - `confirmarEliminarDocumento()`
-     - `cancelarEliminarDocumento()`
-     - `eliminarDocumento()` sin ID directo desde botón.
+1. `Unable to retrieve the file_size`: capturar metadatos antes de `store()`.
+2. `Call to undefined method SolicitudDocumentoDownloadController::authorize()`: agregar `AuthorizesRequests`.
+3. `Multiple root elements detected`: modal dentro del único root Livewire.
+4. Confirmación de eliminación: reemplazar `wire:confirm` por `x-ui.confirm-delete-modal`.
 
 ---
 
-## 7. Commits recientes relevantes
+## 8. Commits recientes relevantes
 
 - `8884715` — Usa confirmación modal para eliminar documentos de solicitudes.
 - `1743d45` — Alinea modal de eliminación de documentos con componente UI.
-- Corrección local posterior: modal dentro del único root Livewire.
 - `ad0e912` — Elimina memoria de respaldo ubicada fuera de `.agents`.
+- `6246dec` — Actualiza memoria operativa SIIAA para solicitudes.
+- Limpieza UI 2026-06-17: `x-ui.help`, `x-ui.input`, `x-ui.icon`, `x-ui.input-file`, `x-ui.checkbox`, `x-ui.modal`, `x-ui.confirm-delete-modal`.
 
 ---
 
-## 8. Estado funcional actual
+## 9. Estado funcional actual
 
 Confirmado por pruebas del usuario:
 
@@ -343,9 +318,9 @@ Confirmado por pruebas del usuario:
 
 ---
 
-## 9. Pendiente explícito para continuar
+## 10. Pendiente explícito para continuar
 
-### 9.1 Paso 4 Revisión y envío
+### 10.1 Paso 4 Revisión y envío
 
 Propuesto pero no implementado.
 
@@ -359,7 +334,7 @@ Debe incluir:
 6. Validaciones bloqueantes antes del envío.
 7. Envío formal con generación de folio.
 
-### 9.2 `validarEnvio()` pendiente
+### 10.2 `validarEnvio()` pendiente
 
 Crear método en `SolicitudesEdit`:
 
@@ -377,7 +352,7 @@ Reglas esperadas:
 - Documentos no bloquean envío por ahora; solo advertencia.
 - Seguro UNAM podrá exigir PDFs en etapa posterior si se decide.
 
-### 9.3 `enviarSolicitud()` pendiente
+### 10.3 `enviarSolicitud()` pendiente
 
 Debe llamar antes de enviar:
 
@@ -392,7 +367,7 @@ Luego invocar:
 $solicitudService->enviar($this->solicitud, $identityId);
 ```
 
-### 9.4 Revisar `SolicitudService::enviar()` pendiente
+### 10.4 Revisar `SolicitudService::enviar()` pendiente
 
 Verificar:
 
@@ -404,7 +379,7 @@ Verificar:
 - Permitir envío por propietario o por `solicitudes.manage`.
 - No romper si admin no tiene identidad activa.
 
-### 9.5 Blade del Paso 4 pendiente
+### 10.5 Blade del Paso 4 pendiente
 
 Agregar sección `@if ($paso === 4)` con:
 
@@ -419,7 +394,7 @@ Agregar sección `@if ($paso === 4)` con:
 
 ---
 
-## 10. Comandos útiles para retomar
+## 11. Comandos útiles para retomar
 
 Actualizar local:
 
@@ -443,10 +418,10 @@ Revisar referencias peligrosas:
 grep -R "activeIdentityLinkId\|cancel_reason\|reject_reason\|wire:confirm" -n app resources database routes
 ```
 
-Revisar componente modal:
+Revisar componentes UI:
 
 ```bash
-grep -R "confirm-delete-modal" -n resources/views
+grep -R "duration-zinc\|border-zinc-zinc\|zinc0/svg\|wire:confirm" -n resources/views/components resources/views/livewire
 ```
 
 Revisar documentos guardados:
@@ -457,7 +432,7 @@ find storage/app/documentos/solicitudes -type f | head
 
 ---
 
-## 11. Prioridad siguiente
+## 12. Prioridad siguiente
 
 Al continuar:
 
@@ -466,3 +441,4 @@ Al continuar:
 3. Revisar primero `SolicitudService::enviar()` antes de tocar Blade si hay dudas sobre folio.
 4. Mantener componentes UI existentes; evitar crear duplicados.
 5. Todo cambio de eliminación debe usar `x-ui.confirm-delete-modal`.
+6. Antes de escribir HTML/Tailwind manual, revisar si existe componente `x-ui` aplicable.
