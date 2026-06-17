@@ -9,6 +9,7 @@ use App\Services\Solicitudes\SolicitudServiceInterface;
 use App\Support\Solicitudes\SolicitudCatalogos;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -286,6 +287,10 @@ class SolicitudesEdit extends Component
     {
         $this->authorize('send', $this->solicitud);
 
+        $this->resetErrorBag('envio');
+
+        $this->validarEnvio();
+
         $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
         $this->solicitud = $solicitudService->enviar($this->solicitud, $identityId);
@@ -293,6 +298,64 @@ class SolicitudesEdit extends Component
         $this->dispatch('toast', type: 'success', message: 'Solicitud enviada correctamente.');
 
         return redirect()->route('solicitudes.show', $this->solicitud);
+    }
+
+    protected function validarEnvio(): void
+    {
+        $this->solicitud = $this->solicitud
+            ->refresh()
+            ->load([
+                'tipoSolicitud',
+                'motivo',
+                'recursos',
+                'documentos',
+                'visitante',
+                'requerimientos.requerimiento',
+            ]);
+
+        $errores = [];
+        $tipoClave = $this->solicitud->tipoSolicitud?->clave;
+        $motivoClave = $this->solicitud->motivo?->clave;
+
+        if (! $this->solicitud->tipo_solicitud_id) {
+            $errores[] = 'Debe seleccionar el tipo de solicitud.';
+        }
+
+        if (SolicitudCatalogos::requiereMotivo($tipoClave) && ! $this->solicitud->motivo_id) {
+            $errores[] = 'Debe seleccionar el motivo de la solicitud.';
+        }
+
+        if ($motivoClave === SolicitudCatalogos::MOTIVO_OTRO && blank($this->solicitud->motivo_otro)) {
+            $errores[] = 'Debe especificar el motivo cuando selecciona “Otro”.';
+        }
+
+        if ($tipoClave === SolicitudCatalogos::TIPO_VISITANTE) {
+            if (! $this->solicitud->visitante) {
+                $errores[] = 'Debe capturar los datos del visitante.';
+            } else {
+                if (blank($this->solicitud->visitante->nombre)) {
+                    $errores[] = 'Debe capturar el nombre del visitante.';
+                }
+
+                if (blank($this->solicitud->visitante->apellidos)) {
+                    $errores[] = 'Debe capturar los apellidos del visitante.';
+                }
+
+                if (blank($this->solicitud->visitante->email)) {
+                    $errores[] = 'Debe capturar el correo del visitante.';
+                }
+            }
+        }
+
+        if ($this->solicitud->requiere_recursos && $this->solicitud->recursos->isEmpty()) {
+            $errores[] = 'Debe capturar al menos un recurso solicitado.';
+        }
+
+        if (! empty($errores)) {
+            throw ValidationException::withMessages([
+                'envio' => $errores,
+            ]);
+        }
     }
 
     public function irAPaso(int $paso): void
