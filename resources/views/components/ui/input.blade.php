@@ -70,7 +70,7 @@
     $classes = implode(
         ' ',
         array_filter([
-            'block w-full rounded-lg border shadow-sm transition-colors duration-zinc ease-out focus:outline-none focus:ring-2/20',
+            'block w-full rounded-lg border shadow-sm transition-colors duration-200 ease-out focus:outline-none focus:ring-2/20',
             $sizeClasses,
             $stateClasses,
             $disabledClasses,
@@ -95,7 +95,7 @@
                         class="inline-flex h-5 w-5 items-center justify-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         @mouseenter="open = true" @mouseleave="open = false" @focus="open = true" @blur="open = false"
                         @click="open = !open" :aria-expanded="open.toString()" aria-controls="{{ $popoverId }}">
-                        <svg xmlns="http://www.w3.org/zinc0/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"
                             aria-hidden="true">
                             <path fill-rule="evenodd"
                                 d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-3a1 1 0 10-2 0 1 1 0 002 0zm-2 3a1 1 0 000 2v2a1 1 0 102 0v-3a1 1 0 00-1-1H9z"
@@ -110,7 +110,7 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 translate-y-1" @mouseenter="open = true"
                         @mouseleave="open = false" x-cloak
-                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-zinc bg-white p-4 shadow-lg">
+                        class="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-4 shadow-lg">
                         @if ($helpPopoverTitle)
                             <div class="mb-1 text-sm font-semibold text-zinc-800">
                                 {{ $helpPopoverTitle }}
