@@ -16,11 +16,19 @@ class SolicitudesShow extends Component
     {
         $this->solicitud = $solicitud->load([
             'owner',
+            'creador',
+            'actualizador',
+            'enviadoPor',
             'tipoSolicitud',
             'motivo',
             'estatus',
-            'recursos',
-            'documentos',
+            'pais',
+            'tutor',
+            'recursos.origen',
+            'recursos.cuotaDivisa',
+            'recursos.avionDivisa',
+            'recursos.otroDivisa',
+            'documentos.uploadedBy',
             'visitante',
             'requerimientos.requerimiento',
         ]);
