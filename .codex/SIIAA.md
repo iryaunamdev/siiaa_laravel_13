@@ -25,12 +25,17 @@ Este archivo es la memoria operativa para Codex/agentes. Cada vez que se actuali
 
 - Stack: Laravel 13 + Livewire + Alpine.js + TailwindCSS.
 - Usar documentación oficial como base conceptual.
+- SIIAA es un sistema integral: distintos módulos atienden distintos procesos, pero comparten información, servicios y acciones transversales como identidad, correos, notificaciones, datos de personal, catálogos y componentes UI.
+- Diseñar servicios, helpers, componentes y elementos compartidos cuando resuelvan necesidades comunes entre módulos.
+- No atomizar ni separar funciones de forma exagerada. Evitar dispersar archivos, clases y métodos si una solución general, funcional y compacta mantiene mejor el sistema.
+- Reutilizar servicios existentes entre módulos cuando tenga sentido institucional. Ejemplo: notificaciones/correos de Solicitudes pueden ser consumidos por Consejo Interno para estados posteriores.
 - Evitar CRUDs planos cuando el módulo está definido como expediente institucional.
 - Preferir secciones funcionales, servicios por dominio, componentes UI reutilizables y código explícito.
 - No duplicar headers si el layout dashboard ya los aporta.
 - Mantener código sobrio; comentarios solo cuando aclaren reglas de negocio.
 - Usar componentes UI existentes antes de crear nuevos.
 - Confirmaciones de eliminación deben usar componentes modales homogéneos, no `wire:confirm`, cuando ya exista componente institucional.
+- Servicios e interfaces van juntos en `app/Services/{Modulo}`; no usar `app/Contracts`.
 
 ---
 
@@ -74,16 +79,6 @@ Inventario actual usable:
 - `x-ui.switch`: booleanos visuales; activo/inactivo, visible/oculto, requiere autorización, habilitar configuración.
 - `x-ui.textarea`: campos largos con label, error, ayuda y popover.
 
-Componentes revisados y limpiados el 2026-06-17:
-
-- `x-ui.help`: corrige `border-zinc-zinc`, agrega prop `html`, escapa texto por defecto.
-- `x-ui.input`: corrige `duration-zinc`, `border-zinc-zinc` y namespace SVG inválido.
-- `x-ui.icon`: corrige namespace SVG inválido.
-- `x-ui.input-file`: corrige namespace SVG, usa `x-ui.help` para ayuda y solo muestra estado Livewire cuando existe `wire:model`.
-- `x-ui.checkbox`: implementa `helpPopover` con `x-ui.help`.
-- `x-ui.modal`: agrega `closeAction` opcional para limpiar estado al cerrar por overlay.
-- `x-ui.confirm-delete-modal`: pasa `cancelAction` al modal base como `closeAction`.
-
 Reglas prácticas:
 
 - Formularios: usar `x-ui.input`, `x-ui.select`, `x-ui.textarea`, `x-ui.checkbox`, `x-ui.switch`, `x-ui.radio`.
@@ -93,13 +88,28 @@ Reglas prácticas:
 - Modales: usar `x-ui.modal`; para eliminar, usar `x-ui.confirm-delete-modal`.
 - Archivos: usar `x-ui.input-file`.
 - Ayuda contextual: usar `x-ui.help`.
-- Si no existe un componente necesario, crear uno reutilizable en `components/ui` en vez de duplicar estilos por módulo.
+- Si no existe un componente necesario y el patrón será reutilizable, crear uno en `components/ui`; si es un caso puntual, mantenerlo local y simple.
 
 ---
 
-## 5. Módulo Solicitudes — diseño aprobado
+## 5. Módulo Solicitudes — alcance y diseño aprobado
 
-### 5.1 Catálogos
+### 5.1 Alcance funcional
+
+El módulo Solicitudes termina funcionalmente cuando una solicitud pasa de `BORRADOR` a `SENV`:
+
+1. Crear borrador.
+2. Editar expediente.
+3. Capturar visitante/requerimientos si aplica.
+4. Capturar recursos si aplica.
+5. Adjuntar documentos.
+6. Revisar y enviar.
+7. Generar folio.
+8. Notificar/correo de solicitud enviada al solicitante y al Consejo Interno.
+
+Las revisiones y estados posteriores a `SENV` pertenecen al módulo Consejo Interno. Sin embargo, por criterio de sistema integral, servicios generales como correos/notificaciones pueden conservar métodos reutilizables para que CI los consuma.
+
+### 5.2 Catálogos
 
 Tipos `SOLTIPOS`:
 
@@ -140,13 +150,15 @@ Reglas de edición:
 - Propietario solo borra físicamente borradores propios.
 - SACAD/admin con `solicitudes.manage` puede gestionar administrativamente.
 
-### 5.2 Permisos
+### 5.3 Permisos
 
 - `solicitudes.access`: acceso normal del propietario.
 - `solicitudes.review`: revisión SACAD/CI; permite ver todas y editar observaciones de revisión/administración.
 - `solicitudes.manage`: gestión completa; crear en representación de otra identidad, cambiar estados, archivar/eliminar y enviar administrativamente.
 
-### 5.3 Flujo aprobado
+No crear permisos sueltos finos como `solicitudes.delete`. En Blade se pueden usar abilities semánticas de policy, por ejemplo `@can('delete', $solicitud)`, pero la policy debe resolver con los permisos integrados anteriores.
+
+### 5.4 Flujo aprobado
 
 - `SolicitudesCreate`: creación mínima de borrador.
   - `owner_id` si puede crear a nombre de otra identidad.
@@ -156,7 +168,13 @@ Reglas de edición:
   1. Datos generales + visitante/requerimientos si aplica.
   2. Recursos si `requiere_recursos`.
   3. Documentos.
-  4. Revisión/envío. **Pendiente.**
+  4. Revisión/envío.
+
+### 5.5 Reglas de recursos
+
+- `AUS_REC`, `SOLOREC`, `ESOLREC`: requieren recursos automáticamente.
+- `AUSENCIA`: no requiere recursos.
+- `VISITA`: es el único tipo donde `requiere_recursos` es editable por checkbox; puede requerir o no recursos según el caso.
 
 ---
 
@@ -170,24 +188,7 @@ created_by / updated_by / uploaded_by / submitted_by = identidad activa si exist
 Si el operador tiene solicitudes.manage y no tiene identidad activa, esos campos pueden ser null.
 ```
 
-Helper interno usado en `SolicitudesEdit`:
-
-```php
-protected function actorIdentityId(bool $allowManageWithoutIdentity = false): ?int
-{
-    $identityId = \currentIdentityId();
-
-    if ($identityId) {
-        return $identityId;
-    }
-
-    if ($allowManageWithoutIdentity && auth()->user()?->can('solicitudes.manage')) {
-        return null;
-    }
-
-    abort(403, 'No se encontro una identidad institucional activa.');
-}
-```
+`owner_id` no debe ser nullable.
 
 Campos de auditoría que deben admitir `null` para operación admin sin identidad activa:
 
@@ -202,65 +203,36 @@ Campos de auditoría que deben admitir `null` para operación admin sin identida
 - `archived_by`
 - `politica_aceptada_by`
 
-`owner_id` no debe ser nullable.
-
 ---
 
 ## 7. Estado implementado y probado en Solicitudes
 
-### 7.1 Limpieza de estados y observaciones
+Confirmado por pruebas del usuario:
 
-- Se eliminaron usos funcionales de `cancel_reason` y `reject_reason`.
-- Cancelación escribe en `observaciones_administracion`.
-- Rechazo CI/SACAD escribe en `observaciones_sacad`.
-- Se corrigió uso de estados funcionales actuales.
-- Se corrigió el uso de `currentIdentityId()`.
+- `SolicitudesEdit` carga correctamente.
+- Paso 1 funciona.
+- País por default: México (`PAISES` clave `MEX`) cuando el campo aún no tiene valor.
+- Visitante/requerimientos funcionan hasta donde se ha probado.
+- Recursos funcionan, incluyendo caso opcional para `VISITA`.
+- Documentos funcionan:
+  - adjuntar
+  - descargar
+  - eliminar con modal UI
+- Paso 4 revisión/envío implementado.
+- Validación previa al envío implementada:
+  - tipo obligatorio
+  - motivo obligatorio si aplica
+  - `motivo_otro` obligatorio cuando motivo es `OTRO`
+  - datos mínimos de visitante si tipo `VISITA`
+  - al menos un recurso si `requiere_recursos`
+  - documentos no bloquean envío; solo advertencia
+- `SolicitudService::enviar()` genera folio al enviar, formato `YYYY/NNN`, y mueve a `SENV`.
+- Admin/SACAD sin identidad activa puede operar documentos/envío sin falsear `owner_id`.
+- Eliminación física de solicitudes desde índice implementada según policy:
+  - propietario solo borrador propio
+  - `solicitudes.manage` con advertencia explícita
 
-### 7.2 Creación mínima
-
-- `SolicitudesCreate` crea borrador mínimo.
-- Campos principales:
-  - `owner_id` si `solicitudes.manage`.
-  - `tipo_solicitud_id`.
-- El resto se captura en `SolicitudesEdit`.
-
-### 7.3 Paso 1: datos generales
-
-Campos implementados:
-
-- `owner_id`, `tipo_solicitud_id`, `requiere_recursos`, `motivo_id`, `motivo_otro`, `fecha_inicio`, `fecha_fin`, `pais_id`, `nombre_evento`, `tipo_presentacion`, `institucion`, `anfitrion`, `lugar`, `tutor_id`, `informacion_adicional`, `requiere_seguro_unam`, `seguro_unam_beneficiario`.
-
-Catálogos:
-
-- `SOLTIPOS`, `SOLMOT`, `PAISES`, tutores por `identity_links` tipo `persona`.
-- Consulta de tutores queda amplia temporalmente; después podrá restringirse a investigadores IRyA si se define relación exacta.
-
-### 7.4 Visitante y requerimientos
-
-- Visitante condicionado a tipo `VISITA`.
-- Un visitante principal por solicitud.
-- Campos de visitante: `tipo_visitante_id`, `estudiante_asociado_id`, `nombre`, `apellidos`, `email`, `pais_id`, `institucion_id`, `institucion`, `lugar`, `fecha_inicio`, `fecha_fin`.
-- Requerimientos por checkboxes desde `VIS_REQ`.
-- No hay requerimiento “Otro”.
-- `requerimientosCatalogo()` en modelo `Solicitud` usa `belongsToMany` vía `solicitudes_requerimientos`.
-
-### 7.5 Recursos
-
-- Paso 2 activo solo si `requiere_recursos`.
-- Múltiples bloques de recursos.
-- Catálogos: `C_OREC`, `DIVISAS`.
-- MXN como divisa default cuando exista en catálogo.
-- Campos: `origen_id`, `proyecto_id`, `proyecto_nombre`, `dias_n`, `dias_i`, `cuota`, `cuota_divisa`, `avion`, `avion_divisa`, `otro`, `otro_divisa`, `informacion_adicional`.
-- `guardarRecursos()` filtra bloques vacíos.
-
-### 7.6 Documentos
-
-Confirmado por pruebas:
-
-- Adjuntar documentos funciona.
-- Descargar documentos funciona.
-- Eliminar documentos funciona con `x-ui.confirm-delete-modal`.
-- Upload usa `x-ui.input-file` con `drag-drop`, `multiple`, `wire:model`.
+### Documentos
 
 Ruta aprobada de almacenamiento:
 
@@ -283,118 +255,16 @@ Descarga:
 - Requirió `AuthorizesRequests` en el controlador.
 - No exponer documentos por disco público.
 
-Errores resueltos:
+### Notificaciones y correo
 
-1. `Unable to retrieve the file_size`: capturar metadatos antes de `store()`.
-2. `Call to undefined method SolicitudDocumentoDownloadController::authorize()`: agregar `AuthorizesRequests`.
-3. `Multiple root elements detected`: modal dentro del único root Livewire.
-4. Confirmación de eliminación: reemplazar `wire:confirm` por `x-ui.confirm-delete-modal`.
-
----
-
-## 8. Commits recientes relevantes
-
-- `8884715` — Usa confirmación modal para eliminar documentos de solicitudes.
-- `1743d45` — Alinea modal de eliminación de documentos con componente UI.
-- `ad0e912` — Elimina memoria de respaldo ubicada fuera de `.agents`.
-- `6246dec` — Actualiza memoria operativa SIIAA para solicitudes.
-- Limpieza UI 2026-06-17: `x-ui.help`, `x-ui.input`, `x-ui.icon`, `x-ui.input-file`, `x-ui.checkbox`, `x-ui.modal`, `x-ui.confirm-delete-modal`.
+- `SolicitudService::enviar()` llama a `NotificationServiceInterface::solicitudEnviada()`.
+- `NotificationService::solicitudEnviada()` envía correo al solicitante y al Consejo Interno.
+- `MailService` redirige destinatarios a prueba fuera de producción y usa reales en producción según `config('siiaa.mail.use_real_recipients')`.
+- Métodos de aprobado/rechazado/cerrado se conservan en servicios de notificación/correo para reutilización desde CI.
 
 ---
 
-## 9. Estado funcional actual
-
-Confirmado por pruebas del usuario:
-
-- `SolicitudesEdit` carga correctamente.
-- Paso 1 funciona.
-- Visitante/requerimientos funcionan hasta donde se ha probado.
-- Recursos funcionan.
-- Documentos funcionan:
-  - adjuntar
-  - descargar
-  - eliminar con modal UI
-- Admin/SACAD sin identidad activa puede operar documentos sin falsear `owner_id`.
-
----
-
-## 10. Pendiente explícito para continuar
-
-### 10.1 Paso 4 Revisión y envío
-
-Propuesto pero no implementado.
-
-Debe incluir:
-
-1. Resumen de datos generales.
-2. Resumen de visitante si tipo `VISITA`.
-3. Resumen de recursos si `requiere_recursos`.
-4. Resumen de documentos.
-5. Advertencias no bloqueantes.
-6. Validaciones bloqueantes antes del envío.
-7. Envío formal con generación de folio.
-
-### 10.2 `validarEnvio()` pendiente
-
-Crear método en `SolicitudesEdit`:
-
-```php
-protected function validarEnvio(): void
-```
-
-Reglas esperadas:
-
-- Tipo de solicitud obligatorio.
-- Si el tipo requiere motivo, `motivo_id` obligatorio.
-- Si motivo es `OTRO`, `motivo_otro` obligatorio.
-- Si tipo es `VISITA`, debe existir visitante y campos mínimos.
-- Si `requiere_recursos`, debe existir al menos un recurso.
-- Documentos no bloquean envío por ahora; solo advertencia.
-- Seguro UNAM podrá exigir PDFs en etapa posterior si se decide.
-
-### 10.3 `enviarSolicitud()` pendiente
-
-Debe llamar antes de enviar:
-
-```php
-$this->resetErrorBag('envio');
-$this->validarEnvio();
-```
-
-Luego invocar:
-
-```php
-$solicitudService->enviar($this->solicitud, $identityId);
-```
-
-### 10.4 Revisar `SolicitudService::enviar()` pendiente
-
-Verificar:
-
-- Asignar folio solo al enviar.
-- Folio formato `YYYY/NNN`.
-- Borradores sin folio.
-- Setear `estatus_id` a `SENV`.
-- Setear `submitted_at`, `submitted_by`, `updated_by`.
-- Permitir envío por propietario o por `solicitudes.manage`.
-- No romper si admin no tiene identidad activa.
-
-### 10.5 Blade del Paso 4 pendiente
-
-Agregar sección `@if ($paso === 4)` con:
-
-- Estado actual.
-- Errores `@error('envio')`.
-- Datos generales.
-- Documentos.
-- Recursos.
-- Visitante.
-- Advertencia de envío.
-- Botón `Enviar solicitud` bajo `@can('send', $solicitud)`.
-
----
-
-## 11. Comandos útiles para retomar
+## 8. Comandos útiles para retomar
 
 Actualizar local:
 
@@ -408,6 +278,10 @@ Validar PHP:
 php -l app/Livewire/Solicitudes/SolicitudesEdit.php
 php -l app/Services/Solicitudes/SolicitudService.php
 php -l app/Services/Solicitudes/SolicitudServiceInterface.php
+php -l app/Services/Notifications/NotificationService.php
+php -l app/Services/Notifications/NotificationServiceInterface.php
+php -l app/Services/Mail/MailService.php
+php -l app/Services/Mail/MailServiceInterface.php
 php -l app/Policies/SolicitudPolicy.php
 php artisan optimize:clear
 ```
@@ -432,13 +306,15 @@ find storage/app/documentos/solicitudes -type f | head
 
 ---
 
-## 12. Prioridad siguiente
+## 9. Prioridad siguiente
 
 Al continuar:
 
 1. No reabrir diseño de documentos salvo bug.
-2. Iniciar con Paso 4 `Revisión y envío`.
-3. Revisar primero `SolicitudService::enviar()` antes de tocar Blade si hay dudas sobre folio.
-4. Mantener componentes UI existentes; evitar crear duplicados.
-5. Todo cambio de eliminación debe usar `x-ui.confirm-delete-modal`.
-6. Antes de escribir HTML/Tailwind manual, revisar si existe componente `x-ui` aplicable.
+2. Cerrar notificación/correo de envío si queda algún ajuste fino.
+3. Revisar `SolicitudesShow` para que represente bien el expediente enviado.
+4. Mantener métodos reutilizables de servicios si sirven a CI u otros módulos.
+5. No atomizar ni dispersar archivos sin necesidad institucional real.
+6. Mantener componentes UI existentes; evitar crear duplicados.
+7. Todo cambio de eliminación debe usar `x-ui.confirm-delete-modal`.
+8. Antes de escribir HTML/Tailwind manual, revisar si existe componente `x-ui` aplicable.
