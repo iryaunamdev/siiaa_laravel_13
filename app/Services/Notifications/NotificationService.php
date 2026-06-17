@@ -16,19 +16,4 @@ class NotificationService implements NotificationServiceInterface
         $this->mailService->enviarSolicitudEnviadaSolicitante($solicitud);
         $this->mailService->enviarSolicitudEnviadaConsejoInterno($solicitud);
     }
-
-    public function solicitudAprobada(Solicitud $solicitud): void
-    {
-        $this->mailService->enviarSolicitudAprobadaSolicitante($solicitud);
-    }
-
-    public function solicitudRechazada(Solicitud $solicitud): void
-    {
-        $this->mailService->enviarSolicitudRechazadaSolicitante($solicitud);
-    }
-
-    public function solicitudCerrada(Solicitud $solicitud): void
-    {
-        $this->mailService->enviarSolicitudCerradaSolicitante($solicitud);
-    }
 }
