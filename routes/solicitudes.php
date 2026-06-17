@@ -4,7 +4,6 @@ use App\Http\Controllers\Solicitudes\SolicitudDocumentoDownloadController;
 use App\Livewire\Solicitudes\SolicitudesCreate;
 use App\Livewire\Solicitudes\SolicitudesEdit;
 use App\Livewire\Solicitudes\SolicitudesIndex;
-use App\Livewire\Solicitudes\SolicitudesReview;
 use App\Livewire\Solicitudes\SolicitudesShow;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +26,4 @@ Route::middleware(['auth', 'verified'])
 
         Route::get('/{solicitud}/editar', SolicitudesEdit::class)
             ->name('edit');
-
-        Route::get('/{solicitud}/revisar', SolicitudesReview::class)
-            ->name('review');
     });
