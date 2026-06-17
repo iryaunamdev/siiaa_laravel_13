@@ -115,6 +115,14 @@
                                             Revisar
                                         </a>
                                     @endcan
+
+                                    @can('delete', $solicitud)
+                                        <button type="button"
+                                            wire:click="confirmarEliminarSolicitud({{ $solicitud->id }})"
+                                            class="text-sm font-medium text-red-600 hover:text-red-800">
+                                            Eliminar
+                                        </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -133,4 +141,15 @@
             {{ $solicitudes->links() }}
         </div>
     </section>
+
+    <x-ui.confirm-delete-modal
+        model="confirmDeleteModal"
+        title="Eliminar solicitud"
+        message="Esta acción eliminará físicamente la solicitud y sus registros relacionados."
+        warning="También se eliminarán los documentos físicos asociados. Esta operación no se puede deshacer."
+        cancel-action="cancelarEliminarSolicitud"
+        confirm-action="eliminarSolicitud"
+        confirm-text="Eliminar solicitud"
+        cancel-text="Cancelar"
+    />
 </div>
