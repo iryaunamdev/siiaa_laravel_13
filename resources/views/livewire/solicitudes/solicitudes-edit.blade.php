@@ -59,18 +59,26 @@
                         required />
 
                     <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 md:col-span-2">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Recursos</p>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Esta opción se determina automáticamente según el tipo de solicitud seleccionado.
-                                </p>
-                            </div>
+                        @if ($this->esTipoVisitante())
+                            <x-ui.checkbox
+                                name="requiere_recursos"
+                                label="Requiere recursos"
+                                wire:model.live="form.requiere_recursos"
+                                help="En solicitudes de visitante, marque esta opción solo cuando la visita requiera viáticos, apoyos o recursos institucionales." />
+                        @else
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">Recursos</p>
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Esta opción se determina automáticamente según el tipo de solicitud seleccionado.
+                                    </p>
+                                </div>
 
-                            <x-ui.badge :variant="$form['requiere_recursos'] ? 'info' : 'neutral'">
-                                {{ $form['requiere_recursos'] ? 'Requiere recursos' : 'No requiere recursos' }}
-                            </x-ui.badge>
-                        </div>
+                                <x-ui.badge :variant="$form['requiere_recursos'] ? 'info' : 'neutral'">
+                                    {{ $form['requiere_recursos'] ? 'Requiere recursos' : 'No requiere recursos' }}
+                                </x-ui.badge>
+                            </div>
+                        @endif
                     </div>
 
                     <x-ui.select
