@@ -109,13 +109,6 @@
                                         </a>
                                     @endcan
 
-                                    @can('review', $solicitud)
-                                        <a href="{{ route('solicitudes.review', $solicitud) }}"
-                                            class="text-sm font-medium text-emerald-600 hover:text-emerald-800">
-                                            Revisar
-                                        </a>
-                                    @endcan
-
                                     @can('delete', $solicitud)
                                         <button type="button"
                                             wire:click="confirmarEliminarSolicitud({{ $solicitud->id }})"
