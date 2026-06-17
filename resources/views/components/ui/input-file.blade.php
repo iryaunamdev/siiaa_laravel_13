@@ -43,7 +43,7 @@
     | Soporta:
     | - accept (formatos)
     | - multiple
-    | - estado de carga Livewire
+    | - estado de carga Livewire cuando existe wire:model
     |
     | Nota:
     | No usa librerías externas, solo Alpine.
@@ -51,6 +51,7 @@
 
     $id = $id ?? $name;
     $fieldError = $error ?? ($name ? $errors->first($name) : null);
+    $wireModel = $attributes->wire('model')->value();
 
     $baseClasses =
         'block w-full rounded-xl border bg-white text-zinc-800 shadow-sm transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-100';
@@ -92,15 +93,7 @@
             </label>
 
             @if ($helpText)
-                <div class="relative inline-flex" x-data="{ open: false }">
-                    <button type="button" x-on:mouseenter="open = true" x-on:mouseleave="open = false"
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs text-zinc-500">?</button>
-
-                    <div x-show="open"
-                        class="absolute left-0 top-6 z-30 w-64 rounded-xl border bg-white p-3 text-xs shadow-lg">
-                        {{ $helpText }}
-                    </div>
-                </div>
+                <x-ui.help :text="$helpText" position="bottom" />
             @endif
         </div>
     @endif
@@ -112,7 +105,7 @@
             class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition"
             :class="isDragging ? 'border-sky-500 bg-sky-50' : 'border-zinc-300 bg-white'">
             {{-- Icono --}}
-            <svg xmlns="http://www.w3.org/zinc0/svg" class="h-8 w-8 text-zinc-400" fill="none" viewBox="0 0 24 24"
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-zinc-400" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16V8m0 0l-3 3m3-3l3 3m7 5a4 4 0 00-4-4H7m10 4a4 4 0 01-4 4H7" />
@@ -159,9 +152,11 @@
     @endif
 
     {{-- Estado de carga Livewire --}}
-    <div wire:loading wire:target="{{ $attributes->wire('model')->value() ?? '' }}" class="text-xs text-sky-600">
-        Subiendo archivo...
-    </div>
+    @if ($wireModel)
+        <div wire:loading wire:target="{{ $wireModel }}" class="text-xs text-sky-600">
+            Subiendo archivo...
+        </div>
+    @endif
 
     @if ($help)
         <p class="text-xs text-zinc-500">{{ $help }}</p>
