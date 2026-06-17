@@ -94,12 +94,14 @@ class SolicitudService implements SolicitudServiceInterface
         });
     }
 
-    public function eliminar(Solicitud $solicitud, int $actorIdentityId): void
+    public function eliminar(Solicitud $solicitud, ?int $actorIdentityId): void
     {
         DB::transaction(function () use ($solicitud) {
+            $disk = config('filesystems.default', 'local');
+
             foreach ($solicitud->documentos as $documento) {
-                if ($documento->path && Storage::disk('private')->exists($documento->path)) {
-                    Storage::disk('private')->delete($documento->path);
+                if ($documento->path && Storage::disk($disk)->exists($documento->path)) {
+                    Storage::disk($disk)->delete($documento->path);
                 }
             }
 
