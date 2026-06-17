@@ -165,8 +165,15 @@ class SolicitudesEdit extends Component
 
     public function updatedFormTipoSolicitudId(): void
     {
-        $this->actualizarRequiereRecursosDesdeTipo();
+        $this->actualizarRequiereRecursosDesdeTipo(resetVisitante: true);
 
+        if ($this->form['requiere_recursos'] && empty($this->recursosForm)) {
+            $this->agregarRecurso();
+        }
+    }
+
+    public function updatedFormRequiereRecursos(): void
+    {
         if ($this->form['requiere_recursos'] && empty($this->recursosForm)) {
             $this->agregarRecurso();
         }
@@ -251,11 +258,21 @@ class SolicitudesEdit extends Component
             ?->clave;
     }
 
-    protected function actualizarRequiereRecursosDesdeTipo(): void
+    protected function actualizarRequiereRecursosDesdeTipo(bool $resetVisitante = false): void
     {
-        $this->form['requiere_recursos'] = SolicitudCatalogos::requiereRecursosPorTipo(
-            $this->tipoClaveSeleccionado()
-        );
+        $tipoClave = $this->tipoClaveSeleccionado();
+
+        if ($tipoClave === SolicitudCatalogos::TIPO_VISITANTE) {
+            if ($resetVisitante) {
+                $this->form['requiere_recursos'] = false;
+            }
+
+            $this->form['requiere_recursos'] = (bool) ($this->form['requiere_recursos'] ?? false);
+
+            return;
+        }
+
+        $this->form['requiere_recursos'] = SolicitudCatalogos::requiereRecursosPorTipo($tipoClave);
     }
 
     protected function divisaMxnId(): ?int
