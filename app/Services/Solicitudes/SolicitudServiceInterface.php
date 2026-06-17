@@ -16,7 +16,7 @@ interface SolicitudServiceInterface
     public function enviar(Solicitud $solicitud, ?int $actorIdentityId): Solicitud;
     public function cancelar(Solicitud $solicitud, int $actorIdentityId, ?string $motivo = null): Solicitud;
 
-    public function eliminar(Solicitud $solicitud, int $actorIdentityId): void;
+    public function eliminar(Solicitud $solicitud, ?int $actorIdentityId): void;
 
     public function aprobarCi(Solicitud $solicitud, int $actorIdentityId, ?string $observaciones = null): Solicitud;
 
