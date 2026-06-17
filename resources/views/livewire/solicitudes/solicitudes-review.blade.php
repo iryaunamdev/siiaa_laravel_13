@@ -41,49 +41,87 @@
     </section>
 
     <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <label class="mb-1 block text-sm font-medium text-gray-700">
-            Observaciones SACAD
-        </label>
-        <textarea wire:model="observaciones_sacad" rows="5"
-            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Observaciones de revisión."></textarea>
-        @error('observaciones_sacad')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-        @enderror
-    </section>
-
-    <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <label class="mb-1 block text-sm font-medium text-gray-700">
-            Motivo de rechazo
-        </label>
-        <textarea wire:model="observaciones_sacad" rows="4"
-            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Requerido únicamente si se rechaza la solicitud."></textarea>
-        @error('observaciones_sacad')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-        @enderror
+        <x-ui.textarea
+            name="observaciones_sacad"
+            label="Observaciones SACAD / CI"
+            wire:model="observaciones_sacad"
+            rows="6"
+            placeholder="Capture observaciones de revisión. Si rechaza la solicitud, este campo es obligatorio."
+            help="Estas observaciones se guardan en el expediente y podrán reutilizarse en el flujo de Consejo Interno." />
     </section>
 
     <div class="flex items-center justify-end gap-3">
-        <a href="{{ route('solicitudes.show', $solicitud) }}"
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <x-ui.button variant="secondary" href="{{ route('solicitudes.show', $solicitud) }}">
             Cancelar
-        </a>
+        </x-ui.button>
 
         @can('reject', $solicitud)
-            <button type="button" wire:click="rechazar" wire:confirm="La solicitud será rechazada. ¿Desea continuar?"
-                class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700"
+            <x-ui.button
+                variant="danger"
+                type="button"
+                wire:click="confirmarRechazar"
                 wire:loading.attr="disabled">
                 Rechazar
-            </button>
+            </x-ui.button>
         @endcan
 
         @can('approve', $solicitud)
-            <button type="button" wire:click="aprobar" wire:confirm="La solicitud será aprobada. ¿Desea continuar?"
-                class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+            <x-ui.button
+                type="button"
+                wire:click="confirmarAprobar"
                 wire:loading.attr="disabled">
                 Aprobar
-            </button>
+            </x-ui.button>
         @endcan
     </div>
+
+    <x-ui.modal wire:model="confirmRejectModal" max-width="md" close-action="cancelarRechazar">
+        <x-slot:title>
+            Confirmar rechazo
+        </x-slot:title>
+
+        <div class="space-y-3 p-4">
+            <p class="text-sm text-gray-700">
+                La solicitud será rechazada y se conservarán las observaciones capturadas en el expediente.
+            </p>
+            <p class="text-sm font-medium text-red-700">
+                Esta acción cambiará el estatus de la solicitud.
+            </p>
+        </div>
+
+        <x-slot:footer>
+            <x-ui.button variant="secondary" type="button" wire:click="cancelarRechazar">
+                Cancelar
+            </x-ui.button>
+
+            <x-ui.button variant="danger" type="button" wire:click="rechazar" wire:loading.attr="disabled">
+                Rechazar solicitud
+            </x-ui.button>
+        </x-slot:footer>
+    </x-ui.modal>
+
+    <x-ui.modal wire:model="confirmApproveModal" max-width="md" close-action="cancelarAprobar">
+        <x-slot:title>
+            Confirmar aprobación
+        </x-slot:title>
+
+        <div class="space-y-3 p-4">
+            <p class="text-sm text-gray-700">
+                La solicitud será aprobada por CI/SACAD y avanzará al siguiente estatus institucional.
+            </p>
+            <p class="text-sm font-medium text-emerald-700">
+                Confirme únicamente si la revisión ya fue validada.
+            </p>
+        </div>
+
+        <x-slot:footer>
+            <x-ui.button variant="secondary" type="button" wire:click="cancelarAprobar">
+                Cancelar
+            </x-ui.button>
+
+            <x-ui.button type="button" wire:click="aprobar" wire:loading.attr="disabled">
+                Aprobar solicitud
+            </x-ui.button>
+        </x-slot:footer>
+    </x-ui.modal>
 </div>
