@@ -4,6 +4,7 @@ namespace App\Livewire\Solicitudes;
 
 use App\Models\Solicitudes\Solicitud;
 use App\Models\CatalogoItem;
+use App\Services\Solicitudes\SolicitudServiceInterface;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
@@ -21,6 +22,10 @@ class SolicitudesIndex extends Component
     public ?int $tipo_solicitud_id = null;
 
     public int $perPage = 15;
+
+    public ?int $solicitudEliminarId = null;
+
+    public bool $confirmDeleteModal = false;
 
     /* CATALOGOS */
     public $c_estatus, $c_tipos_solicitud;
@@ -46,6 +51,59 @@ class SolicitudesIndex extends Component
     public function updatedTipoSolicitudId(): void
     {
         $this->resetPage();
+    }
+
+    public function confirmarEliminarSolicitud(int $solicitudId): void
+    {
+        $solicitud = Solicitud::query()->findOrFail($solicitudId);
+
+        $this->authorize('delete', $solicitud);
+
+        $this->solicitudEliminarId = $solicitudId;
+        $this->confirmDeleteModal = true;
+    }
+
+    public function cancelarEliminarSolicitud(): void
+    {
+        $this->solicitudEliminarId = null;
+        $this->confirmDeleteModal = false;
+    }
+
+    public function eliminarSolicitud(SolicitudServiceInterface $solicitudService): void
+    {
+        abort_if(! $this->solicitudEliminarId, 404);
+
+        $solicitud = Solicitud::query()
+            ->with('documentos')
+            ->findOrFail($this->solicitudEliminarId);
+
+        $this->authorize('delete', $solicitud);
+
+        $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
+
+        $solicitudService->eliminar($solicitud, $identityId);
+
+        $this->solicitudEliminarId = null;
+        $this->confirmDeleteModal = false;
+
+        $this->resetPage();
+
+        $this->dispatch('toast', type: 'success', message: 'Solicitud eliminada correctamente.');
+    }
+
+    protected function actorIdentityId(bool $allowManageWithoutIdentity = false): ?int
+    {
+        $identityId = \currentIdentityId();
+
+        if ($identityId) {
+            return $identityId;
+        }
+
+        if ($allowManageWithoutIdentity && auth()->user()?->can('solicitudes.manage')) {
+            return null;
+        }
+
+        abort(403, 'No se encontro una identidad institucional activa.');
     }
 
     protected function catalogoItems(string $catalogoClave)
