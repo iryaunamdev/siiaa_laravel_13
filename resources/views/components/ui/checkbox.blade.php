@@ -65,7 +65,6 @@
 
 @php
     $inputId = $attributes->get('id') ?? ($name ?? 'checkbox_' . uniqid());
-    $popoverId = 'popover_' . str_replace(['.', '[', ']'], '_', $inputId);
 
     $resolvedError = $error;
 
@@ -121,7 +120,15 @@
                         @endif
 
                         @if ($helpPopover)
-                            {{-- Aquí va tu bloque actual de popover si lo necesitas --}}
+                            <x-ui.help position="bottom">
+                                @if ($helpPopoverTitle)
+                                    <span class="mb-1 block font-semibold text-zinc-800">
+                                        {{ $helpPopoverTitle }}
+                                    </span>
+                                @endif
+
+                                <span>{{ $helpPopover }}</span>
+                            </x-ui.help>
                         @endif
                     </div>
                 @endif
