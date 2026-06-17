@@ -96,6 +96,8 @@ class SolicitudesEdit extends Component
         $this->c_divisas = $this->catalogoItems('DIVISAS');
         $this->c_owner_identities = $this->can_manage_owner ? $this->ownerIdentities() : collect();
 
+        $mexicoId = $this->paisMexicoId();
+
         $this->form = [
             'owner_id' => $this->solicitud->owner_id,
             'tipo_solicitud_id' => $this->solicitud->tipo_solicitud_id,
@@ -104,7 +106,7 @@ class SolicitudesEdit extends Component
             'motivo_otro' => $this->solicitud->motivo_otro,
             'fecha_inicio' => optional($this->solicitud->fecha_inicio)->format('Y-m-d'),
             'fecha_fin' => optional($this->solicitud->fecha_fin)->format('Y-m-d'),
-            'pais_id' => $this->solicitud->pais_id,
+            'pais_id' => $this->solicitud->pais_id ?: $mexicoId,
             'nombre_evento' => $this->solicitud->nombre_evento,
             'tipo_presentacion' => $this->solicitud->tipo_presentacion,
             'institucion' => $this->solicitud->institucion,
@@ -116,13 +118,15 @@ class SolicitudesEdit extends Component
             'seguro_unam_beneficiario' => $this->solicitud->seguro_unam_beneficiario,
         ];
 
+        $this->actualizarRequiereRecursosDesdeTipo();
+
         $this->visitanteForm = [
             'tipo_visitante_id' => $this->solicitud->visitante?->tipo_visitante_id,
             'estudiante_asociado_id' => $this->solicitud->visitante?->estudiante_asociado_id,
             'nombre' => $this->solicitud->visitante?->nombre,
             'apellidos' => $this->solicitud->visitante?->apellidos,
             'email' => $this->solicitud->visitante?->email,
-            'pais_id' => $this->solicitud->visitante?->pais_id,
+            'pais_id' => $this->solicitud->visitante?->pais_id ?: $mexicoId,
             'institucion_id' => $this->solicitud->visitante?->institucion_id,
             'institucion' => $this->solicitud->visitante?->institucion,
             'lugar' => $this->solicitud->visitante?->lugar,
@@ -154,14 +158,32 @@ class SolicitudesEdit extends Component
             ->values()
             ->all();
 
-        if ($this->solicitud->requiere_recursos && empty($this->recursosForm)) {
+        if ($this->form['requiere_recursos'] && empty($this->recursosForm)) {
             $this->agregarRecurso();
+        }
+    }
+
+    public function updatedFormTipoSolicitudId(): void
+    {
+        $this->actualizarRequiereRecursosDesdeTipo();
+
+        if ($this->form['requiere_recursos'] && empty($this->recursosForm)) {
+            $this->agregarRecurso();
+        }
+    }
+
+    public function updatedFormFechaInicio(): void
+    {
+        if (($this->form['fecha_fin'] ?? null) && ($this->form['fecha_inicio'] ?? null) && $this->form['fecha_fin'] < $this->form['fecha_inicio']) {
+            $this->form['fecha_fin'] = null;
         }
     }
 
     public function guardarPaso1(SolicitudServiceInterface $solicitudService): void
     {
         $this->authorize('update', $this->solicitud);
+
+        $this->actualizarRequiereRecursosDesdeTipo();
 
         $validated = $this->validate([
             'form.owner_id' => [
@@ -186,18 +208,11 @@ class SolicitudesEdit extends Component
             'form.informacion_adicional' => ['nullable', 'string', 'max:5000'],
             'form.requiere_seguro_unam' => ['boolean'],
             'form.seguro_unam_beneficiario' => ['nullable', 'string', 'max:255'],
+        ], [
+            'form.fecha_fin.after_or_equal' => 'La fecha final debe ser igual o posterior a la fecha inicial.',
         ]);
 
-        $tipoSeleccionado = $this->c_tipos_solicitud
-            ->firstWhere('id', (int) $validated['form']['tipo_solicitud_id']);
-
-        if ($tipoSeleccionado) {
-            $validated['form']['requiere_recursos'] = SolicitudCatalogos::requiereRecursosPorTipo($tipoSeleccionado->clave)
-                || (
-                    SolicitudCatalogos::recursosSeleccionablesPorTipo($tipoSeleccionado->clave)
-                    && (bool) ($this->form['requiere_recursos'] ?? false)
-                );
-        }
+        $validated['form']['requiere_recursos'] = (bool) ($this->form['requiere_recursos'] ?? false);
 
         $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
 
@@ -223,10 +238,37 @@ class SolicitudesEdit extends Component
             ?->clave === SolicitudCatalogos::TIPO_VISITANTE;
     }
 
+    protected function tipoClaveSeleccionado(): ?string
+    {
+        $tipoId = $this->form['tipo_solicitud_id'] ?? $this->solicitud->tipo_solicitud_id;
+
+        if (! $tipoId) {
+            return null;
+        }
+
+        return $this->c_tipos_solicitud
+            ->firstWhere('id', (int) $tipoId)
+            ?->clave;
+    }
+
+    protected function actualizarRequiereRecursosDesdeTipo(): void
+    {
+        $this->form['requiere_recursos'] = SolicitudCatalogos::requiereRecursosPorTipo(
+            $this->tipoClaveSeleccionado()
+        );
+    }
+
     protected function divisaMxnId(): ?int
     {
         return $this->c_divisas
             ->firstWhere('clave', SolicitudCatalogos::DIVISA_MXN)
+            ?->id;
+    }
+
+    protected function paisMexicoId(): ?int
+    {
+        return $this->c_paises
+            ->firstWhere('clave', SolicitudCatalogos::PAIS_MEXICO)
             ?->id;
     }
 
@@ -246,6 +288,8 @@ class SolicitudesEdit extends Component
             'visitanteForm.lugar' => ['nullable', 'string', 'max:255'],
             'visitanteForm.fecha_inicio' => ['nullable', 'date'],
             'visitanteForm.fecha_fin' => ['nullable', 'date', 'after_or_equal:visitanteForm.fecha_inicio'],
+        ], [
+            'visitanteForm.fecha_fin.after_or_equal' => 'La fecha final del visitante debe ser igual o posterior a la fecha inicial.',
         ]);
 
         $identityId = $this->actorIdentityId(allowManageWithoutIdentity: true);
@@ -364,7 +408,7 @@ class SolicitudesEdit extends Component
             return;
         }
 
-        if ($paso === 2 && ! $this->solicitud->requiere_recursos) {
+        if ($paso === 2 && ! $this->form['requiere_recursos']) {
             return;
         }
 
@@ -379,7 +423,7 @@ class SolicitudesEdit extends Component
 
         $this->paso--;
 
-        if ($this->paso === 2 && ! $this->solicitud->requiere_recursos) {
+        if ($this->paso === 2 && ! $this->form['requiere_recursos']) {
             $this->paso = 1;
         }
     }
@@ -392,7 +436,7 @@ class SolicitudesEdit extends Component
 
         $this->paso++;
 
-        if ($this->paso === 2 && ! $this->solicitud->requiere_recursos) {
+        if ($this->paso === 2 && ! $this->form['requiere_recursos']) {
             $this->paso = 3;
         }
     }
@@ -485,7 +529,7 @@ class SolicitudesEdit extends Component
     {
         $this->authorize('update', $this->solicitud);
 
-        if (! $this->solicitud->requiere_recursos) {
+        if (! $this->form['requiere_recursos']) {
             $this->recursosForm = [];
         }
 
