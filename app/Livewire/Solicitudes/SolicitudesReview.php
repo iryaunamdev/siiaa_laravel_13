@@ -15,6 +15,9 @@ class SolicitudesReview extends Component
 
     public ?string $observaciones_sacad = null;
 
+    public bool $confirmApproveModal = false;
+
+    public bool $confirmRejectModal = false;
 
     public function mount(Solicitud $solicitud): void
     {
@@ -34,6 +37,34 @@ class SolicitudesReview extends Component
         $this->observaciones_sacad = $this->solicitud->observaciones_sacad;
     }
 
+    public function confirmarAprobar(): void
+    {
+        $this->authorize('approve', $this->solicitud);
+
+        $this->confirmApproveModal = true;
+    }
+
+    public function cancelarAprobar(): void
+    {
+        $this->confirmApproveModal = false;
+    }
+
+    public function confirmarRechazar(): void
+    {
+        $this->authorize('reject', $this->solicitud);
+
+        $this->validate([
+            'observaciones_sacad' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $this->confirmRejectModal = true;
+    }
+
+    public function cancelarRechazar(): void
+    {
+        $this->confirmRejectModal = false;
+    }
+
     public function aprobar(SolicitudServiceInterface $solicitudService)
     {
         $this->authorize('approve', $this->solicitud);
@@ -51,6 +82,8 @@ class SolicitudesReview extends Component
             $identityId,
             $validated['observaciones_sacad'] ?? null
         );
+
+        $this->confirmApproveModal = false;
 
         $this->dispatch(
             'toast',
@@ -78,6 +111,8 @@ class SolicitudesReview extends Component
             $identityId,
             $validated['observaciones_sacad']
         );
+
+        $this->confirmRejectModal = false;
 
         $this->dispatch(
             'toast',
