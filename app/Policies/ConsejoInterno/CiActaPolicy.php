@@ -10,9 +10,9 @@ class CiActaPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('ci.actas_manage')
-            || $user->can('ci.actas_evaluate')
-            || $user->can('ci.actas_view');
+        return $user->can('ci.actas_manage') ||
+            $user->can('ci.actas_evaluate') ||
+            $user->can('ci.actas_view');
     }
 
     public function view(User $user, CiActa $acta): bool
@@ -22,8 +22,8 @@ class CiActaPolicy
         }
 
         if (
-            $user->can('ci.actas_view')
-            && $acta->estatus === ConsejoInternoCatalogos::ACTA_PUBLICADA
+            $user->can('ci.actas_view') &&
+            $acta->estatus === ConsejoInternoCatalogos::ACTA_PUBLICADA
         ) {
             return true;
         }
@@ -53,14 +53,26 @@ class CiActaPolicy
 
     public function evaluate(User $user, CiActa $acta): bool
     {
-        if (! $user->can('ci.actas_evaluate')) {
-            return false;
-        }
-
         if ($acta->estatus !== ConsejoInternoCatalogos::ACTA_BORRADOR) {
             return false;
         }
 
+        /*
+         * Los administradores técnicos pueden evaluar sin identidad
+         * institucional activa.
+         */
+        if ($user->hasAnyRole(['admin-sistema', 'super-admin'])) {
+            return true;
+        }
+
+        if (!$user->can('ci.actas_evaluate')) {
+            return false;
+        }
+
+        /*
+         * Un acta independiente puede ser evaluada sin pertenecer
+         * a una reunión.
+         */
         if (blank($acta->reunion_id)) {
             return true;
         }
@@ -70,14 +82,14 @@ class CiActaPolicy
 
     public function viewInternal(User $user, CiActa $acta): bool
     {
-        return $user->can('ci.actas_manage')
-            || $this->evaluate($user, $acta);
+        return $user->can('ci.actas_manage') ||
+            $this->evaluate($user, $acta);
     }
 
     public function viewPublished(User $user, CiActa $acta): bool
     {
-        return $user->can('ci.actas_view')
-            && $acta->estatus === ConsejoInternoCatalogos::ACTA_PUBLICADA;
+        return $user->can('ci.actas_view') &&
+            $acta->estatus === ConsejoInternoCatalogos::ACTA_PUBLICADA;
     }
 
     private function participaEnReunionLigada(CiActa $acta): bool
@@ -88,7 +100,8 @@ class CiActaPolicy
             return false;
         }
 
-        return $acta->reunion
+        return $acta
+            ->reunion
             ?->participantes()
             ->where('identity_link_id', $identityId)
             ->exists() ?? false;
