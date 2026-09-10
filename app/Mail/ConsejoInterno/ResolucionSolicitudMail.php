@@ -34,6 +34,9 @@ class ResolucionSolicitudMail extends Mailable
         );
     }
 
+    /**
+     * @return array<int, Attachment>
+     */
     public function attachments(): array
     {
         return collect($this->notificacion->adjuntos ?? [])
