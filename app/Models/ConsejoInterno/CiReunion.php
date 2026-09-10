@@ -77,6 +77,14 @@ class CiReunion extends Model
         return $this->hasMany(CiDocumento::class, 'reunion_id');
     }
 
+    public function notificaciones(): HasMany
+    {
+        return $this->hasMany(
+            CiNotificacion::class,
+            'reunion_id'
+        )->latest('id');
+    }
+
     public function actas(): HasMany
     {
         return $this->hasMany(CiActa::class, 'reunion_id');

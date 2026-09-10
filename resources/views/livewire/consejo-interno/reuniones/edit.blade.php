@@ -695,6 +695,133 @@
                 </table>
             </div>
         </div>
+
+        <!-- Historial de correos -->
+        <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <div>
+                <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    Historial de correos
+                </h2>
+
+                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    Notificaciones generadas por resoluciones del Consejo Interno.
+                </p>
+            </div>
+
+            <div class="mt-5 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
+                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
+                    <thead class="bg-zinc-50 dark:bg-zinc-800/70">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-500">
+                                Solicitud
+                            </th>
+
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-500">
+                                Destinatario
+                            </th>
+
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-500">
+                                Estado
+                            </th>
+
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-500">
+                                Envío
+                            </th>
+
+                            <th class="px-4 py-3 text-right text-xs font-semibold uppercase text-zinc-500">
+                                Acción
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+                        @forelse ($reunion->notificaciones as $notificacion)
+                            <tr wire:key="notificacion-{{ $notificacion->id }}">
+                                <td class="px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">
+                                    {{ $notificacion->solicitud?->folio ?? 'Sin folio' }}
+
+                                    <div class="mt-1 text-xs text-zinc-500">
+                                        {{ $notificacion->resolucion }}
+                                    </div>
+
+                                    @if ($notificacion->reenvio_de_id)
+                                        <div class="mt-1 text-xs text-zinc-400">
+                                            Reenvío de #{{ $notificacion->reenvio_de_id }}
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <div class="text-sm text-zinc-900 dark:text-zinc-100">
+                                        {{ $notificacion->destinatario_nombre ?? 'Sin nombre' }}
+                                    </div>
+
+                                    <div class="text-xs text-zinc-500">
+                                        {{ $notificacion->destinatario_email }}
+                                    </div>
+
+                                    @if ($notificacion->es_prueba)
+                                        <div class="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                            PRUEBA
+                                        </div>
+
+                                        <div class="text-xs text-zinc-500">
+                                            Real:
+                                            {{ $notificacion->destinatario_real_email ?? 'No disponible' }}
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <span
+                                        class="inline-flex rounded-full bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                                        {{ $notificacion->estatus }}
+                                    </span>
+
+                                    @if ($notificacion->error)
+                                        <p class="mt-2 max-w-sm text-xs text-red-600 dark:text-red-400">
+                                            {{ $notificacion->error }}
+                                        </p>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3 text-xs text-zinc-500 dark:text-zinc-400">
+                                    <div>
+                                        Encolado:
+                                        {{ $notificacion->queued_at?->format('d/m/Y H:i') ?? '—' }}
+                                    </div>
+
+                                    <div>
+                                        Enviado:
+                                        {{ $notificacion->sent_at?->format('d/m/Y H:i') ?? '—' }}
+                                    </div>
+
+                                    <div>
+                                        Intentos:
+                                        {{ $notificacion->intentos }}
+                                    </div>
+                                </td>
+
+                                <td class="px-4 py-3 text-right">
+                                    <button type="button" wire:click="reenviarNotificacion({{ $notificacion->id }})"
+                                        wire:confirm="¿Deseas reenviar esta notificación?"
+                                        class="text-sm font-medium text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
+                                        Reenviar
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5"
+                                    class="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                                    No hay notificaciones registradas.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     @else
         <div
             class="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 dark:border-zinc-700 dark:bg-zinc-900/60">

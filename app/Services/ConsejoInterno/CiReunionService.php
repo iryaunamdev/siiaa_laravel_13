@@ -298,8 +298,14 @@ class CiReunionService implements CiReunionServiceInterface
         ?int $identityId
     ): void {
         DB::transaction(function () use ($punto, $resolucion, $identityId) {
-            if (!in_array($resolucion, ConsejoInternoCatalogos::resolucionesFinales(), true)) {
-                throw new \InvalidArgumentException('La resolución indicada no es válida.');
+            if (! in_array(
+                $resolucion,
+                ConsejoInternoCatalogos::resolucionesFinales(),
+                true
+            )) {
+                throw new \InvalidArgumentException(
+                    'La resolución indicada no es válida.'
+                );
             }
 
             $punto->forceFill([
@@ -310,28 +316,48 @@ class CiReunionService implements CiReunionServiceInterface
 
             $punto->loadMissing([
                 'tipoPunto',
+                'reunion.documentos',
+                'solicitud.owner',
+                'solicitud.tipoSolicitud',
                 'solicitud.estatus',
             ]);
 
-            if (!$punto->esSolicitud() || !$punto->solicitud) {
+            if (! $punto->esSolicitud() || ! $punto->solicitud) {
                 return;
             }
 
-            match ($resolucion) {
-                ConsejoInternoCatalogos::RESOLUCION_ACEPTAR => $this->aprobarSolicitudPorConsejoInterno(
+            $debeNotificar = match ($resolucion) {
+                ConsejoInternoCatalogos::RESOLUCION_ACEPTAR =>
+                $this->aprobarSolicitudPorConsejoInterno(
                     $punto->solicitud,
                     $identityId
                 ),
 
-                ConsejoInternoCatalogos::RESOLUCION_RECHAZAR => $this->rechazarSolicitudPorConsejoInterno(
+                ConsejoInternoCatalogos::RESOLUCION_RECHAZAR =>
+                $this->rechazarSolicitudPorConsejoInterno(
                     $punto->solicitud,
                     $identityId
                 ),
 
-                ConsejoInternoCatalogos::RESOLUCION_DISCUTIR => null,
+                ConsejoInternoCatalogos::RESOLUCION_DISCUTIR => false,
 
-                default => null,
+                default => false,
             };
+
+            if (! $debeNotificar) {
+                return;
+            }
+
+            $this->notificacionService->registrarResolucionSolicitud(
+                $punto->fresh([
+                    'tipoPunto',
+                    'reunion.documentos',
+                    'solicitud.owner',
+                    'solicitud.tipoSolicitud',
+                    'solicitud.estatus',
+                ]),
+                $identityId
+            );
         });
     }
 
@@ -339,41 +365,52 @@ class CiReunionService implements CiReunionServiceInterface
     private function aprobarSolicitudPorConsejoInterno(
         Solicitud $solicitud,
         ?int $identityId
-    ): void {
-        if (!$solicitud->estaEnviada()) {
-            return;
+    ): bool {
+        if (! $solicitud->estaEnviada()) {
+            return false;
         }
 
         $payload = [
-            'estatus_id' => $this->solicitudEstatusIdPorClave(SolicitudCatalogos::ESTATUS_APROBADA_CI),
+            'estatus_id' => $this->solicitudEstatusIdPorClave(
+                SolicitudCatalogos::ESTATUS_APROBADA_CI
+            ),
             'approved_at' => now(),
             'approved_by' => $identityId,
         ];
 
-        if (!$solicitud->requiere_recursos) {
-            $payload['estatus_id'] = $this->solicitudEstatusIdPorClave(SolicitudCatalogos::ESTATUS_CERRADA);
+        if (! $solicitud->requiere_recursos) {
+            $payload['estatus_id'] = $this->solicitudEstatusIdPorClave(
+                SolicitudCatalogos::ESTATUS_CERRADA
+            );
+
             $payload['closed_at'] = now();
             $payload['closed_by'] = $identityId;
         }
 
         $solicitud->forceFill($payload)->save();
+
+        return true;
     }
 
     private function rechazarSolicitudPorConsejoInterno(
         Solicitud $solicitud,
         ?int $identityId
-    ): void {
-        if (!$solicitud->estaEnviada()) {
-            return;
+    ): bool {
+        if (! $solicitud->estaEnviada()) {
+            return false;
         }
 
         $solicitud->forceFill([
-            'estatus_id' => $this->solicitudEstatusIdPorClave(SolicitudCatalogos::ESTATUS_CERRADA),
+            'estatus_id' => $this->solicitudEstatusIdPorClave(
+                SolicitudCatalogos::ESTATUS_CERRADA
+            ),
             'rejected_at' => now(),
             'rejected_by' => $identityId,
             'closed_at' => now(),
             'closed_by' => $identityId,
         ])->save();
+
+        return true;
     }
 
     private function solicitudEstatusIdPorClave(string $clave): int

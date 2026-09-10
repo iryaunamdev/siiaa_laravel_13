@@ -8,6 +8,8 @@ use App\Services\ConsejoInterno\CiReunionServiceInterface;
 use App\Support\ConsejoInterno\ConsejoInternoCatalogos;
 use App\Models\Solicitudes\Solicitud;
 use App\Support\Solicitudes\SolicitudCatalogos;
+use App\Models\ConsejoInterno\CiNotificacion;
+use App\Services\ConsejoInterno\CiNotificacionServiceInterface;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -46,11 +48,21 @@ class Edit extends Component
 
             $this->reunion = $this->reunion->load([
                 'participantes.identidad',
+
                 'puntosSolicitud.solicitud.owner',
                 'puntosSolicitud.solicitud.tipoSolicitud',
                 'puntosSolicitud.solicitud.estatus',
-                'puntosOtros',
+                'puntosSolicitud.evaluaciones.evaluacion',
+                'puntosSolicitud.evaluaciones.identidad',
+                'puntosSolicitud.resolvedBy',
+
+                'puntosOtros.evaluaciones.evaluacion',
+                'puntosOtros.evaluaciones.identidad',
+                'puntosOtros.resolvedBy',
+
                 'documentos.uploadedBy',
+
+                'notificaciones.solicitud',
             ])->loadCount([
                 'participantes',
                 'puntosSolicitud',
@@ -137,6 +149,8 @@ class Edit extends Component
             'puntosOtros.resolvedBy',
 
             'documentos.uploadedBy',
+
+            'notificaciones.solicitud',
         ])->loadCount([
             'participantes',
             'puntosSolicitud',
@@ -406,11 +420,50 @@ class Edit extends Component
 
             session()->flash(
                 'status',
-                'Resolución registrada correctamente. Si el punto corresponde a una solicitud, se actualizó y cerró según las reglas de recursos.'
+                'Resolución registrada correctamente. Si corresponde, la solicitud fue actualizada y su notificación quedó encolada.'
             );
         } catch (\InvalidArgumentException $exception) {
             $this->addError("resoluciones.{$puntoId}", $exception->getMessage());
         }
+    }
+
+    public function reenviarNotificacion(
+        int $notificacionId,
+        CiNotificacionServiceInterface $notificacionService
+    ): void {
+        if (! $this->reunion) {
+            return;
+        }
+
+        $this->authorize('update', $this->reunion);
+
+        $notificacion = CiNotificacion::query()
+            ->where('reunion_id', $this->reunion->id)
+            ->findOrFail($notificacionId);
+
+        $identityId = currentIdentityId();
+
+        if (
+            blank($identityId)
+            && ! $this->usuarioPuedeOperarSinIdentidad()
+        ) {
+            abort(
+                403,
+                'No se encontró una identidad institucional activa.'
+            );
+        }
+
+        $notificacionService->reenviar(
+            $notificacion,
+            $identityId
+        );
+
+        $this->cargarReunion();
+
+        session()->flash(
+            'status',
+            'La notificación fue encolada nuevamente.'
+        );
     }
 
     private function cargarResoluciones(): void
