@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Services\Mail\MailService;
 use App\Services\Mail\MailServiceInterface;
+use App\Services\ConsejoInterno\CiActaService;
+use App\Services\ConsejoInterno\CiActaServiceInterface;
 use App\Services\ConsejoInterno\CiNotificacionService;
 use App\Services\ConsejoInterno\CiNotificacionServiceInterface;
 use App\Services\Notifications\NotificationService;
@@ -46,6 +48,11 @@ class ServiceBindingsProvider extends ServiceProvider
         $this->app->singleton(
             CiReunionServiceInterface::class,
             CiReunionService::class
+        );
+
+        $this->app->singleton(
+            CiActaServiceInterface::class,
+            CiActaService::class
         );
     }
 }
