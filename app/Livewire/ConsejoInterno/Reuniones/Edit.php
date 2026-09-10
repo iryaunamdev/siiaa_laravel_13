@@ -63,6 +63,8 @@ class Edit extends Component
                 'documentos.uploadedBy',
 
                 'notificaciones.solicitud',
+
+                'concluidaPor',
             ])->loadCount([
                 'participantes',
                 'puntosSolicitud',
@@ -480,6 +482,42 @@ class Edit extends Component
                 $this->resoluciones[$punto->id] = $punto->resolucion;
             }
         }
+    }
+
+    public function concluirReunion(
+        CiReunionServiceInterface $reunionService
+    ): void {
+        if (! $this->reunion) {
+            return;
+        }
+
+        $this->authorize('conclude', $this->reunion);
+
+        $identityId = currentIdentityId();
+
+        if (
+            blank($identityId)
+            && ! $this->usuarioPuedeOperarSinIdentidad()
+        ) {
+            abort(
+                403,
+                'No se encontró una identidad institucional activa.'
+            );
+        }
+
+        $reunionService->concluir(
+            $this->reunion,
+            $identityId
+        );
+
+        $this->cargarReunion();
+
+        $this->estatus = $this->reunion->estatus;
+
+        session()->flash(
+            'status',
+            'La reunión fue concluida correctamente.'
+        );
     }
 
     public function render()

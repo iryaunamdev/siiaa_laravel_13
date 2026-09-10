@@ -94,6 +94,7 @@ class Show extends Component
             'puntosOtros.resolvedBy',
 
             'documentos.uploadedBy',
+            'concluidaPor',
         ])->loadCount([
             'participantes',
             'puntosSolicitud',

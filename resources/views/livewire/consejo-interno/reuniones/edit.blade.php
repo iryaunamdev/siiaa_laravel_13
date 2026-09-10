@@ -24,6 +24,14 @@
                 class="inline-flex items-center justify-center rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">
                 Volver al listado
             </a>
+
+            @if ($reunion->estaEnProceso())
+                <button type="button" wire:click="concluirReunion"
+                    wire:confirm="¿Deseas concluir esta reunión? Después quedará registrada como CONCLUIDA."
+                    class="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+                    Concluir reunión
+                </button>
+            @endif
         </div>
     </div>
 
@@ -822,6 +830,32 @@
                 </table>
             </div>
         </div>
+
+        <!-- Info conclusion -->
+        @if ($reunion?->estaConcluida())
+            <div
+                class="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-400">
+                <div>
+                    <span class="font-medium">Reunión concluida</span>
+                </div>
+
+                @if ($reunion->concluida_at)
+                    <div class="mt-1">
+                        Fecha:
+                        {{ $reunion->concluida_at->format('d/m/Y H:i') }}
+                    </div>
+                @endif
+
+                <div class="mt-1">
+                    Por:
+                    @if ($reunion->concluida_by)
+                        {{ $reunion->concluidaPor?->fullname() ?? 'Identidad no disponible' }}
+                    @else
+                        ADMIN
+                    @endif
+                </div>
+            </div>
+        @endif
     @else
         <div
             class="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 dark:border-zinc-700 dark:bg-zinc-900/60">

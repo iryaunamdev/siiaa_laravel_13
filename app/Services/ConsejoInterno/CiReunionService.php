@@ -422,4 +422,22 @@ class CiReunionService implements CiReunionServiceInterface
             ->where('clave', $clave)
             ->value('id');
     }
+
+    public function concluir(
+        CiReunion $reunion,
+        ?int $identityId
+    ): void {
+        DB::transaction(function () use ($reunion, $identityId) {
+            if ($reunion->estaConcluida()) {
+                return;
+            }
+
+            $reunion->forceFill([
+                'estatus' => ConsejoInternoCatalogos::REUNION_CONCLUIDA,
+                'concluida_at' => now(),
+                'concluida_by' => $identityId,
+                'updated_by' => $identityId,
+            ])->save();
+        });
+    }
 }
