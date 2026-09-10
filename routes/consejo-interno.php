@@ -2,17 +2,18 @@
 
 /*
  * use App\Livewire\ConsejoInterno\Index as ConsejoInternoIndex;
- * use App\Livewire\ConsejoInterno\Actas\Edit as ActasEdit;
+ *
  * use App\Livewire\ConsejoInterno\Actas\Show as ActasShow;
  * use App\Livewire\Actas\Index as ActasPublicIndex;
  * use App\Livewire\Actas\Show as ActasPublicShow;
  * use App\Http\Controllers\ConsejoInterno\ActaPrintController;
  */
 
+use App\Livewire\ConsejoInterno\Actas\Edit as ActasEdit;
+use App\Livewire\ConsejoInterno\Actas\Index as ActasIndex;
 use App\Livewire\ConsejoInterno\Reuniones\Edit as ReunionesEdit;
 use App\Livewire\ConsejoInterno\Reuniones\Index as ReunionesIndex;
 use App\Livewire\ConsejoInterno\Reuniones\Show as ReunionesShow;
-use App\Livewire\ConsejoInterno\Actas\Index as ActasIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,6 +52,14 @@ Route::middleware(['auth', 'verified', '2fa.configured', 'identity.resolve'])
         // Actas
         Route::get('/actas', ActasIndex::class)
             ->name('actas.index');
+
+        Route::get('/actas/crear', ActasEdit::class)
+            ->middleware('permission:ci.actas_manage')
+            ->name('actas.create');
+
+        Route::get('/actas/{acta}/editar', ActasEdit::class)
+            ->middleware('can:update,acta')
+            ->name('actas.edit');
     });
 
 /*
