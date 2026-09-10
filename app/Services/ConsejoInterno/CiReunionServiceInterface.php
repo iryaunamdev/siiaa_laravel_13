@@ -42,4 +42,9 @@ interface CiReunionServiceInterface
         string $resolucion,
         ?int $identityId
     ): void;
+
+    public function concluir(
+        CiReunion $reunion,
+        ?int $identityId
+    ): void;
 }

@@ -16,9 +16,4 @@ interface CiNotificacionServiceInterface
         CiNotificacion $notificacion,
         ?int $identityId
     ): CiNotificacion;
-
-    public function concluir(
-        CiReunion $reunion,
-        ?int $identityId
-    ): void;
 }
