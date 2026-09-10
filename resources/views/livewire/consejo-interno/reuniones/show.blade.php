@@ -5,30 +5,27 @@
                 <h1 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
                     {{ $reunion->titulo }}
                 </h1>
-
-                @if ($reunion->estaConcluida())
-                    <div
-                        class="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-400">
-                        Reunión concluida
-
-                        @if ($reunion->concluida_at)
-                            el {{ $reunion->concluida_at->format('d/m/Y H:i') }}
-                        @endif
-
-                        @if ($reunion->concluida_by)
-                            por {{ $reunion->concluidaPor?->fullname() ?? 'Identidad no disponible' }}
-                        @else
-                            por ADMIN
-                        @endif
-                    </div>
-                @else
-                    <span
-                        class="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                        {{ str_replace('_', ' ', $reunion->estatus) }}
-                    </span>
-                @endif
+                <span
+                    class="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                    {{ str_replace('_', ' ', $reunion->estatus) }}
+                </span>
             </div>
+            @if ($reunion->estaConcluida())
+                <div
+                    class="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-400">
+                    Reunión concluida
 
+                    @if ($reunion->concluida_at)
+                        el {{ $reunion->concluida_at->format('d/m/Y H:i') }}
+                    @endif
+
+                    @if ($reunion->concluida_by)
+                        por {{ $reunion->concluidaPor?->fullname() ?? 'Identidad no disponible' }}
+                    @else
+                        por ADMIN
+                    @endif
+                </div>
+            @endif
 
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 Expediente operativo de la reunión del Consejo Interno.
