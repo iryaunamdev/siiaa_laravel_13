@@ -34,6 +34,9 @@
                 <x-ui.menu.item :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.index')">
                     Solicitudes
                 </x-ui.menu.item>
+                <x-ui.menu.item :href="route('consejo-interno.reuniones.index')" :active="request()->routeIs('consejo-interno.reuniones.index')">
+                    Reuniones de Consejo Interno
+                </x-ui.menu.item>
             </x-ui.menu>
 
 

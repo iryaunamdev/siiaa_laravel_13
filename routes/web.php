@@ -131,3 +131,4 @@ Route::get('/test-identity', function () {
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/solicitudes.php';
+require __DIR__ . '/consejo-interno.php';

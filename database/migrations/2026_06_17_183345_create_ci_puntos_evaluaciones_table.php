@@ -16,8 +16,9 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreignId('identity_link_id')
+                ->nullable()
                 ->constrained('identity_links')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table->foreignId('evaluacion_id')
                 ->constrained('catalogos_items')

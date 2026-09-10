@@ -2,16 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
 use App\Services\Mail\MailService;
 use App\Services\Mail\MailServiceInterface;
-
 use App\Services\Notifications\NotificationService;
 use App\Services\Notifications\NotificationServiceInterface;
-
 use App\Services\Solicitudes\SolicitudService;
 use App\Services\Solicitudes\SolicitudServiceInterface;
+use App\Services\ConsejoInterno\CiReunionService;
+use App\Services\ConsejoInterno\CiReunionServiceInterface;
+use Illuminate\Support\ServiceProvider;
 
 class ServiceBindingsProvider extends ServiceProvider
 {
@@ -30,6 +29,11 @@ class ServiceBindingsProvider extends ServiceProvider
         $this->app->singleton(
             MailServiceInterface::class,
             MailService::class
+        );
+
+        $this->app->singleton(
+            CiReunionServiceInterface::class,
+            CiReunionService::class
         );
     }
 }

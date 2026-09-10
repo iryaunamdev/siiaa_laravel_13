@@ -8,9 +8,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use App\Models\ConsejoInterno\CiActa;
+use App\Models\ConsejoInterno\CiPunto;
+use App\Models\ConsejoInterno\CiReunion;
+use App\Policies\ConsejoInterno\CiActaPolicy;
+use App\Policies\ConsejoInterno\CiPuntoPolicy;
+use App\Policies\ConsejoInterno\CiReunionPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
+    protected $policies = [
+        CiReunion::class => CiReunionPolicy::class,
+        CiPunto::class   => CiPuntoPolicy::class,
+        CiActa::class    => CiActaPolicy::class,
+    ];
     /**
      * Register any application services.
      */

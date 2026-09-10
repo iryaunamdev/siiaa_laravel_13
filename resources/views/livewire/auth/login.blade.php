@@ -1,6 +1,6 @@
 <x-layouts::auth :title="__('Log in')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+    <div class="flex flex-col gap-6 mt-4">
+        <x-auth-header :title="__('Ingresa a tu cuenta')" :description="__('Utiliza tu cuenta de la Red IRyA para acceder')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -9,28 +9,28 @@
             @csrf
 
             <!-- Username -->
-            <flux:input name="username" :label="__('Nombre de usuario')" :value="old('username')" type="text" required
-                autofocus autocomplete="username" placeholder="Nombre de usuario (red IRyA)" />
+            <x-ui.input name="username" :label="__('Nombre de usuario')" :value="old('username')" type="text" required autofocus
+                autocomplete="username" placeholder="Nombre de usuario (red IRyA)" />
 
             <!-- Password -->
             <div class="relative">
-                <flux:input name="password" :label="__('Password')" type="password" required
-                    autocomplete="current-password" :placeholder="__('Password')" viewable />
+                <x-ui.input name="password" :label="__('Contraseña')" type="password" required autocomplete="current-password"
+                    :placeholder="__('Contraseña')" viewable />
 
                 @if (Route::has('password.request'))
                     <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
-                        {{ __('Forgot your password?') }}
+                        {{ __('Olvidó su conraseña?') }}
                     </flux:link>
                 @endif
             </div>
 
             <!-- Remember Me -->
-            <flux:checkbox name="remember" :label="__('Remember me')" :checked="old('remember')" />
+            <xcheckbox name="remember" :label="__('Recordarme')" :checked="old('remember')" />
 
             <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full" data-test="login-button">
-                    {{ __('Log in') }}
-                </flux:button>
+                <x-ui.button variant="primary" type="submit" class="w-full" data-test="login-button">
+                    {{ __('Ingresar') }}
+                </x-ui.button>
             </div>
         </form>
 
